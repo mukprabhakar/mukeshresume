@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>940. Distinct Subsequences II Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Count the number of distinct non-empty subsequences of a string modulo 10^9 + 7 using 1D dynamic programming and a 26-letter running count replace strategy." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/distinct-subsequences-ii" />
+  
+  <meta property="og:title" content="940. Distinct Subsequences II Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Count the number of distinct non-empty subsequences of a string modulo 10^9 + 7 using 1D dynamic programming and a 26-letter running count replace strategy." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/distinct-subsequences-ii" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/distinct-subsequences-ii';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">940. Distinct Subsequences II</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Hard</strong> | Published on <strong>2026-09-07</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This problem is a different flavor of "count subsequences" than #115 — here there's only <strong>one</strong> string, and the whole challenge is <strong>avoiding double-counting duplicates</strong>. It introduces a new, very elegant DP trick. Let's build it from zero.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're given a single string <em></em>INLINE<em>CODE</em>0<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A <strong>subsequence</strong> is what you get by deleting zero or more characters from <em></em>INLINE<em>CODE</em>1<em></em> (without rearranging what's left) — so the remaining characters still appear in their original left-to-right order.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Different <em>positions</em> deleted can sometimes produce the exact <strong>same resulting string</strong>. For example, in <em></em>INLINE<em>CODE</em>2<em></em>, picking "the <em></em>INLINE<em>CODE</em>3<em></em> at position 0" gives you the string <em></em>INLINE<em>CODE</em>4<em></em>, and picking "the <em></em>INLINE<em>CODE</em>5<em></em> at position 2" <em>also</em> gives you the string <em></em>INLINE<em>CODE</em>6<em></em> — these are the <strong>same subsequence value</strong>, even though they came from different positions.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Your job: count how many <strong>distinct</strong> (i.e., different-looking) non-empty subsequence strings can be formed from <em></em>INLINE<em>CODE</em>7<em></em> — counting each unique resulting string <strong>only once</strong>, no matter how many different ways there are to produce it.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since this count can get huge, return it <strong>modulo <em></em>INLINE<em>CODE</em>8<em></em></strong> (a big prime number used to keep the answer within normal integer range).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> a string <em></em>INLINE<em>CODE</em>9<em></em>.
+</em> <strong>What to find:</strong> the number of <em>distinct</em> non-empty subsequence strings.
+<em> <strong>What to return:</strong> that count, mod <em></em>INLINE<em>CODE</em>10<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a bag of scrabble tiles laid out in a row, spelling <em></em>INLINE<em>CODE</em>11<em></em>. You can pick any subset of tiles (keeping their left-to-right order) to spell a "mini-word." The catch: if two different picks spell out the exact same mini-word (like picking the 1st tile vs. the 3rd tile, both letter <em></em>INLINE<em>CODE</em>12<em></em>), that only counts as <strong>one</strong> distinct mini-word in your final tally, not two. You want the total number of genuinely </em>different-looking<em> mini-words you could spell this way (not counting the empty word).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Subsequence (recap from #115)</h3>
+</em> <strong>Concept:</strong> Delete some characters, keep the rest in order.
+<em> <strong>Why we need it:</strong> Same core definition as before — but now we're comparing subsequences to each other for </em>equality<em>, not comparing against a fixed target string.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Distinctness / Deduplication</h3>
+</em> <strong>Concept:</strong> Counting only <em>unique</em> results, even when multiple different processes could produce the same result.
+<em> <strong>Example:</strong> If both "pick position 0" and "pick position 2" give you the string <em></em>INLINE<em>CODE</em>13<em></em>, that's one distinct result, not two.
+</em> <strong>Why we need it:</strong> This is the entire crux of the problem — #115 counted <em>ways</em>, this problem counts <em>distinct results</em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Modulo Arithmetic</h3>
+<em> <strong>Concept:</strong> <em></em>INLINE<em>CODE</em>14<em></em> gives the remainder when <em></em>INLINE<em>CODE</em>15<em></em> is divided by <em></em>INLINE<em>CODE</em>16<em></em>. When numbers in a calculation could get astronomically large, we take <em></em>INLINE<em>CODE</em>17<em></em> at every step to keep numbers small and manageable, while still being able to reconstruct "the answer, if it were computed exactly, then reduced mod m at the very end" — because modulo is compatible with addition (<em></em>INLINE<em>CODE</em>18<em></em>).
+</em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>19<em></em>. Also, <em></em>INLINE<em>CODE</em>20<em></em> — same answer either way.
+<em> <strong>Why we need it:</strong> The true count of distinct subsequences can grow exponentially with string length (up to 2000 characters!) — far too big for a normal integer — so we must take <em></em>INLINE<em>CODE</em>21<em></em> throughout, as the problem explicitly asks.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array indexed by letter (a "26-box" array)</h3>
+</em> <strong>Concept:</strong> Since there are only 26 lowercase English letters, we can use a small fixed-size array of length 26, where index <em></em>INLINE<em>CODE</em>22<em></em> represents <em></em>INLINE<em>CODE</em>23<em></em>, index <em></em>INLINE<em>CODE</em>24<em></em> represents <em></em>INLINE<em>CODE</em>25<em></em>, ..., index <em></em>INLINE<em>CODE</em>26<em></em> represents <em></em>INLINE<em>CODE</em>27<em></em>. We convert a character to its index using <em></em>INLINE<em>CODE</em>28<em></em>.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>29<em></em>, so <em></em>INLINE<em>CODE</em>30<em></em> maps to index 2.
+</em> <strong>Why we need it:</strong> We'll track, for <em>each letter</em>, some running count associated specifically with subsequences that <em>end</em> in that letter.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Dynamic Programming (recap from #115), applied differently here</h3>
+<em> <strong>Concept:</strong> Build up the answer incrementally, one character of <em></em>INLINE<em>CODE</em>31<em></em> at a time, using previously-computed smaller results — but this time, our "table" isn't 2D (indexed by two string positions); it's a small 1D array of size 26 (indexed by ending letter), updated as we scan through <em></em>INLINE<em>CODE</em>32<em></em>.
+</em> <strong>Why we need it:</strong> As we'll see, tracking "how many distinct subsequences end in each specific letter" turns out to be exactly the right piece of information to carry forward.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 2:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Characters: index 0 = <em></em>INLINE<em>CODE</em>33<em></em>, index 1 = <em></em>INLINE<em>CODE</em>34<em></em>, index 2 = <em></em>INLINE<em>CODE</em>35<em></em>.
+</em> We want: every distinct non-empty string that can be formed by deleting some characters (keeping order), counted once each.
+<em> Why does having <strong>two</strong> <em></em>INLINE<em>CODE</em>36<em></em>s matter? Because it creates the </em>opportunity<em> for duplicate results (like getting <em></em>INLINE<em>CODE</em>37<em></em> from either position 0 or position 2) — and it's exactly this duplication that the algorithm must correctly avoid over-counting.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>38<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The 6 distinct subsequences are: <em></em>INLINE<em>CODE</em>39<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Notice <em></em>INLINE<em>CODE</em>40<em></em> appears here <strong>once</strong> in this list, even though you could form the string <em></em>INLINE<em>CODE</em>41<em></em> in <em>two</em> different ways (using position 0's <em></em>INLINE<em>CODE</em>42<em></em>, or position 2's <em></em>INLINE<em>CODE</em>43<em></em>). We only count it once.
+<em> Similarly, <em></em>INLINE<em>CODE</em>44<em></em> can be formed in only one way here (positions 0 and 2 — there's no other pair of <em></em>INLINE<em>CODE</em>45<em></em>s), so no duplication issue there.
+</em> The <em>total number of raw ways</em> to form subsequences (counting position-based ways separately, like problem #115's spirit) would be larger than 6 — but we specifically want <em>distinct resulting strings</em>, which is smaller.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually build up the distinct subsequences of <em></em>INLINE<em>CODE</em>46<em></em>, one character at a time, and see how a clean formula emerges.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>After processing just <em></em>INLINE<em>CODE</em>47<em></em> (first character):</strong>
+Distinct non-empty subsequences so far: <em></em>INLINE<em>CODE</em>48<em></em>. Count = 1.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>After processing <em></em>INLINE<em>CODE</em>49<em></em> (first two characters):</strong>
+Every subsequence we can form now either (a) doesn't use this new <em></em>INLINE<em>CODE</em>50<em></em> at all (so it's one of our old subsequences: <em></em>INLINE<em>CODE</em>51<em></em>), or (b) uses this new <em></em>INLINE<em>CODE</em>52<em></em>, either as "just <em></em>INLINE<em>CODE</em>53<em></em> alone" or as "some old subsequence, with <em></em>INLINE<em>CODE</em>54<em></em> appended to its end" (since <em></em>INLINE<em>CODE</em>55<em></em> is the newest, rightmost character, appending it to the end of any previously valid subsequence gives another valid subsequence).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So the <em>new</em> subsequences created by adding <em></em>INLINE<em>CODE</em>56<em></em> are: <em></em>INLINE<em>CODE</em>57<em></em> (b alone) and <em></em>INLINE<em>CODE</em>58<em></em> (appending b to our one existing subsequence <em></em>INLINE<em>CODE</em>59<em></em>).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Combined with the old ones: <em></em>INLINE<em>CODE</em>60<em></em>. Count = 3.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>After processing <em></em>INLINE<em>CODE</em>61<em></em> (all three characters):</strong>
+Now we add the second <em></em>INLINE<em>CODE</em>62<em></em>. Following the same logic: the <em>new</em> subsequences are "this <em></em>INLINE<em>CODE</em>63<em></em> alone" (<em></em>INLINE<em>CODE</em>64<em></em> — but wait, we already have <em></em>INLINE<em>CODE</em>65<em></em> in our set from before!) plus "every existing subsequence with this <em></em>INLINE<em>CODE</em>66<em></em> appended": <em></em>INLINE<em>CODE</em>67<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Here's the crucial subtlety: adding "this <em></em>INLINE<em>CODE</em>68<em></em> alone" would just re-create <em></em>INLINE<em>CODE</em>69<em></em>, which we <strong>already have</strong> — so it does NOT add anything new to our distinct set. But the <em>appending</em> operations (<em></em>INLINE<em>CODE</em>70<em></em>, <em></em>INLINE<em>CODE</em>71<em></em>, <em></em>INLINE<em>CODE</em>72<em></em>) are all brand new distinct strings we haven't seen before.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Combined set: <em></em>INLINE<em>CODE</em>73<em></em>. Count = <strong>6</strong>. ✔️ matches!</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This manual walkthrough reveals the key mechanic: each new character potentially adds "itself alone" PLUS "itself appended to every existing distinct subsequence" — but we must be careful not to double-count when "itself alone" collides with something already present.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> Processing <em></em>INLINE<em>CODE</em>74<em></em> left to right, each new character can extend every subsequence formed so far, plus stand alone by itself.
+</em> <strong>What do I need to find?</strong> The total count of <em>distinct</em> resulting strings.
+<em> <strong>What can I try?</strong> Keep a running set of "all distinct subsequences formed using the prefix of <em></em>INLINE<em>CODE</em>75<em></em> processed so far." When a new character <em></em>INLINE<em>CODE</em>76<em></em> arrives, the new total set = (old set) ∪ ({ch} ∪ {every old subsequence + ch appended}).
+</em> <strong>What happens if I try to literally store all these strings in a Set?</strong> With <em></em>INLINE<em>CODE</em>77<em></em> up to length 2000, the <em>number</em> of distinct subsequences can be enormous (up to close to <em></em>INLINE<em>CODE</em>78<em></em> in the worst case, though duplicates from repeated letters cut this down) — actually storing and comparing full strings would be catastrophically slow and memory-heavy.
+<em> <strong>Can I make it faster?</strong> Yes — notice we don't actually need to know the </em>strings themselves<em>, just the <strong>count</strong>. And here's the beautiful trick: <strong>when a new character <em></em>INLINE<em>CODE</em>79<em></em> arrives, "itself alone" plus "itself appended to every existing subsequence" is EXACTLY equal to <em></em>INLINE<em>CODE</em>80<em></em></strong> — because appending <em></em>INLINE<em>CODE</em>81<em></em> to every existing distinct subsequence produces that many </em>new<em>, still-distinct strings (they all end in <em></em>INLINE<em>CODE</em>82<em></em> now, and everything before the final <em></em>INLINE<em>CODE</em>83<em></em> was already distinct, so the whole new strings remain pairwise distinct from each other), plus the string <em></em>INLINE<em>CODE</em>84<em></em> alone is one more possibility.
+</em> <strong>But what about the double-counting risk (like <em></em>INLINE<em>CODE</em>85<em></em> reappearing) seen in Section 6?</strong> This is the subtle part: if <em></em>INLINE<em>CODE</em>86<em></em> has appeared <strong>before</strong>, then some of "the new strings ending in <em></em>INLINE<em>CODE</em>87<em></em>" might collide with strings we already had <em>ending in <em></em>INLINE<em>CODE</em>88<em></em></em> from an earlier appearance. The fix: track, <strong>for each letter separately</strong>, how many distinct subsequences currently end in that specific letter. When <em></em>INLINE<em>CODE</em>89<em></em> shows up again, the <em>entire</em> previous count of "subsequences ending in <em></em>INLINE<em>CODE</em>90<em></em>" gets <strong>replaced</strong> (not added to) by the new count — because every subsequence that used to end in the <em>old</em> <em></em>INLINE<em>CODE</em>91<em></em> can now be reformed using <em>this newer</em> <em></em>INLINE<em>CODE</em>92<em></em> instead (giving the identical string), so the old count becomes redundant/superseded, not something to add on top of.
+<em> <strong>What information should I remember?</strong> A small array <em></em>INLINE<em>CODE</em>93<em></em>, where <em></em>INLINE<em>CODE</em>94<em></em> = "number of distinct subsequences currently ending in letter <em></em>INLINE<em>CODE</em>95<em></em>." The overall total distinct count is just the sum of all 26 entries.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since actually enumerating and storing every distinct subsequence string would be infeasible for <em></em>INLINE<em>CODE</em>96<em></em> up to length 2000 (astronomically many possible strings), there isn't a </em>reasonable<em> brute force to fully implement here the way earlier problems had one — but let's write a <strong>small-scale conceptual brute force</strong> (correct only for tiny inputs) to firmly ground the correct logic, using an actual <em></em>INLINE<em>CODE</em>97<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Maintain a <em></em>INLINE<em>CODE</em>98<em></em> of all distinct subsequences seen so far. For each new character, generate "itself alone" plus "itself appended to every current set member," and add all of these into the set (a <em></em>INLINE<em>CODE</em>99<em></em> automatically handles deduplication for us).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works (for small inputs):</strong> It directly simulates exactly the process described in Section 6, and relies on <em></em>INLINE<em>CODE</em>100<em></em>'s built-in deduplication to avoid counting the same string twice.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time/space complexity:</strong> Both time and space are proportional to the </em>number of distinct subsequences itself<em>, which can be exponential in the length of <em></em>INLINE<em>CODE</em>101<em></em> — utterly infeasible once <em></em>INLINE<em>CODE</em>102<em></em> gets anywhere close to length 2000 (way too many strings to store, and each string comparison/hashing itself takes time proportional to string length).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>103<em></em> — will hold every distinct subsequence string found so far.
+<em> The <em></em>INLINE<em>CODE</em>104<em></em> loop — processes each character of <em></em>INLINE<em>CODE</em>105<em></em> in order.
+</em> <em></em>INLINE<em>CODE</em>106<em></em> — the new character, by itself, is always a candidate new subsequence.
+<em> The inner <em></em>INLINE<em>CODE</em>107<em></em> loop — for every subsequence already found, we consider appending the new character to its end, forming a new candidate.
+</em> <em></em>INLINE<em>CODE</em>108<em></em> — merge all these candidates into our running set; duplicates (strings already present) are automatically ignored by the <em></em>INLINE<em>CODE</em>109<em></em>.
+<em> <em></em>INLINE<em>CODE</em>110<em></em> — the final count of distinct non-empty subsequences, reduced modulo the required value.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Is the Brute Force Solution Not Ideal?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For a string like <em></em>INLINE<em>CODE</em>111<em></em> with many distinct characters, the number of distinct subsequences roughly doubles with each new distinct character (similar to counting subsets), potentially reaching close to <em></em>INLINE<em>CODE</em>112<em></em> — a number so large it dwarfs the number of atoms in the universe many times over. There's no way to </em>store<em> that many actual strings; we need a method that computes the <strong>count</strong> directly, without ever materializing the strings themselves.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we track just the COUNT, without ever storing actual strings?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes — this is exactly the insight from Section 7:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It seems like we need to track actual subsequence strings to know which ones are duplicates of each other.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Storing strings is completely infeasible at this scale — we need a way to detect and avoid duplicates using </em>only numbers<em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Every distinct subsequence has a unique "last character used" and a unique "identity" before that last character.</strong> So if we track, separately for each of the 26 letters, "how many distinct subsequences currently end in this letter," we can compute:
+</em> The grand total of <em>all</em> distinct subsequences = sum of all 26 <em></em>INLINE<em>CODE</em>113<em></em> values.
+<em> When a new character <em></em>INLINE<em>CODE</em>114<em></em> arrives: the number of </em>new<em> distinct subsequences ending in <em></em>INLINE<em>CODE</em>115<em></em>, as of right now, is <em></em>INLINE<em>CODE</em>116<em></em> — the <em></em>INLINE<em>CODE</em>117<em></em> accounts for "<em></em>INLINE<em>CODE</em>118<em></em> all by itself," and the <em></em>INLINE<em>CODE</em>119<em></em> accounts for "append <em></em>INLINE<em>CODE</em>120<em></em> to every distinct subsequence that existed just before this point," which (crucially) are automatically still pairwise distinct from each other once you tack the same final letter onto all of them.
+</em> This freshly computed value <strong>completely replaces</strong> the old <em></em>INLINE<em>CODE</em>121<em></em> (rather than adding to it) — because any <em>older</em> subsequence that used to end in an earlier occurrence of <em></em>INLINE<em>CODE</em>122<em></em> can now be reproduced using <em>this</em> occurrence instead, making the old tally obsolete/redundant, not something to stack on top of.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+A single pass through <em></em>INLINE<em>CODE</em>123<em></em>, maintaining just 26 running numbers (plus a running total), correctly and efficiently computes the exact distinct count — no strings, no exponential blow-up, no risk of double-counting.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 3</strong>: <em></em>INLINE<em>CODE</em>124<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We maintain <em></em>INLINE<em>CODE</em>125<em></em> (all start at 0) and <em></em>INLINE<em>CODE</em>126<em></em> (which is just the sum of <em></em>INLINE<em>CODE</em>127<em></em>, tracked incrementally for convenience).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Process 1st <em></em>INLINE<em>CODE</em>128<em></em>:</strong>
+<em> New count for subsequences ending in <em></em>INLINE<em>CODE</em>129<em></em>: <em></em>INLINE<em>CODE</em>130<em></em>.
+</em> Update: <em></em>INLINE<em>CODE</em>131<em></em> (was 0, now replaced with 1).
+<em> New total: <em></em>INLINE<em>CODE</em>132<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Process 2nd <em></em>INLINE<em>CODE</em>133<em></em>:</strong>
+</em> New count for subsequences ending in <em></em>INLINE<em>CODE</em>134<em></em>: <em></em>INLINE<em>CODE</em>135<em></em>.
+<em> Update: <em></em>INLINE<em>CODE</em>136<em></em> (was 1, now replaced with 2).
+</em> New total: <em></em>INLINE<em>CODE</em>137<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Process 3rd <em></em>INLINE<em>CODE</em>138<em></em>:</strong>
+<em> New count for subsequences ending in <em></em>INLINE<em>CODE</em>139<em></em>: <em></em>INLINE<em>CODE</em>140<em></em>.
+</em> Update: <em></em>INLINE<em>CODE</em>141<em></em> (was 2, now replaced with 3).
+<em> New total: <em></em>INLINE<em>CODE</em>142<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Final <em></em>INLINE<em>CODE</em>143<em></em>. ✔️ matches (the 3 distinct subsequences are <em></em>INLINE<em>CODE</em>144<em></em>, <em></em>INLINE<em>CODE</em>145<em></em>, <em></em>INLINE<em>CODE</em>146<em></em>)!</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Notice how the "replace, don't add" rule for <em></em>INLINE<em>CODE</em>147<em></em> at each step is exactly what prevents us from over-counting — each time, the entire previous contribution from <em></em>INLINE<em>CODE</em>148<em></em> is subsumed into the fresh, larger count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>149<em></em> — the modulus specified by the problem; we'll apply <em></em>INLINE<em>CODE</em>150<em></em> throughout to keep numbers bounded.
+<em> <em></em>INLINE<em>CODE</em>151<em></em> — our 26-letter tracker: <em></em>INLINE<em>CODE</em>152<em></em> will always represent "the current count of distinct subsequences that end with letter <em></em>INLINE<em>CODE</em>153<em></em>," using everything processed so far.
+</em> <em></em>INLINE<em>CODE</em>154<em></em> — the running grand total of <em>all</em> distinct non-empty subsequences so far (equivalently, <em></em>INLINE<em>CODE</em>155<em></em>, but we maintain it incrementally rather than re-summing every time, for efficiency).
+<em> The <em></em>INLINE<em>CODE</em>156<em></em> loop — processes each character of <em></em>INLINE<em>CODE</em>157<em></em>, left to right, exactly once.
+</em> <em></em>INLINE<em>CODE</em>158<em></em> — converts the character to its 0-25 array index.
+<em> <em></em>INLINE<em>CODE</em>159<em></em> — this is the heart of the insight from Section 12: the fresh count of "distinct subsequences ending in <em></em>INLINE<em>CODE</em>160<em></em>," accounting for both "<em></em>INLINE<em>CODE</em>161<em></em> alone" (the <em></em>INLINE<em>CODE</em>162<em></em>) and "every previously-existing distinct subsequence, with <em></em>INLINE<em>CODE</em>163<em></em> now appended" (the <em></em>INLINE<em>CODE</em>164<em></em> term, since appending the </em>same<em> final character to all of them keeps them pairwise distinct from each other, as their "everything before this last character" parts were already all different).
+</em> <em></em>INLINE<em>CODE</em>165<em></em> — this line carefully updates the grand total: we <strong>remove</strong> this letter's <em>old</em> contribution (<em></em>INLINE<em>CODE</em>166<em></em>, whatever it was before, possibly <em></em>INLINE<em>CODE</em>167<em></em> if this is <em></em>INLINE<em>CODE</em>168<em></em>'s first appearance) and <strong>add in</strong> its brand-new contribution (<em></em>INLINE<em>CODE</em>169<em></em>). The extra <em></em>INLINE<em>CODE</em>170<em></em> before the final <em></em>INLINE<em>CODE</em>171<em></em> is a standard safety trick in modular arithmetic to prevent the intermediate value from accidentally going negative (since Java's <em></em>INLINE<em>CODE</em>172<em></em> on a negative number can return a negative result, and subtracting <em></em>INLINE<em>CODE</em>173<em></em> could momentarily make the running expression dip below zero before the mod wraps it back around correctly).
+<em> <em></em>INLINE<em>CODE</em>174<em></em> — finally, we overwrite (not add to!) this letter's tracked count with the fresh value — reflecting that any older subsequences ending in this letter are now effectively superseded by this newer, larger count.
+</em> After the loop finishes, <em></em>INLINE<em>CODE</em>175<em></em> holds the exact answer: the count of all distinct non-empty subsequences, already reduced modulo <em></em>INLINE<em>CODE</em>176<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>177<em></em> (all distinct characters, no repeats):
+<em> Process <em></em>INLINE<em>CODE</em>178<em></em>: <em></em>INLINE<em>CODE</em>179<em></em>. <em></em>INLINE<em>CODE</em>180<em></em>. <em></em>INLINE<em>CODE</em>181<em></em>.
+</em> Process <em></em>INLINE<em>CODE</em>182<em></em>: <em></em>INLINE<em>CODE</em>183<em></em>. <em></em>INLINE<em>CODE</em>184<em></em>. <em></em>INLINE<em>CODE</em>185<em></em>.
+<em> Process <em></em>INLINE<em>CODE</em>186<em></em>: <em></em>INLINE<em>CODE</em>187<em></em>. <em></em>INLINE<em>CODE</em>188<em></em>. <em></em>INLINE<em>CODE</em>189<em></em>.
+</em> Output: <em></em>INLINE<em>CODE</em>190<em></em> ✔️ (matches: <em></em>INLINE<em>CODE</em>191<em></em> — exactly 7)
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>192<em></em> → dry-ran conceptually in Sections 6 and matches the mechanics shown in Section 13 for <em></em>INLINE<em>CODE</em>193<em></em> (just with a <em></em>INLINE<em>CODE</em>194<em></em> in between) → Output: <em></em>INLINE<em>CODE</em>195<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case</h3>
+<em></em>INLINE<em>CODE</em>196<em></em> → dry-ran fully in Section 13 → Output: <em></em>INLINE<em>CODE</em>197<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Single character (<em></em>INLINE<em>CODE</em>198<em></em> has length 1)</strong> → <em></em>INLINE<em>CODE</em>199<em></em>, <em></em>INLINE<em>CODE</em>200<em></em> → correctly returns <em></em>INLINE<em>CODE</em>201<em></em> (the one-character string itself is the only distinct non-empty subsequence).
+</em> <strong>All characters identical</strong> (like <em></em>INLINE<em>CODE</em>202<em></em> or longer runs) → as shown, the count grows linearly-ish in a specific pattern (<em></em>INLINE<em>CODE</em>203<em></em> for the running <em></em>INLINE<em>CODE</em>204<em></em> value of that one letter, since <em></em>INLINE<em>CODE</em>205<em></em> always equals <em></em>INLINE<em>CODE</em>206<em></em> when only one letter has ever appeared) — specifically, for a run of <em></em>INLINE<em>CODE</em>207<em></em> identical characters, the distinct subsequence count is exactly <em></em>INLINE<em>CODE</em>208<em></em> (just "the letter repeated 1 time," "repeated 2 times," ..., "repeated k times").
+<em> <strong>All characters distinct</strong> (like <em></em>INLINE<em>CODE</em>209<em></em>) → the count grows like <em></em>INLINE<em>CODE</em>210<em></em> (every non-empty subset of positions gives a genuinely distinct string, since there's no way to confuse which letters were used) — our formula naturally produces this, since <em></em>INLINE<em>CODE</em>211<em></em> roughly doubles (plus 1) with each brand-new letter.
+</em> <strong>Very long strings (<em></em>INLINE<em>CODE</em>212<em></em> up to 2000)</strong> with many repeated letters scattered throughout → handled correctly and efficiently, since the "replace, don't add" rule for <em></em>INLINE<em>CODE</em>213<em></em> correctly accounts for however many times each letter has reappeared, no matter the pattern.
+<em> <strong>Modulo wraparound</strong> — since <em></em>INLINE<em>CODE</em>214<em></em> can be up to length 2000, and distinct-subsequence counts can grow roughly exponentially before the modulus "kicks in" conceptually, correctly applying <em></em>INLINE<em>CODE</em>215<em></em> (including the <em></em>INLINE<em>CODE</em>216<em></em> safety pad before subtracting) at every step is essential to avoid incorrect negative or overflowed intermediate values.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> An estimate of how much work grows as the input grows, using a general scaling trend.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> Our optimized solution touches each character of <em></em>INLINE<em>CODE</em>217<em></em> exactly once, and for each character does only a small, fixed amount of work (one array lookup, a couple of additions/subtractions, one array write) — completely independent of how large the distinct-subsequence count actually is. For <em></em>INLINE<em>CODE</em>218<em></em>, that's a trivial 2000 iterations, regardless of whether the "true" distinct count is small or astronomically large — we never need to touch that magnitude of work directly, since we're only ever manipulating a handful of numbers.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>219<em></em> — a small, fixed-size array, regardless of how long <em></em>INLINE<em>CODE</em>220<em></em> is.
+<em> A couple of extra <em></em>INLINE<em>CODE</em>221<em></em> variables (<em></em>INLINE<em>CODE</em>222<em></em>, <em></em>INLINE<em>CODE</em>223<em></em>, <em></em>INLINE<em>CODE</em>224<em></em>).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Extra space: <em></em>INLINE<em>CODE</em>225<em></em> (technically <em></em>INLINE<em>CODE</em>226<em></em> for the array, which is a constant, not something that grows with <em></em>INLINE<em>CODE</em>227<em></em>).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ <strong>"I should literally generate and store every subsequence string, then deduplicate with a Set."</strong>
+  <em> ✅ This is exponentially too slow/memory-heavy for <em></em>INLINE<em>CODE</em>228<em></em> up to length 2000 — you must track only counts, per ending letter, never actual strings.
+</em> ❌ <strong>"When I see a repeated letter, I should just ADD its new contribution to the old <em></em>INLINE<em>CODE</em>229<em></em> value."</strong>
+  <em> ✅ This causes over-counting — the correct move is to <strong>replace</strong> <em></em>INLINE<em>CODE</em>230<em></em> entirely with the newly computed value, since the new value already properly accounts for everything that came before (including previous appearances of that same letter), making the old value redundant to add on top of.
+</em> ❌ <strong>"I don't need to worry about negative numbers in modular arithmetic."</strong>
+  <em> ✅ In Java, <em></em>INLINE<em>CODE</em>231<em></em> can return a negative result when applied to a negative number (e.g., <em></em>INLINE<em>CODE</em>232<em></em> in Java, not <em></em>INLINE<em>CODE</em>233<em></em> like in some other languages/math conventions) — so when subtracting <em></em>INLINE<em>CODE</em>234<em></em> from <em></em>INLINE<em>CODE</em>235<em></em>, you should add <em></em>INLINE<em>CODE</em>236<em></em> back before the final <em></em>INLINE<em>CODE</em>237<em></em> to guarantee a non-negative result.
+</em> ❌ <strong>"The <em></em>INLINE<em>CODE</em>238<em></em> in <em></em>INLINE<em>CODE</em>239<em></em> is unnecessary — appending the character to existing subsequences should be enough."</strong>
+  <em> ✅ The <em></em>INLINE<em>CODE</em>240<em></em> specifically accounts for "this character all by itself" as a brand-new one-character subsequence — without it, you'd never count single-character subsequences correctly the first time each letter appears (or undercount them thereafter).
+</em> ❌ <strong>"I need to take the modulus only at the very end, once, on the final total."</strong>
+  <em> ✅ Because the "true" unbounded numbers can grow far beyond what fits in a normal integer during the computation (not just at the end), you must apply <em></em>INLINE<em>CODE</em>241<em></em> at </em>every<em> intermediate step, not just once at the very end — otherwise you'd get integer overflow long before reaching the final answer.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a problem wants you to count </em>distinct<em> results built by extending a structure one element at a time, and duplicates come from repeated values in a small alphabet, think: <strong>track a per-value running count ("subsequences/sequences ending in this specific value"), and REPLACE (don't add to) that value's count whenever it reoccurs</strong> — this is the standard trick for turning an "exponentially many distinct results" problem into an O(n)-time counting problem.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>8<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: the interview-winning realization is that "distinct" + "small alphabet" should immediately suggest tracking per-character running totals with a </em>replace<em> rule, rather than ever trying to materialize or deduplicate actual strings.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why does appending the </em>same<em> new character <em></em>INLINE<em>CODE</em>242<em></em> to every currently-distinct subsequence always produce a set of results that are still pairwise distinct from each other (never colliding with one another)?
+2. If <em></em>INLINE<em>CODE</em>243<em></em> and later in the string another <em></em>INLINE<em>CODE</em>244<em></em> appears when <em></em>INLINE<em>CODE</em>245<em></em>, what does the new <em></em>INLINE<em>CODE</em>246<em></em> become, and what happens to the </em>old<em> value <em></em>INLINE<em>CODE</em>247<em></em>?
+3. Why is it safe to completely discard/replace the old <em></em>INLINE<em>CODE</em>248<em></em> value, rather than needing to somehow "merge" it with the new one?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Because right before appending <em></em>INLINE<em>CODE</em>249<em></em>, all the existing subsequences being extended were already guaranteed pairwise distinct from each other (that's what <em></em>INLINE<em>CODE</em>250<em></em> represents — a count of genuinely different strings). Tacking the identical final character <em></em>INLINE<em>CODE</em>251<em></em> onto each of them can't possibly make two previously-different strings become equal — if two strings differed anywhere in their content before, they still differ there after both get the same suffix appended.
+2. New <em></em>INLINE<em>CODE</em>252<em></em>. The old value <em></em>INLINE<em>CODE</em>253<em></em> is discarded/overwritten — it's not used in computing the new value directly (except insofar as it had already been folded into <em></em>INLINE<em>CODE</em>254<em></em> long ago when it was first established), and it's specifically subtracted back out of <em></em>INLINE<em>CODE</em>255<em></em> before adding in the new <em></em>INLINE<em>CODE</em>256<em></em>, to avoid double-counting.
+3. Because the new value <em></em>INLINE<em>CODE</em>257<em></em> already represents "every distinct subsequence ending in <em></em>INLINE<em>CODE</em>258<em></em>, using everything processed up through this point" — which is a strictly more complete and up-to-date accounting than the old value (which only reflected an earlier, smaller prefix of <em></em>INLINE<em>CODE</em>259<em></em>). The old subsequences ending in the previous <em></em>INLINE<em>CODE</em>260<em></em> are not lost — they're representable as ways to reach the </em>same final strings<em>, but since we only care about </em>distinct string counts<em> (not "ways"), there's no need to preserve or merge the old number at all.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Count the number of distinct non-empty subsequence strings of <em></em>INLINE<em>CODE</em>261<em></em>, modulo <em></em>INLINE<em>CODE</em>262<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Track, per letter, how many distinct subsequences currently end in that letter; each new character's fresh count is <em></em>INLINE<em>CODE</em>263<em></em>, and this fresh count REPLACES (not adds to) that letter's previous count, correctly avoiding duplicate counting from repeated letters.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. Maintain <em></em>INLINE<em>CODE</em>264<em></em> (per-letter counts) and <em></em>INLINE<em>CODE</em>265<em></em> (their sum), all starting at 0.
+2. For each character <em></em>INLINE<em>CODE</em>266<em></em> in <em></em>INLINE<em>CODE</em>267<em></em>: compute <em></em>INLINE<em>CODE</em>268<em></em>.
+3. Update <em></em>INLINE<em>CODE</em>269<em></em>.
+4. Set <em></em>INLINE<em>CODE</em>270<em></em>.
+5. Return <em></em>INLINE<em>CODE</em>271<em></em> after processing all characters.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+</em> <strong>Time:</strong> <em></em>INLINE<em>CODE</em>272<em></em>
+<em> <strong>Space:</strong> <em></em>INLINE<em>CODE</em>273<em></em> (a fixed 26-element array)
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🎯 Pattern to Remember</h3>
+"Count distinct results, mod a big prime, built from a small alphabet" → track per-value running counts, and REPLACE (not add) a value's count whenever it reoccurs, rather than trying to enumerate or deduplicate actual results.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why can't we just count subsequences the way problem #115 did (counting </em>ways*) and expect that to equal the answer here?
+2. <strong>(Basic concept)</strong> What does <em></em>INLINE<em>CODE</em>274<em></em> represent, in plain words, at any point during the algorithm?
+3. <strong>(Logic)</strong> Why do we REPLACE <em></em>INLINE<em>CODE</em>275<em></em> with the new value instead of adding the new value on top of the old one?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>276<em></em>, walk through the algorithm step by step (tracking <em></em>INLINE<em>CODE</em>277<em></em>, <em></em>INLINE<em>CODE</em>278<em></em>, and <em></em>INLINE<em>CODE</em>279<em></em>) and find the final answer.
+5. <strong>(Complexity/pattern)</strong> Why would literally storing every distinct subsequence in a <em></em>INLINE<em>CODE</em>280<em></em> be infeasible for <em></em>INLINE<em>CODE</em>281<em></em> of length 2000, and what specific property of the problem (small alphabet + "distinct" + modulo output) should immediately suggest the per-letter running-count technique?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

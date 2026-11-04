@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3568. Minimum Moves to Clean the Classroom Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find the minimum total number of moves needed to collect all litter in a grid classroom using state-space BFS with bitmasks and energy tracking." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/minimum-moves-to-clean-the-classroom" />
+  
+  <meta property="og:title" content="3568. Minimum Moves to Clean the Classroom Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find the minimum total number of moves needed to collect all litter in a grid classroom using state-space BFS with bitmasks and energy tracking." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/minimum-moves-to-clean-the-classroom" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/minimum-moves-to-clean-the-classroom';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3568. Minimum Moves to Clean the Classroom</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Hard</strong> | Published on <strong>2026-09-01</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This one is meaningfully harder than the previous problems — it introduces two new big ideas (BFS and bitmasks) — so let's build up carefully, same structure as before.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're in a classroom represented as a grid of rows and columns. Each cell is one of:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>0<em></em> — where the student starts (exactly one of these).
+</em> <em></em>INLINE<em>CODE</em>1<em></em> — a piece of litter that must be picked up (there are at most 10 of these).
+<em> <em></em>INLINE<em>CODE</em>2<em></em> — a "recharge station." Stepping on it fully restores the student's energy, no matter how little energy they had left.
+</em> <em></em>INLINE<em>CODE</em>3<em></em> — a wall/obstacle. The student can never step here.
+<em> <em></em>INLINE<em>CODE</em>4<em></em> — just empty floor, walk through freely.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The student also has a maximum energy capacity, <em></em>INLINE<em>CODE</em>5<em></em>, and starts completely full. Every single step (up/down/left/right to a neighboring cell) costs exactly 1 energy. If energy would hit 0 and the student isn't standing on an <em></em>INLINE<em>CODE</em>6<em></em>, they're stuck — they cannot take another step unless they're on a reset tile.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> find the minimum total number of moves needed to walk over </em>every<em> <em></em>INLINE<em>CODE</em>7<em></em> cell at least once (collecting all litter), or return <em></em>INLINE<em>CODE</em>8<em></em> if it's impossible no matter what path is taken.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What's given:</strong> the grid, and the energy capacity.
+<em> <strong>What to find:</strong> the shortest walking path (respecting obstacles and the energy/recharge rule) that touches every litter cell.
+</em> <strong>What to return:</strong> the number of moves in that shortest path, or <em></em>INLINE<em>CODE</em>9<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a robot vacuum with a battery that only lasts, say, 20 minutes of driving. Scattered around the house are 10 dirty spots it must visit, some walls it can't drive through, and a few charging pads that instantly top the battery back to full the moment it drives over one — no matter how low the battery was.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The robot needs to plan a route that hits all 10 dirty spots, is allowed to swing by charging pads as many times as it likes along the way, but can never let the battery hit zero anywhere except <em>while standing on</em> a charging pad. You want the <em>shortest possible total driving time</em> (in minutes) that gets every spot cleaned.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Grid / 2D Array</h3>
+<em> <strong>Concept:</strong> A grid is just a 2D array — rows and columns of cells, each reachable by <em></em>INLINE<em>CODE</em>10<em></em>.
+</em> <strong>Why we need it:</strong> The classroom itself is the input, given as an array of strings (each string is one row).
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Queue (new!)</h3>
+<em> <strong>Concept:</strong> A queue is a "first in, first out" (FIFO) structure — like a line at a coffee shop: whoever joined the line first gets served first. You add items at the back (<em></em>INLINE<em>CODE</em>11<em></em>/<em></em>INLINE<em>CODE</em>12<em></em>) and remove items from the front (<em></em>INLINE<em>CODE</em>13<em></em>/<em></em>INLINE<em>CODE</em>14<em></em>).
+</em> <strong>Simple Example:</strong> Add <em></em>INLINE<em>CODE</em>15<em></em>, then <em></em>INLINE<em>CODE</em>16<em></em>, then <em></em>INLINE<em>CODE</em>17<em></em> → the queue is <em></em>INLINE<em>CODE</em>18<em></em> → removing gives you <em></em>INLINE<em>CODE</em>19<em></em> first, then <em></em>INLINE<em>CODE</em>20<em></em>, then <em></em>INLINE<em>CODE</em>21<em></em>.
+<em> <strong>Why we need it:</strong> We're about to use <strong>BFS</strong> (below), and BFS </em>always<em> uses a queue to control the order in which we explore things.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Breadth-First Search (BFS) (new — the central idea of this problem!)</h3>
+</em> <strong>Concept:</strong> BFS is a way to explore a graph (or grid) "layer by layer" — first you look at everything reachable in 1 step, then everything reachable in exactly 2 steps, then 3, and so on. Because it expands in complete layers, <strong>the very first time BFS reaches some target, that's guaranteed to be via the shortest possible number of steps.</strong> This makes BFS the standard tool whenever a problem asks for a <em>minimum number of moves/steps</em> on a grid, with all moves costing the same (1 each).
+<em> <strong>Simple Example:</strong> Starting at a cell, BFS visits all 4 direct neighbors first (distance 1), then all cells reachable from those (distance 2), etc., never revisiting a cell once it's been reached.
+</em> <strong>Why we need it:</strong> The entire problem is "minimum number of moves" — a textbook signal for BFS.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">State (a very important concept for this problem)</h3>
+<em> <strong>Concept:</strong> Normally in a grid BFS, "where you are" (just row, column) is enough information to know what you can do next. But here, two students standing on the </em>exact same cell<em> might be able to do very different things depending on <strong>how much energy they have left</strong> and <strong>which litter they've already picked up</strong> — so "state" here must include more than position. A </em>state<em> is simply "all the information needed to know exactly what happens next."
+</em> <strong>Why we need it:</strong> This problem's state is <em></em>INLINE<em>CODE</em>22<em></em> — not just <em></em>INLINE<em>CODE</em>23<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Bitmask (new!)</h3>
+<em> <strong>Concept:</strong> A bitmask is a compact way to represent "which items from a small set have been chosen," using the binary digits (bits) of a single number. If you have up to 10 litter items, number them <em></em>INLINE<em>CODE</em>24<em></em> through <em></em>INLINE<em>CODE</em>25<em></em>. A number's bit at position <em></em>INLINE<em>CODE</em>26<em></em> being <em></em>INLINE<em>CODE</em>27<em></em> means "litter item <em></em>INLINE<em>CODE</em>28<em></em> has been collected"; <em></em>INLINE<em>CODE</em>29<em></em> means "not yet." For example, if litter items <em></em>INLINE<em>CODE</em>30<em></em> and <em></em>INLINE<em>CODE</em>31<em></em> are collected but not <em></em>INLINE<em>CODE</em>32<em></em>, the mask in binary is <em></em>INLINE<em>CODE</em>33<em></em>, which is the number <em></em>INLINE<em>CODE</em>34<em></em>.
+</em> <strong>Simple Example:</strong> With 3 litter items, <em></em>INLINE<em>CODE</em>35<em></em> means "none collected," <em></em>INLINE<em>CODE</em>36<em></em> (binary <em></em>INLINE<em>CODE</em>37<em></em>) means "all 3 collected." Checking bit <em></em>INLINE<em>CODE</em>38<em></em>: <em></em>INLINE<em>CODE</em>39<em></em>. Setting bit <em></em>INLINE<em>CODE</em>40<em></em>: <em></em>INLINE<em>CODE</em>41<em></em>.
+<em> <strong>Why we need it:</strong> Since there are at most 10 litter pieces, there are at most <em></em>INLINE<em>CODE</em>42<em></em> possible "which ones are collected" combinations — small enough to treat as just another number in our state, instead of tracking a whole separate list/set.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">4-directional movement</h3>
+</em> <strong>Concept:</strong> From any cell <em></em>INLINE<em>CODE</em>43<em></em>, the 4 neighbors are <em></em>INLINE<em>CODE</em>44<em></em> up, <em></em>INLINE<em>CODE</em>45<em></em> down, <em></em>INLINE<em>CODE</em>46<em></em> left, <em></em>INLINE<em>CODE</em>47<em></em> right.
+<em> <strong>Why we need it:</strong> Every move in this problem is exactly one of these 4 steps.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array (multi-dimensional, for tracking "have I already visited this exact state?")</h3>
+</em> <strong>Concept:</strong> Just like a 1D array has one index, we can have arrays indexed by multiple things at once (conceptually a 4D array here: row, column, energy, mask).
+<em> <strong>Why we need it:</strong> BFS needs to avoid revisiting the exact same state twice (otherwise it could loop forever or waste huge amounts of time) — we need a fast way to check "have I been in this exact (position, energy, collected-so-far) situation before?"
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 2:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is a 2-row, 2-column grid:</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 1</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 0</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>48<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>49<em></em></td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 1</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>50<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>51<em></em></td></tr></table></div>
+</em> The student starts at <em></em>INLINE<em>CODE</em>52<em></em> (row 0, col 1), the <em></em>INLINE<em>CODE</em>53<em></em> cell, with <em></em>INLINE<em>CODE</em>54<em></em> energy.
+<em> There are two litter cells: <em></em>INLINE<em>CODE</em>55<em></em> and <em></em>INLINE<em>CODE</em>56<em></em>.
+</em> There's one recharge cell at <em></em>INLINE<em>CODE</em>57<em></em>.
+<em> No obstacles here.
+</em> We need to find the fewest moves to visit both <em></em>INLINE<em>CODE</em>58<em></em> and <em></em>INLINE<em>CODE</em>59<em></em>, potentially passing through <em></em>INLINE<em>CODE</em>60<em></em> if the energy math requires it, without ever running out of energy off of an <em></em>INLINE<em>CODE</em>61<em></em>.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>62<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Path: <em></em>INLINE<em>CODE</em>63<em></em> [collect litter #1, energy: 4→3] → <em></em>INLINE<em>CODE</em>64<em></em> [step on R, energy resets to 4] → <em></em>INLINE<em>CODE</em>65<em></em> [collect litter #2, energy: 4→3].
+</em> That's 3 total moves, and litter is fully collected. There's no way to do it in fewer moves (you need at least 1 move to reach each litter cell from a shared adjacent cell, and here neither litter cell is adjacent to the other, so at least 3 moves are structurally required, and 3 is achievable) — so <em></em>INLINE<em>CODE</em>66<em></em> is optimal.
+<em> Notice the recharge wasn't even strictly needed for the </em>energy<em> here (energy stayed positive throughout even without it) — it's just naturally on the shortest path between the two litter pieces. In harder cases, you'd be </em>forced<em> through an <em></em>INLINE<em>CODE</em>67<em></em> purely to survive long stretches without running out of energy.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually reason through <strong>Example 3</strong>, since it's the trickiest (<em></em>INLINE<em>CODE</em>68<em></em> case):</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Grid:</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 1</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 2</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 0</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>69<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>70<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>71<em></em></td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 1</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>72<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>73<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>74<em></em></td></tr></table></div>
+Student starts at <em></em>INLINE<em>CODE</em>75<em></em> with energy <em></em>INLINE<em>CODE</em>76<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's see what's reachable:
+</em> From <em></em>INLINE<em>CODE</em>77<em></em>, moves left to <em></em>INLINE<em>CODE</em>78<em></em> [energy 3→2], then <em></em>INLINE<em>CODE</em>79<em></em> [energy 2→1] — that's litter #1 collected, using 2 moves, energy left = 1.
+<em> From <em></em>INLINE<em>CODE</em>80<em></em>, energy is 1. Can we get to <em></em>INLINE<em>CODE</em>81<em></em> (the <em></em>INLINE<em>CODE</em>82<em></em>)? Yes — that's adjacent, 1 move, energy would hit 0 upon arrival, but since <em></em>INLINE<em>CODE</em>83<em></em> is <em></em>INLINE<em>CODE</em>84<em></em>, energy resets to full (3) the instant we land there. 
+</em> Now from <em></em>INLINE<em>CODE</em>85<em></em> with energy 3 (freshly reset), we need to reach <em></em>INLINE<em>CODE</em>86<em></em> (litter #2). But <em></em>INLINE<em>CODE</em>87<em></em> is <em></em>INLINE<em>CODE</em>88<em></em> — a wall! We cannot go directly right. Is there any other route from <em></em>INLINE<em>CODE</em>89<em></em> to <em></em>INLINE<em>CODE</em>90<em></em>? Going back up to <em></em>INLINE<em>CODE</em>91<em></em> → <em></em>INLINE<em>CODE</em>92<em></em> → <em></em>INLINE<em>CODE</em>93<em></em> → down to <em></em>INLINE<em>CODE</em>94<em></em>... let's check: <em></em>INLINE<em>CODE</em>95<em></em> [1 move] <em></em>INLINE<em>CODE</em>96<em></em> [1] <em></em>INLINE<em>CODE</em>97<em></em> [1] <em></em>INLINE<em>CODE</em>98<em></em> [1] = 4 moves, but we only have 3 energy after the reset, and no <em></em>INLINE<em>CODE</em>99<em></em> along this new sub-route. We run out of energy exactly at <em></em>INLINE<em>CODE</em>100<em></em> (having used all 3), unable to take the 4th move down to <em></em>INLINE<em>CODE</em>101<em></em>.
+<em> Is there any other path to <em></em>INLINE<em>CODE</em>102<em></em> at all? The only way into <em></em>INLINE<em>CODE</em>103<em></em> is from <em></em>INLINE<em>CODE</em>104<em></em> (above) or <em></em>INLINE<em>CODE</em>105<em></em> (blocked by <em></em>INLINE<em>CODE</em>106<em></em>). And reaching <em></em>INLINE<em>CODE</em>107<em></em> from anywhere requires passing through the top row, which (from the <em></em>INLINE<em>CODE</em>108<em></em> at <em></em>INLINE<em>CODE</em>109<em></em>) costs at least 3 moves just to reach <em></em>INLINE<em>CODE</em>110<em></em>, leaving 0 energy — not enough for the 4th move into <em></em>INLINE<em>CODE</em>111<em></em>.
+</em> No matter how we shuffle the order, litter cell <em></em>INLINE<em>CODE</em>112<em></em> is simply <strong>unreachable</strong> within the energy budget. So the answer is <em></em>INLINE<em>CODE</em>113<em></em>. ✔️ matches!</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This example really shows why we can't just think "shortest path ignoring energy" — the energy budget can make an otherwise-reachable cell permanently unreachable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> The grid layout, where obstacles/recharges/litter are, and the energy cap.
+</em> <strong>What do I need to find?</strong> The minimum moves to touch all litter cells, respecting the energy rule.
+<em> <strong>What can I try?</strong> Since "minimum moves on a grid" is the classic signal for BFS, my first instinct is BFS. But normal grid BFS only tracks position — here I also need to know how much energy I have left (since that affects what moves are even legal) AND which litter I've already picked up (since I need ALL of it, not just any one piece).
+</em> <strong>What happens if I try every possibility?</strong> If I tried every possible <em>order</em> of visiting the 10 litter pieces (10! ≈ 3.6 million orderings) and, for each order, tried to find full paths between them, that's technically finite, but doesn't cleanly account for energy carrying over between litter pickups (energy left when you finish leg 1 affects what's affordable on leg 2) — this naive ordering approach gets complicated fast and doesn't obviously give minimum moves easily.
+<em> <strong>Can I make it faster / cleaner?</strong> Yes — bundle </em>everything relevant<em> into a single BFS <strong>state</strong>: <em></em>INLINE<em>CODE</em>114<em></em>. Now a single BFS, expanding one state at a time, naturally handles "try every order," "track energy correctly across the whole journey (including resets)," and "know exactly when we're fully done (mask is complete)" — all at once, and BFS guarantees the </em>first<em> time we reach a "mask is complete" state is via the minimum number of moves.
+</em> <strong>What information should I remember?</strong> For every combination of (cell, energy level, litter collected so far), have I already visited it? If yes, skip it (no point re-exploring identical situations).
+<em> <strong>What pattern do I notice?</strong> This is a "shortest path in an enlarged graph" — the "nodes" of our graph aren't just grid cells, they're <em></em>INLINE<em>CODE</em>115<em></em> triples. Once you see it this way, it's just ordinary BFS on a bigger graph.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Here, "brute force" and "correct optimized approach" are actually the <strong>same core idea</strong> — full-state BFS — because trying to shortcut it (e.g., ignoring energy, or ignoring litter-order) produces </em>wrong<em> answers, not just </em>slow<em> ones. So let's build the full-state BFS directly, understanding </em>why<em> each piece of the state is necessary, rather than starting from something naively wrong.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why full-state BFS works:</strong> Every legal sequence of moves corresponds to some walk through these <em></em>INLINE<em>CODE</em>116<em></em> states. BFS explores all such walks in order of increasing move-count, so the first time it finds any state where <em></em>INLINE<em>CODE</em>117<em></em> equals "everything collected," that's provably the minimum possible number of moves.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> Number of distinct states ≤ <em></em>INLINE<em>CODE</em>118<em></em>. With the given limits (<em></em>INLINE<em>CODE</em>119<em></em>, <em></em>INLINE<em>CODE</em>120<em></em>, <em></em>INLINE<em>CODE</em>121<em></em>), that's at most <em></em>INLINE<em>CODE</em>122<em></em> states, each with 4 possible moves — a large but </em>finite and manageable<em> amount of work for a computer.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> We need to remember whether each of those ~20.9 million states has been visited — an array of that size.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Core Idea Piece by Piece</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Before jumping to code, let's make sure each part of the state makes sense:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Why include <em></em>INLINE<em>CODE</em>123<em></em>?</strong> Obviously — we need to know where the student physically is, to know which moves are legal (not into a wall, not off the grid).
+<em> <strong>Why include <em></em>INLINE<em>CODE</em>124<em></em>?</strong> Because the </em>same cell<em> can be in two very different "situations" depending on how much energy is left — with 5 energy left you might be able to reach a far-away litter cell directly, but with 1 energy left from that same cell, you might need to detour through a recharge station first. Two students on the same cell with different energy can have completely different futures — so energy must be part of the state, not just a side detail.
+</em> <strong>Why include the litter bitmask?</strong> Because we need to know the <em>goal condition</em>: "have we collected everything?" A student standing on a specific cell having collected litter <em></em>INLINE<em>CODE</em>125<em></em> versus having collected <em></em>INLINE<em>CODE</em>126<em></em> are in genuinely different situations for the rest of the problem (different amounts of remaining work) — bundling this into the state lets BFS naturally explore "all possible orders" of collection without us having to code that separately.
+<em> <strong>What happens when we step onto an <em></em>INLINE<em>CODE</em>127<em></em> cell?</strong> Regardless of what our energy was </em>before<em> the move, the moment we land on <em></em>INLINE<em>CODE</em>128<em></em>, energy becomes full again. This is a simple rule to encode: <em></em>INLINE<em>CODE</em>129<em></em>.
+</em> <strong>What happens when we step onto an <em></em>INLINE<em>CODE</em>130<em></em> cell?</strong> We simply turn on that litter's bit in the mask: <em></em>INLINE<em>CODE</em>131<em></em>. (Stepping on an already-collected litter cell again just leaves the bit already-on — no harm, no special case needed.)
+<em> <strong>When can we NOT move at all?</strong> If current energy is <em></em>INLINE<em>CODE</em>132<em></em> and we're not on an <em></em>INLINE<em>CODE</em>133<em></em> (but remember: if we're currently on <em></em>INLINE<em>CODE</em>134<em></em>, our energy in the state is already full, since we reset it the instant we arrived — so energy being <em></em>INLINE<em>CODE</em>135<em></em> in our state representation always means "genuinely stuck," never "on a recharge tile with 0 shown").</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. From Idea to Algorithm</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It's tempting to think of this as "find shortest path to each litter piece separately, then combine," treating energy resets as something to handle per-leg.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Energy does <strong>not</strong> reset between litter pickups — only when you physically step on an <em></em>INLINE<em>CODE</em>136<em></em> tile. So how much energy you have left when you </em>start<em> trying to reach the next litter piece depends entirely on your whole journey so far, not just "which litter is next." Treating legs independently (assuming full energy at the start of each leg) silently gives <strong>wrong answers</strong> whenever a path </em>needs<em> to arrive at a litter cell with some energy still in reserve to continue onward, or conversely, a path only barely limps to a litter cell with 0 energy left and </em>must<em> detour to a recharge before doing anything else.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Fold energy and "litter collected so far" directly into the definition of a BFS node.</strong> Once you do that, there's no more separate bookkeeping needed for orderings or energy resets — plain BFS, expanding one move at a time, automatically discovers the correct minimum-move journey through any order of litter and any number of recharges, because it's exploring the </em>true<em> space of possible situations, not a simplified (and subtly incorrect) approximation of it.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The "hard" combinatorial parts of this problem (which order to visit litter in, when to detour for a recharge) are never explicitly coded at all — they fall out for free from letting BFS explore the full, correctly-defined state graph.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run (Conceptual) on Example 1</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Grid:</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">col 1</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 0</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>137<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>138<em></em></td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>row 1</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>139<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>140<em></em></td></tr></table></div>
+There's 1 litter piece (bit 0), at <em></em>INLINE<em>CODE</em>141<em></em>. Start state: <em></em>INLINE<em>CODE</em>142<em></em>, distance 0.
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Move</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">From state</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">To state</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Distance</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,0,e=2,mask=0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1,e=1,mask=0) [moved right; <em></em>INLINE<em>CODE</em>143<em></em> is <em></em>INLINE<em>CODE</em>144<em></em>]</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1,e=1,mask=0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1,e=0,mask=<strong>1</strong>) [moved down; <em></em>INLINE<em>CODE</em>145<em></em> is <em></em>INLINE<em>CODE</em>146<em></em>, so bit 0 turns on]</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td></tr></table></div>
+At distance 2, we reach a state with <em></em>INLINE<em>CODE</em>147<em></em> (only 1 litter piece exists) → <strong>answer is 2</strong> ✔️. Note that <em></em>INLINE<em>CODE</em>148<em></em> was never explored at all, since it's <em></em>INLINE<em>CODE</em>149<em></em> (obstacle) — BFS simply never generates a move into it.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>150<em></em> — convert the array of strings into a 2D character grid, so we can index <em></em>INLINE<em>CODE</em>151<em></em> directly.
+<em> The first double loop — scans every cell once to find the single <em></em>INLINE<em>CODE</em>152<em></em> (recording <em></em>INLINE<em>CODE</em>153<em></em>) and to assign each <em></em>INLINE<em>CODE</em>154<em></em> cell a unique bit index (<em></em>INLINE<em>CODE</em>155<em></em>), stored in <em></em>INLINE<em>CODE</em>156<em></em>. Any cell that isn't litter keeps <em></em>INLINE<em>CODE</em>157<em></em> in <em></em>INLINE<em>CODE</em>158<em></em>.
+</em> <em></em>INLINE<em>CODE</em>159<em></em> — this produces a number whose lowest <em></em>INLINE<em>CODE</em>160<em></em> bits are all <em></em>INLINE<em>CODE</em>161<em></em> — e.g., with 3 litter pieces, <em></em>INLINE<em>CODE</em>162<em></em>. This is our "everything collected" target.
+<em> <em></em>INLINE<em>CODE</em>163<em></em> — an edge case: if there's no litter at all, we're already done with zero moves.
+</em> <em></em>INLINE<em>CODE</em>164<em></em> — this is our giant "have I been in this exact <em></em>INLINE<em>CODE</em>165<em></em> situation before?" tracker, flattened into a single 1D array for speed (Java doesn't handle huge multi-dimensional arrays as efficiently as one big 1D array with manual index math).
+<em> <em></em>INLINE<em>CODE</em>166<em></em> — converts a <em></em>INLINE<em>CODE</em>167<em></em> combination into one unique integer index into that flat <em></em>INLINE<em>CODE</em>168<em></em> array, similar to how you'd convert a 2D grid position into a 1D array index (<em></em>INLINE<em>CODE</em>169<em></em>), just extended with two more "digits" (<em></em>INLINE<em>CODE</em>170<em></em> and <em></em>INLINE<em>CODE</em>171<em></em>).
+</em> <em></em>INLINE<em>CODE</em>172<em></em> — our BFS queue. Each entry stores <em></em>INLINE<em>CODE</em>173<em></em> bundled together.
+<em> We seed the queue with the starting state: student's start position, full energy, empty mask, distance <em></em>INLINE<em>CODE</em>174<em></em>. We also immediately mark it visited.
+</em> The main <em></em>INLINE<em>CODE</em>175<em></em> loop — this is the heart of BFS: keep pulling the <em>oldest</em> item off the front of the queue (guaranteed by the queue's FIFO behavior to be processed in increasing distance order) and process it.
+<em> <em></em>INLINE<em>CODE</em>176<em></em> — the moment we pop a state where everything's been collected, we're done — and because BFS processes states in non-decreasing distance order, this is guaranteed to be the </em>minimum<em> possible distance.
+</em> <em></em>INLINE<em>CODE</em>177<em></em> — if there's no energy left, this state is a dead end; we don't try to generate any moves from it.
+<em> The <em></em>INLINE<em>CODE</em>178<em></em> loop — tries each of the 4 directions.
+</em> Boundary and obstacle checks — skip anything off the grid or blocked by <em></em>INLINE<em>CODE</em>179<em></em>.
+<em> <em></em>INLINE<em>CODE</em>180<em></em> — implements the recharge rule exactly as discussed: full reset if stepping onto <em></em>INLINE<em>CODE</em>181<em></em>, otherwise spend 1 energy.
+</em> <em></em>INLINE<em>CODE</em>182<em></em> update — if the target cell is litter, turn on its bit; otherwise the mask is unchanged.
+<em> We compute the new state's flat index, and if it's never been visited, we mark it visited and add it to the queue with <em></em>INLINE<em>CODE</em>183<em></em>.
+</em> If the queue empties out completely without ever hitting <em></em>INLINE<em>CODE</em>184<em></em>, we <em></em>INLINE<em>CODE</em>185<em></em> — meaning it's truly impossible.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>186<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>187<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>188<em></em> → BFS explores from <em></em>INLINE<em>CODE</em>189<em></em>; shortest path to collecting both litter bits is 3 moves (<em></em>INLINE<em>CODE</em>190<em></em>, mask becomes complete exactly when the litter at <em></em>INLINE<em>CODE</em>191<em></em> is stepped on) → Output: <em></em>INLINE<em>CODE</em>192<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case</h3>
+<em></em>INLINE<em>CODE</em>193<em></em> (as reasoned by hand in Section 6) → the state <em></em>INLINE<em>CODE</em>194<em></em> with the second litter bit set is never generated by BFS, no matter the energy value, because every route into <em></em>INLINE<em>CODE</em>195<em></em> requires more consecutive moves than any reachable energy level allows → Output: <em></em>INLINE<em>CODE</em>196<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>No litter at all (<em></em>INLINE<em>CODE</em>197<em></em>)</strong> → answer is immediately <em></em>INLINE<em>CODE</em>198<em></em>; handled by an early return before BFS even starts.
+</em> <strong>A litter cell is fully walled off</strong> (surrounded by <em></em>INLINE<em>CODE</em>199<em></em> with no path in) → BFS simply never reaches any state containing that cell, so <em></em>INLINE<em>CODE</em>200<em></em> is never achieved → <em></em>INLINE<em>CODE</em>201<em></em>.
+<em> <strong>Energy exactly enough, no slack at all</strong> → still works correctly, since BFS only ever generates a move when <em></em>INLINE<em>CODE</em>202<em></em> at the moment of the move, so it naturally respects "just barely enough energy" paths without any special-casing.
+</em> <strong>Multiple recharge stations, and a path that needs several of them in sequence</strong> → handled naturally, since every time we land on <em></em>INLINE<em>CODE</em>203<em></em> in the BFS transition, energy resets, no matter how many times this has already happened along the path.
+<em> <strong>Only 1 litter piece and it's directly reachable with no recharge needed</strong> → works like a normal single-target BFS, degrading gracefully.
+</em> <strong>The grid is 1 row or 1 column</strong> → no special handling needed; the same 4-direction logic just has fewer valid moves in practice (moves off the single row/column are rejected by the boundary check).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> It estimates how much work grows as inputs grow — the same "twice the input, roughly twice (or more) the work" idea as before, just now applied to a state space instead of a plain array.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> Every state is visited (and its 4 neighbors examined) <strong>at most once</strong>, thanks to the <em></em>INLINE<em>CODE</em>204<em></em> array preventing re-processing. So the total work is proportional to the total number of possible states, times a small constant (4 directions). With the problem's guaranteed small limits (<em></em>INLINE<em>CODE</em>205<em></em>, <em></em>INLINE<em>CODE</em>206<em></em>, <em></em>INLINE<em>CODE</em>207<em></em>), this comes out to roughly 20 million states — large, but a fixed, bounded amount of work a computer can chew through, unlike something that grows explosively (like trying every possible <em>order</em> of visiting 10 litter pieces, which would be <em></em>INLINE<em>CODE</em>208<em></em> million <em>orderings</em>, each potentially requiring its own separate search — the state-based BFS elegantly avoids needing to enumerate orderings at all).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> The <em></em>INLINE<em>CODE</em>209<em></em> boolean array has one entry per possible state: <em></em>INLINE<em>CODE</em>210<em></em> — up to about 20.9 million <em></em>INLINE<em>CODE</em>211<em></em> entries.
+</em> The BFS queue, at any moment, holds a subset of these states (bounded by the same total).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So overall extra space is <em></em>INLINE<em>CODE</em>212<em></em> — the same bound as the time complexity, since we need to remember every state we might visit.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I'll just do BFS on <em></em>INLINE<em>CODE</em>213<em></em> only, like a normal shortest-path grid problem."
+✅ Plain <em></em>INLINE<em>CODE</em>214<em></em> BFS can't tell the difference between "I'm here with lots of energy" and "I'm here with almost none," nor can it know which litter has already been collected — both are essential to correctness here, not just optimizations.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I'll compute shortest distances between each pair of key points (S and each L) separately, assuming full energy at the start of each leg, then combine them like a traveling-salesman problem."
+✅ This silently assumes energy resets between litter pickups, which isn't true — energy only resets at <em></em>INLINE<em>CODE</em>215<em></em> tiles. This approach can give wrong (too optimistic or too pessimistic) answers, as shown conceptually in Section 8's introduction.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "If energy hits exactly 0, but I'm about to <em>arrive</em> at an <em></em>INLINE<em>CODE</em>216<em></em> cell, that's not allowed."
+✅ It's allowed — the check is about whether you have energy <em>before</em> making a move (<em></em>INLINE<em>CODE</em>217<em></em> to attempt any move at all), and if the <em>destination</em> of that move is <em></em>INLINE<em>CODE</em>218<em></em>, the energy resets to full immediately upon arrival, regardless of how little was left just before the move.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I only need to mark a cell as visited once, regardless of energy or mask."
+✅ You must track visited status per <em>entire state</em> <em></em>INLINE<em>CODE</em>219<em></em> — the same cell can legitimately be revisited many times throughout a solution, as long as it's with a genuinely new energy level or litter combination not seen before at that cell.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "Since there could be up to 10 litter pieces, I should try all <em></em>INLINE<em>CODE</em>220<em></em> orderings explicitly."
+✅ Unnecessary — folding the collected-litter bitmask into the BFS state already implicitly explores every meaningful ordering, without you ever having to generate permutations by hand.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a shortest-path problem has some extra resource (energy, keys, fuel) that changes what moves are legal, and/or a small set of "must-visit" items, think: <strong>expand the BFS state to include that resource and/or a bitmask of progress</strong>, rather than trying to handle it as a separate calculation layered on top of plain positional BFS.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>8<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: the real "aha" isn't a clever formula — it's recognizing that the <em>state itself</em> was too small, and the fix is enlarging what a BFS "node" represents until it captures everything that actually affects the future.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why can't we just track <em></em>INLINE<em>CODE</em>221<em></em> and separately remember "current energy" and "mask" as plain variables outside the BFS state, updating them as we go?
+2. If a cell has already been visited with <em></em>INLINE<em>CODE</em>222<em></em>, and later BFS reaches the <em>same cell</em> with <em></em>INLINE<em>CODE</em>223<em></em>, should we explore from this new state too, or skip it? Why?
+3. Why is it fine to stop and return the answer the <em>moment</em> we pop a state with the full mask, instead of continuing to check if some other completion is even shorter?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Because BFS naturally explores <em>many different paths at once</em>, branching in all directions — there isn't just one single "current" energy or mask at any moment; different branches of the search are simultaneously at different cells with different energy/mask combinations. The state must travel <em>with</em> each branch, which is exactly what bundling it into the queue entries accomplishes.
+2. We should explore it — <em></em>INLINE<em>CODE</em>224<em></em> is a genuinely different state from <em></em>INLINE<em>CODE</em>225<em></em> at the same cell, since with less energy remaining, different future moves may or may not be affordable. It's not automatically "worse" in a way that lets us skip it — treating it as unvisited is required for correctness (although as noted in Section 19, this is exactly why the state space includes the energy dimension explicitly, rather than just row/col).
+3. Because BFS explores states in strictly non-decreasing order of distance (it processes everything at distance <em></em>INLINE<em>CODE</em>226<em></em> before anything at distance <em></em>INLINE<em>CODE</em>227<em></em>), the very first time we encounter a "fully collected" state is guaranteed to have the smallest possible distance — no other completion, found later in the queue, could ever have a smaller distance than one found earlier.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Find the minimum number of grid moves to collect all litter, where energy depletes with each move and only fully resets when standing on a recharge tile.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+Treat <em></em>INLINE<em>CODE</em>228<em></em> as a single BFS state, and run ordinary breadth-first search over this enlarged state space — the first time the mask becomes "everything collected" gives the minimum moves.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Locate the start cell and assign each litter cell a unique bit.
+2. BFS from <em></em>INLINE<em>CODE</em>229<em></em>, exploring 4 directions per state.
+3. On each move: energy resets to full if landing on <em></em>INLINE<em>CODE</em>230<em></em>, otherwise drops by 1; mask gains a bit if landing on unlit litter.
+4. Skip moves where current energy is 0, and skip states already visited.
+5. Return the distance the instant a state with the full mask is popped; if BFS exhausts without that, return <em></em>INLINE<em>CODE</em>231<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>232<em></em>
+Space: <em></em>INLINE<em>CODE</em>233<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+When a grid shortest-path problem has an extra depletable/resettable resource and a small "must-collect-all" set, enlarge the BFS state to <em></em>INLINE<em>CODE</em>234<em></em> rather than trying to bolt these on separately.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why does energy need to be part of the BFS state instead of just checked as a side condition?
+2. <strong>(Basic concept)</strong> If there are 4 litter pieces and you've collected the 2nd and 4th (using 0-indexed positions 0,1,2,3), what is the mask in binary, and as a decimal number?
+3. <strong>(Logic)</strong> Why can't we safely assume energy resets to full every time we start heading toward the next litter piece?
+4. <strong>(Dry run)</strong> For a tiny 1×3 grid <em></em>INLINE<em>CODE</em>235<em></em> written as a single row <em></em>INLINE<em>CODE</em>236<em></em> with <em></em>INLINE<em>CODE</em>237<em></em>, walk through what BFS would do, and give the final answer.
+5. <strong>(Complexity/pattern)</strong> Why does this problem's state space multiply <em></em>INLINE<em>CODE</em>238<em></em> instead of just <em></em>INLINE<em>CODE</em>239<em></em>, and what specific phrase in the problem (about energy resetting) is the clue that a plain positional BFS would be incorrect, not just slow?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

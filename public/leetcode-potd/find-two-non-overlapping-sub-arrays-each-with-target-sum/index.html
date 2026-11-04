@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1477. Find Two Non-overlapping Sub-arrays Each With Target Sum Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find two non-overlapping sub-arrays each with sum equal to target minimizing their combined length using sliding window and prefix dynamic programming." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/find-two-non-overlapping-sub-arrays-each-with-target-sum" />
+  
+  <meta property="og:title" content="1477. Find Two Non-overlapping Sub-arrays Each With Target Sum Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find two non-overlapping sub-arrays each with sum equal to target minimizing their combined length using sliding window and prefix dynamic programming." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/find-two-non-overlapping-sub-arrays-each-with-target-sum" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/find-two-non-overlapping-sub-arrays-each-with-target-sum';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">1477. Find Two Non-overlapping Sub-arrays Each With Target Sum</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-17</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since all elements in <em></em>INLINE<em>CODE</em>0<em></em> are strictly positive (<em></em>INLINE<em>CODE</em>1<em></em>), running subarray sums are strictly monotonic. This allows us to locate every subarray with sum exactly <em></em>INLINE<em>CODE</em>2<em></em> in a single linear <strong>sliding window</strong> pass, while simultaneously maintaining a running <strong>prefix-minimum DP table of shortest valid lengths</strong> to pair each found subarray with the best non-overlapping candidate to its left in $O(1)$ time.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You are given an array of positive integers <em></em>INLINE<em>CODE</em>3<em></em> and an integer <em></em>INLINE<em>CODE</em>4<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You need to pick <strong>two separate (non-overlapping) continuous chunks (subarrays)</strong> from <em></em>INLINE<em>CODE</em>5<em></em> such that:
+<em> The sum of elements in Chunk 1 is <strong>exactly equal to <em></em>INLINE<em>CODE</em>6<em></em></strong>.
+</em> The sum of elements in Chunk 2 is <strong>also exactly equal to <em></em>INLINE<em>CODE</em>7<em></em></strong>.
+<em> Chunk 1 and Chunk 2 do <strong>not share any indices</strong> (they cannot overlap at all).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> Find two such non-overlapping chunks such that the <strong>sum of their lengths</strong> is as <strong>small as possible</strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What's given:</strong> An integer array <em></em>INLINE<em>CODE</em>8<em></em> (where every number is $\ge 1$) and an integer <em></em>INLINE<em>CODE</em>9<em></em>.
+<em> <strong>What to find:</strong> Two non-overlapping subarrays that each sum to <em></em>INLINE<em>CODE</em>10<em></em> with minimal combined length.
+</em> <strong>What to return:</strong> The minimum total length (<em></em>INLINE<em>CODE</em>11<em></em>), or <em></em>INLINE<em>CODE</em>12<em></em> if it is impossible to find two valid non-overlapping subarrays.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a continuous ribbon with numbers printed in consecutive sections. You need to cut out <strong>two separate pieces</strong> of ribbon, each containing numbers that add up to a prize score of <em></em>INLINE<em>CODE</em>13<em></em>. Because ribbon material costs money, your boss wants you to use as few total inches of ribbon as possible. You cannot reuse any cut section of the ribbon for both pieces. You want to scan along the ribbon once, spot every piece that totals <em></em>INLINE<em>CODE</em>14<em></em>, and pair each one with the shortest valid piece found completely to its left.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Subarray vs Subsequence</h3>
+<em> A <strong>subarray</strong> is a contiguous, unbroken slice of an array: <em></em>INLINE<em>CODE</em>15<em></em>.
+</em> You cannot skip elements within a subarray.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Monotonicity of Running Sums</h3>
+<em> Because every element in <em></em>INLINE<em>CODE</em>16<em></em> is positive (<em></em>INLINE<em>CODE</em>17<em></em>), expanding the window (<em></em>INLINE<em>CODE</em>18<em></em>) strictly increases the sum, and shrinking the window from the left (<em></em>INLINE<em>CODE</em>19<em></em>) strictly decreases the sum.
+</em> This property enables a pure two-pointer <strong>sliding window</strong> in $O(N)$ time without backtracking.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Prefix Minimum Dynamic Programming (<em></em>INLINE<em>CODE</em>20<em></em>)</h3>
+<em> Let <em></em>INLINE<em>CODE</em>21<em></em> store the <strong>minimum length of any valid target-sum subarray</strong> whose right endpoint ends at or before index <em></em>INLINE<em>CODE</em>22<em></em>.
+</em> If a valid subarray <em></em>INLINE<em>CODE</em>23<em></em> is discovered, its length is <em></em>INLINE<em>CODE</em>24<em></em>.
+<em> The shortest valid subarray completely to its left ends at or before index <em></em>INLINE<em>CODE</em>25<em></em>, which is stored in <em></em>INLINE<em>CODE</em>26<em></em>.
+</em> Combining them gives a total length of <em></em>INLINE<em>CODE</em>27<em></em> in $O(1)$ time!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take <strong>Example 1</strong>:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Target is <em></em>INLINE<em>CODE</em>28<em></em>.
+</em> Subarrays that sum to 3:
+  <em> <em></em>INLINE<em>CODE</em>29<em></em> at index <em></em>INLINE<em>CODE</em>30<em></em> (length 1)
+  </em> <em></em>INLINE<em>CODE</em>31<em></em> at index <em></em>INLINE<em>CODE</em>32<em></em> (length 1)
+<em> Indices <em></em>INLINE<em>CODE</em>33<em></em> and <em></em>INLINE<em>CODE</em>34<em></em> do not overlap.
+</em> Combined length = $1 + 1 = 2$.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take <strong>Example 2</strong>:
+<em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Target is <em></em>INLINE<em>CODE</em>35<em></em>.
+</em> Subarrays that sum to 7:
+  <em> <em></em>INLINE<em>CODE</em>36<em></em> at index <em></em>INLINE<em>CODE</em>37<em></em> (length 1)
+  </em> <em></em>INLINE<em>CODE</em>38<em></em> at indices <em></em>INLINE<em>CODE</em>39<em></em> (length 2)
+  <em> <em></em>INLINE<em>CODE</em>40<em></em> at index <em></em>INLINE<em>CODE</em>41<em></em> (length 1)
+</em> Pairs of non-overlapping subarrays:
+  <em> Pair 1: <em></em>INLINE<em>CODE</em>42<em></em> at index 0 and <em></em>INLINE<em>CODE</em>43<em></em> at [1, 2] $\rightarrow$ length = $1 + 2 = 3$.
+  </em> Pair 2: <em></em>INLINE<em>CODE</em>44<em></em> at index 0 and <em></em>INLINE<em>CODE</em>45<em></em> at index 3 $\rightarrow$ length = $1 + 1 = 2$.
+  <em> Pair 3: <em></em>INLINE<em>CODE</em>46<em></em> at [1, 2] and <em></em>INLINE<em>CODE</em>47<em></em> at index 3 $\rightarrow$ length = $2 + 1 = 3$.
+</em> The minimum combined length across all valid pairs is <strong>2</strong>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Return an integer representing the smallest combined length <em></em>INLINE<em>CODE</em>48<em></em>.
+</em> If fewer than 2 non-overlapping target-sum subarrays exist, return <em></em>INLINE<em>CODE</em>49<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually walk through <strong>Example 2</strong>: <em></em>INLINE<em>CODE</em>50<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>At <em></em>INLINE<em>CODE</em>51<em></em> (<em></em>INLINE<em>CODE</em>52<em></em>):</strong>
+   <em> Window: <em></em>INLINE<em>CODE</em>53<em></em>, <em></em>INLINE<em>CODE</em>54<em></em>.
+   </em> Length <em></em>INLINE<em>CODE</em>55<em></em>.
+   <em> Left partner needed before index <em></em>INLINE<em>CODE</em>56<em></em>. None exists yet.
+   </em> Best subarray up to index 0: <em></em>INLINE<em>CODE</em>57<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">2. <strong>At <em></em>INLINE<em>CODE</em>58<em></em> (<em></em>INLINE<em>CODE</em>59<em></em>):</strong>
+   <em> Window: <em></em>INLINE<em>CODE</em>60<em></em>, <em></em>INLINE<em>CODE</em>61<em></em>. Shrink left: <em></em>INLINE<em>CODE</em>62<em></em>, <em></em>INLINE<em>CODE</em>63<em></em>.
+   </em> No valid target sum ending at index 1.
+   <em> Best subarray up to index 1: <em></em>INLINE<em>CODE</em>64<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">3. <strong>At <em></em>INLINE<em>CODE</em>65<em></em> (<em></em>INLINE<em>CODE</em>66<em></em>):</strong>
+   </em> Window: <em></em>INLINE<em>CODE</em>67<em></em>, <em></em>INLINE<em>CODE</em>68<em></em>.
+   <em> Length <em></em>INLINE<em>CODE</em>69<em></em> (from index 1 to 2).
+   </em> Left partner needed before index <em></em>INLINE<em>CODE</em>70<em></em>. Best left length = <em></em>INLINE<em>CODE</em>71<em></em>.
+   <em> Total pair length = <em></em>INLINE<em>CODE</em>72<em></em>. Candidate answer = 3.
+   </em> Best subarray up to index 2: <em></em>INLINE<em>CODE</em>73<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">4. <strong>At <em></em>INLINE<em>CODE</em>74<em></em> (<em></em>INLINE<em>CODE</em>75<em></em>):</strong>
+   <em> Window: <em></em>INLINE<em>CODE</em>76<em></em>, <em></em>INLINE<em>CODE</em>77<em></em>. Shrink left:
+     </em> <em></em>INLINE<em>CODE</em>78<em></em>, <em></em>INLINE<em>CODE</em>79<em></em>.
+     <em> <em></em>INLINE<em>CODE</em>80<em></em>, <em></em>INLINE<em>CODE</em>81<em></em>.
+   </em> Length <em></em>INLINE<em>CODE</em>82<em></em> (at index 3).
+   <em> Left partner needed before index <em></em>INLINE<em>CODE</em>83<em></em>. Best left length = <em></em>INLINE<em>CODE</em>84<em></em>.
+   </em> Total pair length = <em></em>INLINE<em>CODE</em>85<em></em>.
+   <em> Best total answer = <em></em>INLINE<em>CODE</em>86<em></em>.
+   </em> Best subarray up to index 3: <em></em>INLINE<em>CODE</em>87<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Final Answer: <strong>2</strong> ✔️</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong>
+  </em> All elements are positive $(\ge 1)$.
+  <em> Any subarray summing to <em></em>INLINE<em>CODE</em>88<em></em> has a specific start <em></em>INLINE<em>CODE</em>89<em></em> and end <em></em>INLINE<em>CODE</em>90<em></em>.
+</em> <strong>What is the challenge?</strong>
+  <em> We need two non-overlapping subarrays.
+  </em> If we find a subarray ending at <em></em>INLINE<em>CODE</em>91<em></em>, what is the best subarray that ends <strong>before</strong> <em></em>INLINE<em>CODE</em>92<em></em>?
+<em> <strong>Why naive searching fails:</strong>
+  </em> If there are $K$ valid subarrays, checking all pairs takes $O(K^2)$. In the worst case, $K = O(N)$, leading to an $O(N^2)$ time limit exceeded (TLE).
+<em> <strong>The DP optimization:</strong>
+  </em> By storing the minimum length of any valid subarray seen up to index $i$ in a 1D array <em></em>INLINE<em>CODE</em>93<em></em>, looking up the best non-overlapping left partner takes exactly <strong>$O(1)$</strong> time!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong>
+1. Find all pairs of <em></em>INLINE<em>CODE</em>94<em></em> where $\sum \text{arr}[\text{start}..\text{end}] = \text{target}$.
+2. Compare every pair of intervals $(I<em>1, I</em>2)$ that do not overlap: $\text{end}<em>1 < \text{start}</em>2$.
+3. Track the minimum sum of lengths $\text{len}(I<em>1) + \text{len}(I</em>2)$.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time Complexity:</strong> $O(N^2)$ to find intervals and $O(M^2)$ to compare pairs. With $N = 10^5$, this will exceed the 2-second time limit.
+<strong>Space Complexity:</strong> $O(M)$ to store intervals.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>95<em></em> — collects all intervals that sum to <em></em>INLINE<em>CODE</em>96<em></em>.
+</em> Nested loops <em></em>INLINE<em>CODE</em>97<em></em> and <em></em>INLINE<em>CODE</em>98<em></em> compute subarray sums; when <em></em>INLINE<em>CODE</em>99<em></em>, records <em></em>INLINE<em>CODE</em>100<em></em>.
+<em> Second nested loop checks all pairs of intervals for non-overlap condition (<em></em>INLINE<em>CODE</em>101<em></em> or <em></em>INLINE<em>CODE</em>102<em></em>).
+</em> Returns the minimum combined length found or <em></em>INLINE<em>CODE</em>103<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Is Brute Force Inefficient?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Finding intervals and comparing all combinations pairwise performs redundant comparisons.
+</em> When we consider a valid subarray ending at <em></em>INLINE<em>CODE</em>104<em></em>, we do not need to check <em>every</em> previous valid subarray individually. We only care about the <strong>single smallest length</strong> among all previous subarrays ending at or before <em></em>INLINE<em>CODE</em>105<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we maintain a running prefix minimum of valid subarray lengths while scanning with a sliding window?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes!
+1. Maintain a two-pointer sliding window <em></em>INLINE<em>CODE</em>106<em></em> with running sum <em></em>INLINE<em>CODE</em>107<em></em>.
+2. Array <em></em>INLINE<em>CODE</em>108<em></em> tracks $\min \text{length}$ of any valid target-sum subarray ending at index $\le i$.
+3. When <em></em>INLINE<em>CODE</em>109<em></em> at window <em></em>INLINE<em>CODE</em>110<em></em>:
+   <em> Current window length is <em></em>INLINE<em>CODE</em>111<em></em>.
+   </em> If <em></em>INLINE<em>CODE</em>112<em></em> and <em></em>INLINE<em>CODE</em>113<em></em>, a valid non-overlapping pair exists with combined length <em></em>INLINE<em>CODE</em>114<em></em>.
+   <em> Update global answer: <em></em>INLINE<em>CODE</em>115<em></em>.
+   </em> Update running prefix minimum: <em></em>INLINE<em>CODE</em>116<em></em>.
+4. If <em></em>INLINE<em>CODE</em>117<em></em>:
+   <em> <em></em>INLINE<em>CODE</em>118<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">12. ⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+Checking all pairs of non-overlapping intervals requires $O(N^2)$ combinations.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+1. Because all values in <em></em>INLINE<em>CODE</em>119<em></em> are positive, a simple <strong>sliding window</strong> discovers every valid subarray in $O(N)$ time.
+2. A <strong>1D prefix-minimum DP array</strong> (<em></em>INLINE<em>CODE</em>120<em></em>) allows $O(1)$ query of the shortest non-overlapping subarray to the left.
+3. Evaluating the pair <strong>before</strong> recording the current window into <em></em>INLINE<em>CODE</em>121<em></em> guarantees the two chosen subarrays never overlap or reuse the same segment.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The solution runs in a single clean $O(N)$ pass with $O(N)$ auxiliary space.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's trace <em></em>INLINE<em>CODE</em>122<em></em>, <em></em>INLINE<em>CODE</em>123<em></em>, <em></em>INLINE<em>CODE</em>124<em></em>.</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>125<em></em></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>126<em></em></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>127<em></em> (after shrink)</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>128<em></em></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>129<em></em>?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>130<em></em></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Left Partner (<em></em>INLINE<em>CODE</em>131<em></em>)</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Candidate Pair</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;"><em></em>INLINE<em>CODE</em>132<em></em></th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Best <em></em>INLINE<em>CODE</em>133<em></em></th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>0</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">None (<em></em>INLINE<em>CODE</em>134<em></em>)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">-</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">INF</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>1</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">-</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">-</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">-</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">INF</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>2</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>135<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">$1 + 2 = 3$</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">$\min(1, 2) = 1$</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>3</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>136<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">$1 + 1 = 2$</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">$\min(1, 1) = 1$</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td></tr></table></div>
+<strong>Final Result:</strong> <em></em>INLINE<em>CODE</em>137<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Solution Code</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Java</h3>
+<em></em>CODE<em>BLOCK</em>4<em></em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Python3</h3>
+<em></em>CODE<em>BLOCK</em>5<em></em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">JavaScript</h3>
+<em></em>CODE<em>BLOCK</em>6<em></em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">C++</h3>
+<em></em>CODE<em>BLOCK</em>7<em></em>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>138<em></em> — sentinel value representing no valid subarray found yet, halved to prevent integer overflow during <em></em>INLINE<em>CODE</em>139<em></em>.
+<em> <em></em>INLINE<em>CODE</em>140<em></em> — initializes two pointers and the global minimum answer.
+</em> <em></em>INLINE<em>CODE</em>141<em></em> — expands the sliding window by including the element at <em></em>INLINE<em>CODE</em>142<em></em>.
+<em> <em></em>INLINE<em>CODE</em>143<em></em> — shrinks window until <em></em>INLINE<em>CODE</em>144<em></em>.
+</em> <em></em>INLINE<em>CODE</em>145<em></em> — carries forward the shortest valid subarray length found up to index <em></em>INLINE<em>CODE</em>146<em></em>.
+<em> <em></em>INLINE<em>CODE</em>147<em></em> — checks if the current window is a match.
+  </em> <em></em>INLINE<em>CODE</em>148<em></em> — calculates the length of the current matching subarray.
+  <em> <em></em>INLINE<em>CODE</em>149<em></em> — if a non-overlapping valid subarray exists to the left, update <em></em>INLINE<em>CODE</em>150<em></em>.
+  </em> <em></em>INLINE<em>CODE</em>151<em></em> — updates the minimum length for the prefix ending at <em></em>INLINE<em>CODE</em>152<em></em>.
+<em> <em></em>INLINE<em>CODE</em>153<em></em> — stores the prefix minimum into <em></em>INLINE<em>CODE</em>154<em></em>.
+</em> <em></em>INLINE<em>CODE</em>155<em></em> — returns the answer if at least two non-overlapping subarrays were found, otherwise <em></em>INLINE<em>CODE</em>156<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1: <em></em>INLINE<em>CODE</em>157<em></em></h3>
+<em> Subarrays with sum 3: <em></em>INLINE<em>CODE</em>158<em></em> at index 0 (len 1) and <em></em>INLINE<em>CODE</em>159<em></em> at index 4 (len 1).
+</em> Output: <em></em>INLINE<em>CODE</em>160<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2: <em></em>INLINE<em>CODE</em>161<em></em></h3>
+<em> Subarrays: <em></em>INLINE<em>CODE</em>162<em></em> at 0 (len 1), <em></em>INLINE<em>CODE</em>163<em></em> at 1..2 (len 2), <em></em>INLINE<em>CODE</em>164<em></em> at 3 (len 1).
+</em> Best pair: index 0 and index 3 $\rightarrow$ combined length = $1 + 1 = 2$.
+<em> Output: <em></em>INLINE<em>CODE</em>165<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3: <em></em>INLINE<em>CODE</em>166<em></em></h3>
+</em> Subarrays: <em></em>INLINE<em>CODE</em>167<em></em> is not contiguous; valid contiguous subarrays are <em></em>INLINE<em>CODE</em>168<em></em> at index 3 (len 1) and <em></em>INLINE<em>CODE</em>169<em></em> (sum 9 > 6).
+<em> Output: <em></em>INLINE<em>CODE</em>170<em></em> (only 1 valid subarray exists) ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>No valid subarray exists:</strong> If no subarray sums to <em></em>INLINE<em>CODE</em>171<em></em>, returns <em></em>INLINE<em>CODE</em>172<em></em>.
+<em> <strong>Only one valid subarray exists:</strong> If only 1 subarray sums to <em></em>INLINE<em>CODE</em>173<em></em>, no non-overlapping pair can be formed $\rightarrow$ returns <em></em>INLINE<em>CODE</em>174<em></em>.
+</em> <strong>Multiple identical target elements:</strong> E.g., <em></em>INLINE<em>CODE</em>175<em></em> $\rightarrow$ pairs <em></em>INLINE<em>CODE</em>176<em></em> and <em></em>INLINE<em>CODE</em>177<em></em> to return <em></em>INLINE<em>CODE</em>178<em></em>.
+<em> <strong>Overlapping matches:</strong> E.g., <em></em>INLINE<em>CODE</em>179<em></em> $\rightarrow$ ignores overlapping matches and strictly pairs non-overlapping segments.
+</em> <strong>Large constraints ($N = 10^5$):</strong> Linear $O(N)$ execution completes in $< 15$ ms.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Sliding Window:</strong> Each index is visited at most twice (once by <em></em>INLINE<em>CODE</em>180<em></em>, once by <em></em>INLINE<em>CODE</em>181<em></em>), taking $O(N)$ operations.
+</em> <strong>DP Updates:</strong> Each step performs $O(1)$ constant-time arithmetic and lookups.
+<em> <strong>Total Time Complexity:</strong> $\mathcal{O}(N)$, optimal for $N = 10^5$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>DP Array:</strong> Requires an array of size $N$ to store prefix minimums.
+<em> <strong>Total Space Complexity:</strong> $\mathcal{O}(N)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ <strong>"Updating <em></em>INLINE<em>CODE</em>182<em></em> before pairing with <em></em>INLINE<em>CODE</em>183<em></em>."</strong>
+  <em> If you update the DP array with the current window before evaluating candidate pairs, a subarray could accidentally pair with a piece of itself or an overlapping segment.
+</em> ❌ <strong>"Using Integer.MAX<em>VALUE directly without halving."</strong>
+  <em> Evaluating </em><em>INLINE</em>CODE<em>184</em><em> causes integer overflow into negative values, corrupting </em><em>INLINE</em>CODE<em>185</em><em>. Always use a safe sentinel like </em><em>INLINE</em>CODE<em>186</em><em> or </em><em>INLINE</em>CODE<em>187</em><em>.
+</em> ❌ <strong>"Assuming negative numbers can be present."</strong>
+  <em> The problem constraints state $arr[i] \ge 1$. If negative numbers were allowed, sliding window would fail and a prefix sum hash table with a segment tree or monotonic stack would be needed.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Look for these key identifiers:
+1. <strong>"Find two non-overlapping sub-arrays..."</strong>
+2. <strong>"Minimize or maximize the sum of their metrics (lengths, sums, profits)..."</strong>
+3. <strong>Array with non-negative / monotonic properties.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever you see "find 2 non-overlapping subarrays," use the <strong>Left-to-Right Prefix DP + Current Subarray</strong> pattern:
+</em> Compute the best candidate ending $\le i$ from the left.
+<em> Scan the second subarray and look up the best non-overlapping answer from the prefix DP in $O(1)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em><em>CODE</em>BLOCK<em>8</em><em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Quiz & Practice Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>Question 1:</strong> Why does sliding window work here instead of requiring a hash map for prefix sums?
+   </em> <em>Answer:</em> Because all elements are positive ($arr[i] \ge 1$), which ensures subarray sums are strictly monotonic when expanding and shrinking.
+2. <strong>Question 2:</strong> What would be the time complexity if we used a Hash Map to find all $K$ valid intervals and then compared all pairs?
+   <em> </em>Answer:<em> $O(K^2)$, which degrades to $O(N^2)$ in the worst case (e.g., all 1s).
+3. <strong>Question 3:</strong> Can this pattern be extended to find <strong>$k$ non-overlapping subarrays</strong>?
+   </em> <em>Answer:</em> Yes, using a 2D DP table </em><em>INLINE</em>CODE<em>188</em><em> where </em><em>INLINE</em>CODE<em>189</em>_ ranges from $1$ to $k$.</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encoding vs. Recall: Why LLMs Know More Facts Than They Can Retrieve | Mukesh Pal Blog</title>
+  <meta name="description" content="Google Research&#039;s new &#039;knowledge profiling&#039; framework shows frontier LLMs like Gemini-3 and GPT-5 encode 95-98% of facts but fail to recall 26-34% of them — reframing how developers should think about hallucinations." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://mukprabhakar.in/blog/llm-factuality-recall-vs-encoding-google-research" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Encoding vs. Recall: Why LLMs Know More Facts Than They Can Retrieve" />
+  <meta property="og:description" content="Google Research&#039;s new &#039;knowledge profiling&#039; framework shows frontier LLMs like Gemini-3 and GPT-5 encode 95-98% of facts but fail to recall 26-34% of them — reframing how developers should think about hallucinations." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/blog/llm-factuality-recall-vs-encoding-google-research" />
+  <meta property="og:image" content="https://mukprabhakar.in/llm_encoding_vs_recall.jpg" />
+  <meta property="article:published_time" content="2026-08-12" />
+  <meta property="article:author" content="Mukesh Pal" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Encoding vs. Recall: Why LLMs Know More Facts Than They Can Retrieve" />
+  <meta name="twitter:description" content="Google Research&#039;s new &#039;knowledge profiling&#039; framework shows frontier LLMs like Gemini-3 and GPT-5 encode 95-98% of facts but fail to recall 26-34% of them — reframing how developers should think about hallucinations." />
+  <meta name="twitter:url" content="https://mukprabhakar.in/blog/llm-factuality-recall-vs-encoding-google-research" />
+  <meta name="twitter:image" content="https://mukprabhakar.in/llm_encoding_vs_recall.jpg" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/blog/llm-factuality-recall-vs-encoding-google-research';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0a0a0c;
+      color: #e4e4e7;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/blog">← Back to Blog</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">Encoding vs. Recall: Why LLMs Know More Facts Than They Can Retrieve</h1>
+      <p style="color: #71717a; font-size: 0.95rem; margin-top: 0;">
+        Published on <strong>2026-08-12</strong> by <strong>Mukesh Pal</strong>
+      </p>
+      <p style="margin-top: 0.5rem;"><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#LLM factuality recall vs encoding</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#knowledge profiling LLM</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#WikiProfile benchmark</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#LLM hallucination research</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#reversal curse LLM</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#chain-of-thought factual recall</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Google Research LLM 2026</span></p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8;">
+      
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Introduction</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Factual errors remain one of the most persistent problems limiting how much developers and enterprises can trust large language models. When a model states something incorrect, the usual diagnosis is simple: <em>"the model doesn't know that."</em> But a new study from Google Research, published on August 12, 2026, argues that this diagnosis is often wrong — and that the real problem is frequently not what the model knows, but what it can access.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The paper, <em>"Empty Shelves or Lost Keys? Recall Is the Bottleneck for Parametric Factuality,"</em> introduces a framework for telling these two failure modes apart, with direct implications for anyone building RAG systems, agents, or factual-QA tools.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">What Happened?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Researchers Nitay Calderon and Gal Yona at Google Research introduced <strong>knowledge profiling</strong>, a behavioral framework that separates two properties standard factuality benchmarks conflate: whether a fact is encoded in a model's parameters (learned during training), and whether that fact is recallable (retrievable in response to a direct question, without the answer being shown).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">To operationalize this, they built and released <strong>WikiProfile</strong>, a benchmark of 2,150 Wikipedia-derived facts, each tested through ten different question formats. They evaluated 13 LLMs — including Gemini-2.5-Pro, Gemini-3-Pro and Flash, and GPT-5 — producing roughly 4.5 million graded responses. The paper and the WikiProfile dataset are both publicly available.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">The Technology Behind It</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The central distinction in this research borrows from cognitive psychology's vocabulary around memory:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Encoding</strong>: Whether a fact is represented in the model's parameters at all. This is tested by placing the model in a pretraining-like context (proposition completion, contextual questioning) that primes it to expose stored knowledge without revealing the answer directly.
+</em> <strong>Recall</strong>: Whether the model can retrieve an encoded fact and answer correctly across varied phrasings, including both direct questions ("A is B; what is B?") and reverse questions ("what is A, given B?").
+<em> <strong>Recognition</strong>: Whether the model can identify the correct fact when it's presented among plausible alternatives, tested via multiple-choice questions.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Each fact in WikiProfile gets classified into one of five knowledge profiles: <strong>encoding failure</strong>, <strong>recall failure</strong>, <strong>direct recall</strong>, <strong>recall with thinking</strong>, and <strong>inference without encoding</strong> (where a model reasons its way to a correct answer using other encoded facts, without ever having directly encoded the fact itself).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">How It Works</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">WikiProfile was built through a largely automated pipeline: facts were extracted from Wikipedia (a well-known and heavily represented source in pretraining data), then a prompted LLM (Gemini-2.5-Pro with thinking) generated direct and reverse questions through a generation-refinement-filtering process. Every question was filtered against a search engine to guarantee a single, unambiguous, verifiable answer — questions with multiple possible answers were discarded entirely.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">After automated filtering and a final manual validation pass, the benchmark settled at 2,150 facts, each paired with ten tasks: two for encoding, four for direct knowledge evaluation (direct/reverse, with/without thinking), and four multiple-choice recognition variants.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Each of the 13 evaluated models was tested with and without "thinking" enabled (chain-of-thought or thinking-optimized inference), with eight sampled responses per fact/task combination, graded by prompted LLM autoraters.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Why It Matters</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The headline result: across frontier models (Gemini-2.5-Pro, Gemini-3-Pro, Gemini-3-Flash, GPT-5), encoding is close to saturated — <strong>Gemini-3-Pro and GPT-5 encode 95–98% of the facts</strong> in the benchmark. But direct recall lags far behind: these same models <strong>fail to directly recall 26–34% of facts</strong> they've actually encoded. Even with thinking enabled, 11–12% remain unrecalled.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The paper's framing is direct: factual errors in frontier models increasingly stem not from missing knowledge, but from knowledge that is stored yet inaccessible.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This pattern holds across scale, too. Within the Gemma 3 model family, larger models show markedly fewer encoding failures — but recall failures persist and become a larger share of remaining errors as models scale. The authors' conclusion: <strong>scaling improves what a model stores more than it improves what a model can retrieve.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Two specific patterns stood out in the results:</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">1. Long-tail facts</h3>
+Prior research has often framed poor performance on rare facts as a capacity/training-data problem. This study finds that rare facts are encoded at rates close to popular facts — the real gap opens up at the recall stage, not the encoding stage. The long-tail factuality problem looks less like </em>"the model never learned this"<em> and more like </em>"the model learned this but struggles to retrieve it."<em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">2. The Reversal Curse</h3>
+Models that learn "A is B" but fail to answer "what is B?" have often been interpreted as lacking bidirectional knowledge. This study complicates that view: in multiple-choice recognition tasks, reverse questions are no harder than direct ones (often easier). But in open-ended generation, reverse questions are consistently harder. Since the model can recognize the correct answer among distractors but can't generate it unprompted, the fact appears genuinely encoded and even recognizable — <strong>the reversal curse looks like a recall problem specifically tied to open-ended generation</strong>, not an absence of bidirectional knowledge.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Practical Applications</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>RAG system design</strong>: Understanding that many "unknown" facts are actually encoded-but-unrecalled suggests that better query phrasing, multiple question reformulations, or retrieval-augmented verification steps might resolve errors that would otherwise be misdiagnosed as knowledge gaps.
+<em> <strong>Agent verification layers</strong>: Systems that ask an LLM to self-verify a fact via multiple-choice recognition may get more reliable results than asking it to generate the fact directly from an open-ended prompt.
+</em> <strong>Fact-checking and QA tooling</strong>: Distinguishing "the model doesn't know this" from "the model can't find this" changes what remediation makes sense — external retrieval versus prompt reformulation versus escalating to a human.
+<em> <strong>Model evaluation practices</strong>: Standard accuracy metrics that treat all wrong answers identically obscure this distinction entirely; teams building internal eval suites for LLM-powered products may want to adopt a similar profiling approach rather than a single pass/fail accuracy number.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Example for Developers</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A simplified way to apply the paper's logic when debugging factual errors in an LLM-powered application:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For a given fact-based failure:
+1. Ask the same underlying fact via a <strong>different phrasing/direction</strong> (e.g., if </em>"what is the capital of X"<em> failed, try </em>"X's capital is <em></em>_"<em>)
+2. Ask it as a <strong>multiple-choice / recognition question</strong> instead of open generation.
+3. Re-ask with a <strong>thinking/reasoning step</strong> enabled.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>If the model succeeds on (2) or (3) but failed on the original phrasing:</strong>  
+  → <em>Likely a RECALL failure</em> — the fact is encoded but not surfacing.  
+  → <em>Fix:</em> Reformulate prompts, add retrieval grounding, or allow reasoning steps.
+<em> <strong>If the model fails across all three:</strong>  
+  → </em>Likely an ENCODING failure<em> — the fact may not be present at all.  
+  → </em>Fix:<em> External retrieval (RAG) is the more reliable remedy here, not prompt engineering.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This isn't a replacement for the paper's rigorous methodology, but it's a reasonable diagnostic heuristic developers can apply when triaging factual errors in production systems.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Limitations</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Domain scope</strong>: WikiProfile is built specifically from Wikipedia-derived facts. Wikipedia is heavily represented in most pretraining corpora, so results may not generalize identically to specialized, technical, or proprietary domain knowledge less common in training data.
+<em> <strong>Automated pipeline dependency</strong>: The benchmark's question generation relies on a prompted LLM (Gemini-2.5-Pro) for construction, with manual validation as a check — this introduces some dependency on that model's own capabilities and biases, even with the search-grounded filtering step.
+</em> <strong>Grading methodology</strong>: Responses are graded by prompted LLM autoraters rather than exclusively human annotators, which is a common and reasonably validated practice in large-scale evals but still worth noting as a methodological choice.
+<em> <strong>Single research team's framework</strong>: As with any new benchmark, broader adoption and independent replication across different fact distributions and languages will help confirm how generalizable these findings are.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Future Possibilities</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The authors suggest that if encoding is already near-saturated in frontier models, further factuality gains are less likely to come from simply scaling pretraining data or model size. Instead, they point toward post-training methods and inference-time strategies specifically designed to improve utilization of already-encoded knowledge — essentially, teaching models to search their own parameters more effectively rather than teaching them more facts.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This could influence how labs prioritize research investment: less "bigger corpus," more "better retrieval-from-self" mechanisms, alongside continued reliance on external retrieval (RAG) for genuinely absent knowledge.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">My Perspective</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">As a developer who works with LLM-integrated systems, what strikes me most about this paper is how directly it maps onto debugging intuition I've built through trial and error — except now there's a rigorous framework and a public benchmark behind it instead of just anecdotal pattern-matching. I've seen models "fail" to answer something correctly, only to get it right when I rephrased the same question. This paper gives that experience a name and a measurement methodology.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The practical takeaway for anyone building AI-powered products is that hallucination mitigation isn't a single problem with a single fix. If a chunk of factual errors are recall failures rather than encoding failures, then RAG alone doesn't fully solve the problem — a well-designed retrieval system still needs to account for how a model's own parametric knowledge might already have the answer, just not in a form the current prompt is surfacing. That's a more nuanced systems-design problem than "just add retrieval," and it's the kind of insight that should shape how developers structure verification and self-consistency checks in production LLM applications.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Conclusion</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Google Research's knowledge profiling framework offers a more precise diagnosis for one of AI's most persistent problems: many factual errors in frontier LLMs aren't caused by missing knowledge, but by an inability to reliably retrieve knowledge that's already stored. Encoding in models like Gemini-3-Pro and GPT-5 is nearly saturated, yet recall failures persist — especially for rare facts and reverse-direction questions — and "thinking" helps recover much of that gap, but only for facts that were genuinely encoded in the first place. For developers, the lesson is that improving factuality increasingly means designing systems that help models access what they already know, not just feeding them more data.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">FAQ</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">What is "knowledge profiling" in the context of LLMs?</h3>
+It's a framework introduced by Google Research that classifies each fact a model might be asked about into one of five states — based on whether the fact is encoded in the model's parameters and how accessible it is (not recallable, directly recallable, recallable only with thinking, or inferable without direct encoding).
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Is this the same thing as the "reversal curse"?</h3>
+The reversal curse (failing to answer "what is B" after learning "A is B") is one specific pattern this research examines. The paper's finding is that the reversal curse behaves like a recall problem rather than a missing-knowledge problem, since models can often still recognize the correct answer in a multiple-choice format even when they can't generate it directly.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Does this mean RAG is less necessary?</h3>
+No — the paper doesn't argue against retrieval-augmented generation. It suggests that some errors currently treated as "knowledge gaps" (and addressed purely with external retrieval) may actually be recall failures that could also be improved through better prompting, reasoning steps, or retrieval design that accounts for parametric knowledge the model already has.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em>Suggested internal linking: Link to future articles on RAG system design, LLM evaluation methodology, and chain-of-thought reasoning, as those get published.<em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em>Featured image alt text: "Diagram illustrating the difference between LLM knowledge encoding (empty shelves) and knowledge recall (lost keys), based on Google Research's knowledge profiling framework."<em></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">📚 Sources</h2>
+</em> Google Research (Official Blog) — <a href="https://research.google/blog/empty-shelves-or-lost-keys-recall-is-the-bottleneck-for-parametric-factuality/" style="color: #10b981; text-decoration: underline;">“Empty shelves or lost keys? Recall is the bottleneck for parametric factuality”</a>, August 12, 2026, by Nitay Calderon and Gal Yona
+<em> arXiv — <a href="https://arxiv.org/abs/2602.14080" style="color: #10b981; text-decoration: underline;">Full paper: “Empty Shelves or Lost Keys? Recall Is the Bottleneck for Parametric Factuality”</a>
+</em> Hugging Face — <a href="https://huggingface.co/datasets/google/WikiProfile" style="color: #10b981; text-decoration: underline;">WikiProfile benchmark dataset</a>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

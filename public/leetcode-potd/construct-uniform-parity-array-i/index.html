@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3875. Construct Uniform Parity Array I Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Determine if an array can be transformed into a uniform parity array by keeping or subtracting other elements. Explains the mathematical proof showing why the answer is always true." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/construct-uniform-parity-array-i" />
+  
+  <meta property="og:title" content="3875. Construct Uniform Parity Array I Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Determine if an array can be transformed into a uniform parity array by keeping or subtracting other elements. Explains the mathematical proof showing why the answer is always true." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/construct-uniform-parity-array-i" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/construct-uniform-parity-array-i';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3875. Construct Uniform Parity Array I</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Easy</strong> | Published on <strong>2026-09-03</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This one is a nice change of pace — it's "Easy," and the real challenge isn't writing complicated code, it's spotting a clean <strong>mathematical proof</strong> hiding inside the problem. Let's build it up from zero.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You have an array <em></em>INLINE<em>CODE</em>0<em></em> of numbers, all different from each other.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You must build a second array <em></em>INLINE<em>CODE</em>1<em></em>, same length, where <strong>every single element of <em></em>INLINE<em>CODE</em>2<em></em> is even, OR every single element is odd</strong> — you pick which one, but you can't mix.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For each position <em></em>INLINE<em>CODE</em>3<em></em> in <em></em>INLINE<em>CODE</em>4<em></em>, you're allowed to fill it in with <strong>one of two choices</strong>:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Just copy the number straight over: <em></em>INLINE<em>CODE</em>5<em></em>, or
+</em> Subtract some <em>other</em> number in the array from it: <em></em>INLINE<em>CODE</em>6<em></em> (where <em></em>INLINE<em>CODE</em>7<em></em> is any other valid position, not <em></em>INLINE<em>CODE</em>8<em></em> itself).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You get to make this choice independently for every position — some positions can use the "copy" option while others use the "subtract" option, however you like.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> the array <em></em>INLINE<em>CODE</em>9<em></em>.
+</em> <strong>What to find:</strong> is there <em>some</em> way to fill in <em></em>INLINE<em>CODE</em>10<em></em> (mixing copy/subtract choices freely) so that everything ends up the same parity (all even or all odd)?
+<em> <strong>What to return:</strong> <em></em>INLINE<em>CODE</em>11<em></em> if possible, <em></em>INLINE<em>CODE</em>12<em></em> if not.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a row of lockers, each with a number tag on it. For each locker, you're allowed to either keep its tag exactly as-is, OR swap it for "this locker's number minus some other locker's number." Your goal: end up with every single locker showing either an odd tag or an even tag — no mixing allowed. You get to decide, locker by locker, which trick to use.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array</h3>
+</em> <strong>Concept:</strong> A numbered list of values.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>13<em></em> — position 0 holds <em></em>INLINE<em>CODE</em>14<em></em>, position 1 holds <em></em>INLINE<em>CODE</em>15<em></em>.
+</em> <strong>Why we need it:</strong> Our whole input and output are arrays.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Even and Odd numbers, and "Parity"</h3>
+<em> <strong>Concept:</strong> A number is <strong>even</strong> if it divides evenly by 2 (no remainder), and <strong>odd</strong> if it doesn't. "Parity" is just the general word for "is it even or odd?" — two numbers "have the same parity" if they're both even or both odd.
+</em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>16<em></em> and <em></em>INLINE<em>CODE</em>17<em></em> have the same parity (both even). <em></em>INLINE<em>CODE</em>18<em></em> and <em></em>INLINE<em>CODE</em>19<em></em> have different parity.
+<em> <strong>Why we need it:</strong> The entire goal of this problem — "all odd or all even" — is a statement purely about parity.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Subtraction and Parity (a key mathematical fact)</h3>
+</em> <strong>Concept:</strong> When you subtract one whole number from another, there's a simple, reliable rule for the <em>parity</em> of the result:
+  <em> <em></em>INLINE<em>CODE</em>20<em></em>
+  </em> <em></em>INLINE<em>CODE</em>21<em></em>
+  <em> <em></em>INLINE<em>CODE</em>22<em></em>
+  </em> <em></em>INLINE<em>CODE</em>23<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">In other words: <strong>subtracting an even number never changes parity. Subtracting an odd number always flips parity</strong> (even ↔ odd).
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>24<em></em> (even − even = even, parity unchanged). <em></em>INLINE<em>CODE</em>25<em></em> (even − odd = odd, parity flipped).
+</em> <strong>Why we need it:</strong> This single fact is the entire engine behind solving this problem — figuring out exactly when we <em>can</em> and <em>can't</em> change a number's parity using the "subtract" option.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Loop</h3>
+<em> <strong>Concept:</strong> Repeats an action for every item in a list.
+</em> <strong>Example:</strong> "Go through every number in <em></em>INLINE<em>CODE</em>26<em></em> and count how many are odd."
+<em> <strong>Why we need it:</strong> We need to scan the array once to count odd numbers.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">If/else</h3>
+</em> <strong>Concept:</strong> Branching logic based on a condition.
+<em> <strong>Why we need it:</strong> We'll reason through a couple of "what if" scenarios based on how many odd numbers exist.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Boolean</h3>
+</em> <strong>Concept:</strong> A value that's either <em></em>INLINE<em>CODE</em>27<em></em> or <em></em>INLINE<em>CODE</em>28<em></em>.
+<em> <strong>Why we need it:</strong> Our answer is literally a <em></em>INLINE<em>CODE</em>29<em></em>/<em></em>INLINE<em>CODE</em>30<em></em> value.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Position 0 holds <em></em>INLINE<em>CODE</em>31<em></em> (even).
+<em> Position 1 holds <em></em>INLINE<em>CODE</em>32<em></em> (odd).
+</em> We're asked: can we build <em></em>INLINE<em>CODE</em>33<em></em>, same length, where we independently choose "copy" or "subtract another element" at each position, such that the result is either fully odd or fully even?
+<em> Why does it matter that <em></em>INLINE<em>CODE</em>34<em></em> is even and <em></em>INLINE<em>CODE</em>35<em></em> is odd? Because whether we can </em>change<em> a number's parity (via subtraction) depends entirely on whether there's an </em>odd<em> number elsewhere in the array to subtract (as we'll prove in a moment).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>36<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> The example shows: <em></em>INLINE<em>CODE</em>37<em></em> (odd!), and <em></em>INLINE<em>CODE</em>38<em></em> (already odd).
+<em> Both final values are odd, so the "all odd" target was achieved.
+</em> Notice <em></em>INLINE<em>CODE</em>39<em></em> used the "subtract" trick to <em>flip</em> <em></em>INLINE<em>CODE</em>40<em></em> (even) into something odd, by subtracting the odd number <em></em>INLINE<em>CODE</em>41<em></em> — exactly matching our parity-flip rule from Section 3.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually reason through <strong>Example 1</strong>: <em></em>INLINE<em>CODE</em>42<em></em>.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Step 1: Look at each element's own parity</h3>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Parity</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">even</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">odd</td></tr></table></div>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Step 2: Try target = "all even"</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Index 1 (value <em></em>INLINE<em>CODE</em>43<em></em>, odd) needs to become even. To flip its parity, we must subtract an </em>odd<em> number from it (per our rule). Is there an odd number at some </em>other<em> index? The only odd number in the whole array is <em></em>INLINE<em>CODE</em>44<em></em> itself, at index 1 — there's no </em>other<em> odd number anywhere else to use! So index 1 is stuck — it can't become even.
+</em> <strong>Target "all even" fails.</strong></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Step 3: Try target = "all odd"</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Index 0 (value <em></em>INLINE<em>CODE</em>45<em></em>, even) needs to become odd. To flip its parity, we subtract an </em>odd<em> number from it. Is there an odd number at some other index? Yes — index 1 holds <em></em>INLINE<em>CODE</em>46<em></em>, which is odd! So <em></em>INLINE<em>CODE</em>47<em></em>, which is odd. ✔️
+</em> Index 1 (value <em></em>INLINE<em>CODE</em>48<em></em>, odd) already matches the target — just copy it directly: <em></em>INLINE<em>CODE</em>49<em></em>. ✔️
+<em> <strong>Target "all odd" succeeds!</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since at least one target (odd) works, the answer is <em></em>INLINE<em>CODE</em>50<em></em>. ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What do I know?</strong> For any element, I can either leave its parity alone (copy), or flip it (subtract an odd number, per our rule) — but flipping requires an odd number to exist <em>somewhere else</em> in the array.
+<em> <strong>What do I need to find?</strong> Whether </em>either<em> "make everything even" or "make everything odd" is achievable.
+</em> <strong>What can I try?</strong> Check both possible targets (all-even, all-odd) separately, and see if either one is achievable for every element.
+<em> <strong>What happens if I try every possibility?</strong> There are only 2 targets to check (even or odd) — nowhere near an exponential search. This is naturally small and fast.
+</em> <strong>Can I make it faster?</strong> It's already about as fast as it can be — but let's see if we can find an even deeper shortcut by understanding <em>when</em> each target succeeds or fails, using nothing more than counting.
+<em> <strong>What information should I remember?</strong> Just one number: <strong>how many odd numbers are in the whole array</strong> (let's call it <em></em>INLINE<em>CODE</em>51<em></em>).
+</em> <strong>What pattern do I notice?</strong> For target "all even": every <em>odd</em> element needs to flip, which requires <em>another</em> odd element to subtract (not itself!). This is only impossible when there's <strong>exactly one</strong> odd number total (that lone odd number has no partner). For target "all odd": every <em>even</em> element needs to flip, which requires <em>any</em> odd element to exist somewhere in the array. This is only impossible when there are <strong>zero</strong> odd numbers total.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> For each of the 2 possible targets (all-even, all-odd), check every element: if it already matches the target, fine; if not, check whether there's <em>some other</em> element with odd parity available to subtract (since only subtracting an odd number can flip parity). If every element can be satisfied, that target works — return <em></em>INLINE<em>CODE</em>52<em></em>. If neither target works, return <em></em>INLINE<em>CODE</em>53<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> We're directly checking, for both possible goals, whether every element individually has a legal way to reach that goal — which is exactly the definition of "constructible."</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> For each of the 2 targets, we scan all <em></em>INLINE<em>CODE</em>54<em></em> elements, and for the ones that need to flip, we just need to know "does <em>some</em> odd number exist elsewhere?" — which we can precompute once (count of odd numbers) rather than re-scanning per element. So this is <em></em>INLINE<em>CODE</em>55<em></em> overall.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> <em></em>INLINE<em>CODE</em>56<em></em> extra space (just a counter).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>57<em></em> — store the array length (used implicitly through <em></em>INLINE<em>CODE</em>58<em></em>, though we don't strictly need <em></em>INLINE<em>CODE</em>59<em></em> elsewhere).
+</em> The <em></em>INLINE<em>CODE</em>60<em></em> loop — walks through every element once, checking <em></em>INLINE<em>CODE</em>61<em></em> (true if the number is odd), incrementing <em></em>INLINE<em>CODE</em>62<em></em> each time we find one. This is the <em>only</em> pass we need over the actual array data.
+<em> <em></em>INLINE<em>CODE</em>63<em></em> — not strictly required for the final answer, but useful to have named for clarity (everything that's not odd is even).
+</em> <em></em>INLINE<em>CODE</em>64<em></em> — as reasoned in Section 7: target "all even" fails <em>only</em> when there's exactly one odd number (it has no other odd partner to flip with); it succeeds whenever there are zero odd numbers (nothing needs to flip at all) or two-or-more odd numbers (each odd element can always find some <em>other</em> odd element to pair with).
+<em> <em></em>INLINE<em>CODE</em>65<em></em> — target "all odd" fails </em>only<em> when there are zero odd numbers anywhere (no odd number exists to use for flipping the evens); it succeeds as soon as at least one odd number exists anywhere in the array, since every even element can reuse that same odd number to flip.
+</em> <em></em>INLINE<em>CODE</em>66<em></em> — the overall answer is <em></em>INLINE<em>CODE</em>67<em></em> if <em>either</em> target is achievable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Is This Already "Ideal" — Nothing More to Optimize?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Unlike some earlier problems, there's no slow nested loop lurking here to eliminate — a single pass to count odd numbers, followed by two simple boolean checks, is already about as fast as any solution could be (<em></em>INLINE<em>CODE</em>68<em></em>, which is required at minimum just to look at every input element once). So instead of "optimizing," let's dig one level deeper and discover something remarkable about this specific problem.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Deeper Pattern</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we simplify this even further?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's look very closely at our two conditions:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>69<em></em> is <em></em>INLINE<em>CODE</em>70<em></em> <strong>only</strong> when <em></em>INLINE<em>CODE</em>71<em></em>.
+<em></em>INLINE<em>CODE</em>72<em></em> is <em></em>INLINE<em>CODE</em>73<em></em> <strong>only</strong> when <em></em>INLINE<em>CODE</em>74<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">These are two <em>completely different, mutually exclusive</em> numbers (<em></em>INLINE<em>CODE</em>75<em></em> can't simultaneously equal both <em></em>INLINE<em>CODE</em>76<em></em> and <em></em>INLINE<em>CODE</em>77<em></em>)! That means <strong>it is mathematically impossible for both conditions to be false at the same time.</strong> At least one of them is <em>always</em> true, no matter what the array looks like.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It feels like we need to carefully check both targets and combine the results with <em></em>INLINE<em>CODE</em>78<em></em>, expecting that sometimes both could fail, giving <em></em>INLINE<em>CODE</em>79<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+It's not obvious at first that <em></em>INLINE<em>CODE</em>80<em></em> might never actually be reachable — the problem <em>looks</em> like it should sometimes be impossible, given it's phrased as a <em></em>INLINE<em>CODE</em>81<em></em>/<em></em>INLINE<em>CODE</em>82<em></em> question.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>The two failure conditions (<em></em>INLINE<em>CODE</em>83<em></em> for "all even," and <em></em>INLINE<em>CODE</em>84<em></em> for "all odd") can never both be true simultaneously</strong>, since <em></em>INLINE<em>CODE</em>85<em></em> is a single specific number and can't equal two different values at once. Therefore, for <em>any</em> valid input array, <strong>at least one of the two targets is always achievable</strong> — meaning the answer to this problem is <strong>always <em></em>INLINE<em>CODE</em>86<em></em></strong>, for every possible valid input!
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The entire problem reduces to a one-line proof rather than a computation: given the constraints (<em></em>INLINE<em>CODE</em>87<em></em>, distinct positive integers), you can <em>always</em> construct a valid <em></em>INLINE<em>CODE</em>88<em></em>. The "algorithm" becomes trivial — but understanding <em>why</em> is the actual point of the problem.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run — Confirming "Always True" on a Tricky Case</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's test the trickiest possible scenario: <strong>exactly one odd number</strong>, to make sure the proof holds.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>89<em></em> (only the value <em></em>INLINE<em>CODE</em>90<em></em> is odd).
+</em> <em></em>INLINE<em>CODE</em>91<em></em> → <em></em>INLINE<em>CODE</em>92<em></em> → <strong>false</strong>. (Makes sense: the lone odd number <em></em>INLINE<em>CODE</em>93<em></em> has no other odd partner to flip to even.)
+<em> <em></em>INLINE<em>CODE</em>94<em></em> → <em></em>INLINE<em>CODE</em>95<em></em> → <strong>true</strong>.
+</em> Since <em></em>INLINE<em>CODE</em>96<em></em> is true, we go with target "all odd": 
+  <em> Index 0 (<em></em>INLINE<em>CODE</em>97<em></em>, odd): already matches, copy directly → <em></em>INLINE<em>CODE</em>98<em></em>.
+  </em> Index 1 (<em></em>INLINE<em>CODE</em>99<em></em>, even): flip using the odd number <em></em>INLINE<em>CODE</em>100<em></em> → <em></em>INLINE<em>CODE</em>101<em></em> (odd). ✔️
+  <em> Index 2 (<em></em>INLINE<em>CODE</em>102<em></em>, even): flip using the odd number <em></em>INLINE<em>CODE</em>103<em></em> → <em></em>INLINE<em>CODE</em>104<em></em> (odd). ✔️
+</em> Final <em></em>INLINE<em>CODE</em>105<em></em> — all odd! Construction succeeds, confirming <em></em>INLINE<em>CODE</em>106<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Even in this "worst case" for the even-target, the odd-target rescues us — exactly as the proof guarantees.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Already covered in full detail in Section 9 — the logic is identical. The only "new" thing to internalize here is that, given the proof in Section 11, <em></em>INLINE<em>CODE</em>107<em></em> is a tautology (always true) for this specific problem's constraints — which is why the bare <em></em>INLINE<em>CODE</em>108<em></em> version is 100% equivalent and passes every test case.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>109<em></em> → <em></em>INLINE<em>CODE</em>110<em></em> → <em></em>INLINE<em>CODE</em>111<em></em>, <em></em>INLINE<em>CODE</em>112<em></em> → Output: <em></em>INLINE<em>CODE</em>113<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>114<em></em> → <em></em>INLINE<em>CODE</em>115<em></em> → <em></em>INLINE<em>CODE</em>116<em></em> (nothing needs to flip), <em></em>INLINE<em>CODE</em>117<em></em> → Output: <em></em>INLINE<em>CODE</em>118<em></em> ✔️ (via the "all even" route, both already even, just copy directly)
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (single element)</h3>
+<em></em>INLINE<em>CODE</em>119<em></em> → <em></em>INLINE<em>CODE</em>120<em></em>, <em></em>INLINE<em>CODE</em>121<em></em> → <em></em>INLINE<em>CODE</em>122<em></em>, <em></em>INLINE<em>CODE</em>123<em></em> (the single element <em></em>INLINE<em>CODE</em>124<em></em> is already odd, so target "all odd" is trivially satisfied by copying — no flip ever needed since there's nothing to flip) → Output: <em></em>INLINE<em>CODE</em>125<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>All elements already even</strong> (<em></em>INLINE<em>CODE</em>126<em></em>) → target "all even" is trivially true (just copy everything); no flipping ever attempted.
+</em> <strong>All elements already odd</strong> (<em></em>INLINE<em>CODE</em>127<em></em>) → target "all odd" is trivially true (just copy everything).
+<em> <strong>Exactly one odd element</strong> → target "all even" fails for that lone odd element (no partner), but target "all odd" always succeeds (that one odd number can flip every even element).
+</em> <strong>Single-element array (<em></em>INLINE<em>CODE</em>128<em></em>)</strong> → no other index ever exists to subtract from, so the only usable choice is "copy" — but that's always already uniform (trivially, one element is automatically "all the same parity" as itself).
+<em> <strong>Large arrays with many mixed parities</strong> → still always works, since target "all odd" only ever needs </em>one<em> existing odd number as a universal helper for every even element.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> A way to describe how much work an algorithm does as its input grows, using a general rule of thumb.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> We only need to look at each number once, to check whether it's odd. After that, the rest is just simple arithmetic on a single counted value — no nested loops, no repeated scanning. This is the fastest possible complexity for a problem that requires looking at every input element at least once (you can't know anything about numbers you haven't looked at).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We only ever store a couple of counter variables (<em></em>INLINE<em>CODE</em>129<em></em>, and optionally <em></em>INLINE<em>CODE</em>130<em></em>) — none of which grow with the size of the input array.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So extra space used is <em></em>INLINE<em>CODE</em>131<em></em> — constant.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I need to actually try building <em></em>INLINE<em>CODE</em>132<em></em> element by element and check if it works, simulating the whole process."
+✅ You never need to </em>construct<em> the actual array — you only need to reason about whether a valid construction </em>exists<em>, which boils down to counting odd numbers and checking two simple conditions.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "Subtracting any other number flips the parity."
+✅ Only subtracting an <strong>odd</strong> number flips parity. Subtracting an <strong>even</strong> number leaves parity unchanged — this distinction is the entire key to the problem.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "If there's exactly one odd number, the answer must be tricky or possibly false."
+✅ It initially seems that way (target "all even" indeed fails in that case), but target "all odd" </em>always<em> saves the day whenever there's at least one odd number — so this specific case still results in <em></em>INLINE<em>CODE</em>133<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I should check whether <em></em>INLINE<em>CODE</em>134<em></em> can equal <em></em>INLINE<em>CODE</em>135<em></em>."
+✅ The problem states <em></em>INLINE<em>CODE</em>136<em></em> for the subtraction option — but this restriction almost never actually matters here, since the "helper" element we use (an odd number, when flipping an even element, or vice versa) always has </em>different parity<em> from the element being flipped, so it can never be the </em>same<em> element anyway (a number can't simultaneously be both the element at index <em></em>INLINE<em>CODE</em>137<em></em> and have different parity from itself).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "This problem needs a complex algorithm since it's asking about constructing an array."
+✅ Not every construction problem requires simulating the actual construction — sometimes (as here), a short mathematical argument about </em>feasibility<em> is the entire solution, which is exactly why this is rated "Easy" despite sounding constructive.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a problem gives you a couple of simple per-element choices and asks "is it possible," try first asking: <strong>"under what condition would this be impossible?"</strong> — sometimes, as here, that condition turns out to be so narrow (or self-contradictory) that the answer is almost always (or literally always) achievable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>8<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: the interview-winning move isn't clever code — it's spotting that the two "impossible" scenarios are mutually exclusive, so the answer collapses to a guaranteed <em></em>INLINE<em>CODE</em>138<em></em>. Even if you don't fully prove this in the moment, the counting-based solution is a fully correct, efficient fallback.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why does subtracting an </em>even<em> number never change a value's parity, using the "even − even = even, odd − even = odd" facts from Section 3?
+2. If <em></em>INLINE<em>CODE</em>139<em></em> has 5 elements, 4 of them odd and 1 even, which target (all-even or all-odd) is </em>guaranteed<em> to work, and why?
+3. Can you construct any array (respecting the problem's constraints) where <em></em>INLINE<em>CODE</em>140<em></em> is simultaneously 0 and 1? Why or why not — and what does that tell you about this problem's answer?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Subtracting an even number keeps the "evenness contribution" unchanged: even − even stays even (removing an even amount doesn't cross an odd/even boundary), and odd − even stays odd (same idea) — in both cases, the </em>original<em> parity survives untouched.
+2. Target "all odd" is guaranteed to work here: <em></em>INLINE<em>CODE</em>141<em></em>, so the single even element can flip to odd using any of the 4 available odd numbers, and the 4 odd elements just copy directly.
+3. No — <em></em>INLINE<em>CODE</em>142<em></em> is a single specific count of a fixed array; it's exactly one number, and can't be two different values at once. Since target "all even" only fails when <em></em>INLINE<em>CODE</em>143<em></em>, and target "all odd" only fails when <em></em>INLINE<em>CODE</em>144<em></em>, and these can never both hold true simultaneously, <strong>at least one target always succeeds</strong> — meaning this problem's answer is provably always <em></em>INLINE<em>CODE</em>145<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Determine whether <em></em>INLINE<em>CODE</em>146<em></em> can be transformed, index by index (copy or subtract-another-element), into an array that's entirely odd or entirely even.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+Subtracting an even number never changes parity; subtracting an odd number always flips it — so target "all even" only fails when there's exactly one odd number, and target "all odd" only fails when there are zero odd numbers. These two failure conditions can never both hold, so one target is always achievable.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Count how many elements in <em></em>INLINE<em>CODE</em>147<em></em> are odd (<em></em>INLINE<em>CODE</em>148<em></em>).
+2. Target "all even" is achievable unless <em></em>INLINE<em>CODE</em>149<em></em>.
+3. Target "all odd" is achievable unless <em></em>INLINE<em>CODE</em>150<em></em>.
+4. Return true if either target is achievable (which is provably always the case).
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>151<em></em>
+Space: <em></em>INLINE<em>CODE</em>152<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+When a problem offers per-element "keep or transform" choices tied to a simple property (like parity), check whether the two possible failure conditions can ever coexist — if they can't, the answer may be a guaranteed constant.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why does the problem allow <em></em>INLINE<em>CODE</em>153<em></em> to be </em>any* other index, rather than requiring a specific relationship between <em></em>INLINE<em>CODE</em>154<em></em> and <em></em>INLINE<em>CODE</em>155<em></em>?
+2. <strong>(Basic concept)</strong> What is the parity of <em></em>INLINE<em>CODE</em>156<em></em>? Of <em></em>INLINE<em>CODE</em>157<em></em>? Explain using the "subtracting odd flips, subtracting even doesn't" rule.
+3. <strong>(Logic)</strong> Why does target "all even" specifically fail when <em></em>INLINE<em>CODE</em>158<em></em>, but succeed when <em></em>INLINE<em>CODE</em>159<em></em> or more?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>160<em></em>, count the odd numbers, determine which target(s) work, and describe one valid construction of <em></em>INLINE<em>CODE</em>161<em></em>.
+5. <strong>(Complexity/pattern)</strong> Why can this problem be solved in <em></em>INLINE<em>CODE</em>162<em></em> time (or arguably <em></em>INLINE<em>CODE</em>163<em></em>), and what does it mean for a "return true/false" problem to have a provably constant answer — how might you recognize this kind of situation in a different problem?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

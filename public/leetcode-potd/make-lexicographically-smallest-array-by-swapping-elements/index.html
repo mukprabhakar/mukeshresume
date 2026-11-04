@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2948. Make Lexicographically Smallest Array by Swapping Elements Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Learn how to find the lexicographically smallest array reachable by swapping elements with difference less than or equal to a limit using sorting and Union-Find." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/make-lexicographically-smallest-array-by-swapping-elements" />
+  
+  <meta property="og:title" content="2948. Make Lexicographically Smallest Array by Swapping Elements Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Learn how to find the lexicographically smallest array reachable by swapping elements with difference less than or equal to a limit using sorting and Union-Find." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/make-lexicographically-smallest-array-by-swapping-elements" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/make-lexicographically-smallest-array-by-swapping-elements';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">2948. Make Lexicographically Smallest Array by Swapping Elements</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-08-29</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's teach this one from absolute zero too, following the same structure.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You have a list of positive numbers, <em></em>INLINE<em>CODE</em>0<em></em>, and a number called <em></em>INLINE<em>CODE</em>1<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You are allowed to <strong>swap</strong> any two numbers in the list, but only if the difference between them (ignoring sign) is <em></em>INLINE<em>CODE</em>2<em></em> or less. You can do this swap <strong>as many times as you want</strong>, on any pair of positions, as long as each individual swap obeys that rule.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Your job: figure out the smallest possible arrangement of the list you can reach, where "smallest" means: compare position by position (like comparing words in a dictionary, but with numbers) — the first list that has a smaller number at the first position where the two lists differ, wins.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> the array <em></em>INLINE<em>CODE</em>3<em></em>, and the max allowed difference <em></em>INLINE<em>CODE</em>4<em></em>.
+</em> <strong>What to find:</strong> the arrangement of these same numbers that is lexicographically smallest, reachable using only swaps of numbers that differ by at most <em></em>INLINE<em>CODE</em>5<em></em>.
+<em> <strong>What to return:</strong> that rearranged array.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a row of people standing in line, each holding a card with a number on it (their height, say). Two people are allowed to <strong>swap their cards</strong> only if their heights are close enough — within <em></em>INLINE<em>CODE</em>6<em></em> of each other. But here's the key trick: if person A can swap with person B, and person B can swap with person C, then even though A and C might be too far apart to swap </em>directly<em>, cards can still "travel" from A to C by hopping through B. So really, we should think of people as being sorted into <strong>friend groups</strong> — everyone in a group can (indirectly) trade cards with everyone else in that same group, no matter how many hops it takes, as long as each hop individually satisfies the <em></em>INLINE<em>CODE</em>7<em></em> rule.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Once we know the friend groups, within each group we can freely rearrange cards among the </em>positions<em> that belong to that group, so we should hand out the smallest cards to the earliest (leftmost) positions in each group to make the whole line look as small as possible from left to right.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array</h3>
+</em> <strong>Concept:</strong> A numbered list of values, positions starting at 0.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>8<em></em> — position 0 has <em></em>INLINE<em>CODE</em>9<em></em>, position 4 has <em></em>INLINE<em>CODE</em>10<em></em>.
+</em> <strong>Why we need it:</strong> The entire input and output are arrays.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Sorting</h3>
+<em> <strong>Concept:</strong> Arranging values from smallest to largest.
+</em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>11<em></em> sorted becomes <em></em>INLINE<em>CODE</em>12<em></em>.
+<em> <strong>Why we need it:</strong> We'll want to look at numbers in increasing order to figure out which ones are "close enough" to chain together.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Graph</h3>
+</em> <strong>Concept:</strong> A collection of "things" (called nodes) with "connections" (called edges) between some pairs of them. Not necessarily roads on a map — it can be <em>any</em> relationship.
+<em> <strong>Example:</strong> If numbers <em></em>INLINE<em>CODE</em>13<em></em> and <em></em>INLINE<em>CODE</em>14<em></em> are close enough to swap, draw a connecting line between them. That's an edge in a graph where each number is a node.
+</em> <strong>Why we need it:</strong> We can think of each number as a node, and "these two numbers can be swapped" as an edge. Numbers that are connected (even indirectly, through other numbers) form one big cluster.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Connected Components (a graph concept)</h3>
+<em> <strong>Concept:</strong> If you group all nodes that can reach each other (directly or through a chain of connections) into clusters, each cluster is called a "connected component."
+</em> <strong>Example:</strong> If <em></em>INLINE<em>CODE</em>15<em></em> are connected and <em></em>INLINE<em>CODE</em>16<em></em> are connected, then <em></em>INLINE<em>CODE</em>17<em></em> are all in the same component, even though <em></em>INLINE<em>CODE</em>18<em></em> and <em></em>INLINE<em>CODE</em>19<em></em> might not be directly connected.
+<em> <strong>Why we need it:</strong> This is </em>exactly<em> our "friend group" idea from the analogy — all numbers in one connected component can be freely rearranged among each other's original positions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">HashMap</h3>
+</em> <strong>Concept:</strong> A structure that lets you store and instantly look up a value using a "key" (like looking up a word's meaning using the word itself, instead of reading a whole dictionary page by page).
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>20<em></em>
+</em> <strong>Why we need it:</strong> After finding which group each number belongs to, we need to quickly gather "all the numbers in group 5" together.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Sorting (again, applied to indices too)</h3>
+We'll also need to remember <em>where</em> (which positions) each number in a group originally came from, then place the sorted numbers back into those sorted positions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Union-Find (Disjoint Set Union) — a new, important concept</h3>
+<em> <strong>Concept:</strong> A clever data structure specifically built to answer "are these two things in the same group?" and "merge these two groups into one" extremely fast, without needing to actually build and search a full graph every time.
+</em> <strong>Simple Example:</strong> Think of it like a bunch of small friend circles that can merge into bigger friend circles. Each person starts in their own circle. When you learn <em></em>INLINE<em>CODE</em>21<em></em> and <em></em>INLINE<em>CODE</em>22<em></em> are friends, you merge their circles into one. Later, you can instantly ask "are <em></em>INLINE<em>CODE</em>23<em></em> and <em></em>INLINE<em>CODE</em>24<em></em> in the same circle?" even if their connection required many merges.
+<em> <strong>Why we need it for this problem:</strong> After sorting <em></em>INLINE<em>CODE</em>25<em></em>, we check each pair of </em>neighboring<em> sorted values — if they're within <em></em>INLINE<em>CODE</em>26<em></em>, they belong in the same group. Union-Find lets us build these groups very efficiently as we scan through.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Time Complexity</h3>
+We'll need this to explain why our final solution is fast enough for up to 100,000 numbers.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>27<em></em> is our starting arrangement of 5 numbers, at positions 0 through 4: position 0 = <em></em>INLINE<em>CODE</em>28<em></em>, position 1 = <em></em>INLINE<em>CODE</em>29<em></em>, position 2 = <em></em>INLINE<em>CODE</em>30<em></em>, position 3 = <em></em>INLINE<em>CODE</em>31<em></em>, position 4 = <em></em>INLINE<em>CODE</em>32<em></em>.
+<em> <em></em>INLINE<em>CODE</em>33<em></em> means: we're only allowed to directly swap two numbers if their difference is <strong>2 or less</strong>.
+</em> We are looking for: the smallest possible final arrangement, using any sequence of allowed swaps.
+<em> Why does it matter that <em></em>INLINE<em>CODE</em>34<em></em> and <em></em>INLINE<em>CODE</em>35<em></em> are 2 apart? Because <em></em>INLINE<em>CODE</em>36<em></em>, so a direct swap between wherever <em></em>INLINE<em>CODE</em>37<em></em> and <em></em>INLINE<em>CODE</em>38<em></em> sit is legal. Similarly <em></em>INLINE<em>CODE</em>39<em></em> and <em></em>INLINE<em>CODE</em>40<em></em> differ by <em></em>INLINE<em>CODE</em>41<em></em>, so they can swap too.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>42<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> This is the smallest number placed first, then the next smallest, and so on — it's actually just the fully sorted version of the array!
+<em> Why is this achievable? Because as the explanation shows, <em></em>INLINE<em>CODE</em>43<em></em> are all within <em></em>INLINE<em>CODE</em>44<em></em> of their neighbors when sorted (<em></em>INLINE<em>CODE</em>45<em></em>, <em></em>INLINE<em>CODE</em>46<em></em>), so they form one big connected group — meaning we can rearrange all three of them freely among their three original positions (0, 1, 2). Likewise <em></em>INLINE<em>CODE</em>47<em></em> and <em></em>INLINE<em>CODE</em>48<em></em> differ by <em></em>INLINE<em>CODE</em>49<em></em>, forming their own group, freely rearrangeable among positions 3 and 4.
+</em> Since each group can be freely sorted internally, and putting the smallest value first within each group is always best for lexicographic order, we sort each group and place the values back into the group's positions in increasing order.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's solve Example 1 by hand.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Sort the numbers to see which ones are \"close\" to each other.</strong>
+Sorted: <em></em>INLINE<em>CODE</em>50<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Walk through the sorted list, checking each pair of neighbors — are they within <em></em>INLINE<em>CODE</em>51<em></em>?</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Pair</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Difference</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">≤ limit (2)?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Same group?</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1, 3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Group together</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3, 5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Group together</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5, 8</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">New group starts</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">8, 9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Group together</td></tr></table></div>
+So our groups (by value) are: <em></em>INLINE<em>CODE</em>52<em></em> and <em></em>INLINE<em>CODE</em>53<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Figure out which original positions each group's numbers came from.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Original array: <em></em>INLINE<em>CODE</em>54<em></em> at positions <em></em>INLINE<em>CODE</em>55<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Value <em></em>INLINE<em>CODE</em>56<em></em> was at position 0.
+</em> Value <em></em>INLINE<em>CODE</em>57<em></em> was at position 1.
+<em> Value <em></em>INLINE<em>CODE</em>58<em></em> was at position 2.
+</em> Value <em></em>INLINE<em>CODE</em>59<em></em> was at position 3.
+<em> Value <em></em>INLINE<em>CODE</em>60<em></em> was at position 4.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group <em></em>INLINE<em>CODE</em>61<em></em> occupies <strong>positions</strong> <em></em>INLINE<em>CODE</em>62<em></em>.
+Group <em></em>INLINE<em>CODE</em>63<em></em> occupies <strong>positions</strong> <em></em>INLINE<em>CODE</em>64<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 4: Within each group, sort the positions AND sort the values, then match smallest value to smallest position.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group <em></em>INLINE<em>CODE</em>65<em></em>: positions sorted = <em></em>INLINE<em>CODE</em>66<em></em>, values sorted = <em></em>INLINE<em>CODE</em>67<em></em>. Assign: position 0 → 1, position 1 → 3, position 2 → 5.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group <em></em>INLINE<em>CODE</em>68<em></em>: positions sorted = <em></em>INLINE<em>CODE</em>69<em></em>, values sorted = <em></em>INLINE<em>CODE</em>70<em></em>. Assign: position 3 → 8, position 4 → 9.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 5: Build the final array from these assignments.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Position</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">1</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">2</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">3</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">4</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Value</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">8</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9</td></tr></table></div>
+Final answer: <em></em>INLINE<em>CODE</em>71<em></em> ✔️ matches!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What do I know?</strong> Which pairs of numbers are directly swappable (difference ≤ limit).
+<em> <strong>What do I need to find?</strong> The smallest possible rearrangement.
+</em> <strong>What can I try?</strong> If I try to reason about individual swaps one at a time, I'll get lost — there could be thousands of possible swap sequences. I need a bigger-picture idea.
+<em> <strong>What happens if I try every possibility?</strong> Way too slow — with up to 100,000 numbers, trying different swap sequences directly is hopeless.
+</em> <strong>Can I make it faster?</strong> Yes — realize that swapping is like a \"connection\" between two numbers, and connections chain together transitively (if A can reach B and B can reach C, then A's card can eventually end up where C was, via a chain of legal swaps). This screams \"connected components.\"
+<em> <strong>What information should I remember?</strong> For each number, which group (component) it belongs to, and which original positions belong to that group.
+</em> <strong>What pattern do I notice?</strong> Numbers that are <em>close in value</em> (within <em></em>INLINE<em>CODE</em>72<em></em> of their neighbor, once sorted) end up chained into the same group. This means <strong>sorting first</strong> makes it very easy to spot the groups — you just walk through the sorted list and start a new group whenever the gap to the previous number exceeds <em></em>INLINE<em>CODE</em>73<em></em>.
+<em> <strong>What should happen at each step?</strong> Within each group, assign the smallest available value to the smallest available position, since that greedily minimizes the array from left to right — and it's always safe to do, because within a group, ALL rearrangements are achievable (we can freely permute).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Try to simulate the swapping process directly — repeatedly scan for any swappable pair that would improve the lexicographic order, perform it, and repeat until no more improving swaps exist.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it's tempting:</strong> It directly mimics \"do the operation any number of times,\" which is literally what the problem describes.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it's a bad idea in practice:</strong> There's no obvious, cheap way to know </em>which<em> swap to do next without deeply understanding the structure — and repeatedly scanning all pairs for a swappable, improving pair takes <em></em>INLINE<em>CODE</em>74<em></em> per pass, and might need many passes. With <em></em>INLINE<em>CODE</em>75<em></em> up to 100,000, <em></em>INLINE<em>CODE</em>76<em></em> is 10 billion — far too slow.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> Roughly <em></em>INLINE<em>CODE</em>77<em></em> or worse per full attempt, and it's not even guaranteed to be simple to implement correctly (how do you know when you're truly done, or that a locally-improving swap doesn't block a better global rearrangement?).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> <em></em>INLINE<em>CODE</em>78<em></em> for the array itself.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since actually writing \"keep swapping while it helps\" correctly is tricky and slow, let's skip straight past this shaky brute force and go directly to reasoning about </em>structure<em> (Section 7's insight), which is really the natural next step for this problem. (Unlike Two Sum-style problems, here the \"obvious\" brute force isn't even clearly correct without a lot of extra care — so the real lesson is: recognize the connected-components structure early.)</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Why Is a Naive Simulation Not Ideal?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine 100,000 people in a line, and you're trying to figure out the best swap to do next by comparing every pair of people to every other pair, over and over, until nobody wants to swap anymore. Even a single full scan of all pairs is about 10 billion comparisons — your computer would take way too long. We need an approach that figures out the </em>entire<em> answer using just a small number of passes over the data, not repeated pairwise scanning.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we avoid doing unnecessary work?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes — instead of thinking swap-by-swap, think <strong>group-by-group</strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+We were thinking about this as a sequence of individual swap actions, trying to decide \"what should I swap right now?\"
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Individual swaps are hard to reason about directly, and there are too many of them to try.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>\"Can swap\" is a transitive relationship</strong> (if A can trade with B, and B can trade with C, then eventually A's value can end up wherever C was, and vice versa, via intermediate swaps) — so all numbers reachable from each other through a chain of legal swaps form one interchangeable group. Within a group, <strong>any rearrangement of that group's values among that group's original positions is achievable.</strong> And once we know that, the best (lexicographically smallest) thing to do within a group is obvious: put the smallest values at the earliest positions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The whole problem reduces to: (1) find these groups (connected components), (2) for each group, sort its values and sort its positions, and (3) match them up smallest-to-smallest. No simulation of individual swaps needed at all — and finding the groups is fast if we first <strong>sort the numbers</strong>, because then two numbers can only possibly be \"linked\" if they're within <em></em>INLINE<em>CODE</em>79<em></em>, and if we scan the sorted list, consecutive elements within <em></em>INLINE<em>CODE</em>80<em></em> of each other are guaranteed to be linkable directly, and this chains naturally into full groups.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry run <strong>Example 2</strong> this time, to see a case with more moving parts.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Pair each value with its original index, then sort by value.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Original (value, index) pairs: <em></em>INLINE<em>CODE</em>81<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Sorted by value: <em></em>INLINE<em>CODE</em>82<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Scan through sorted values, grouping consecutive ones that differ by ≤ limit (3).</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Compare</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Values</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Difference</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">≤ 3?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Same group?</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,0) vs (1,5)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1, 1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">same group</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,5) vs (2,4)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1, 2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">same group</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,4) vs (6,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2, 6</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">new group</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(6,2) vs (7,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">6, 7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">same group</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(7,1) vs (18,3)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7, 18</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">11</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">new group</td></tr></table></div>
+Groups formed (by value, with original index attached):
+</em> Group A: <em></em>INLINE<em>CODE</em>83<em></em>
+<em> Group B: <em></em>INLINE<em>CODE</em>84<em></em>
+</em> Group C: <em></em>INLINE<em>CODE</em>85<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Within each group, sort by original index, and match to sorted values in order.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group A: indices <em></em>INLINE<em>CODE</em>86<em></em> (sorted), values <em></em>INLINE<em>CODE</em>87<em></em> (already sorted) → position 0 gets 1, position 4 gets 1, position 5 gets 2.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group B: indices <em></em>INLINE<em>CODE</em>88<em></em> (sorted), values <em></em>INLINE<em>CODE</em>89<em></em> (already sorted) → position 1 gets 6, position 2 gets 7.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Group C: index <em></em>INLINE<em>CODE</em>90<em></em>, value <em></em>INLINE<em>CODE</em>91<em></em> → position 3 gets 18.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 4: Assemble the final array.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Position</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">1</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">2</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">3</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">4</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">5</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Value</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">6</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">18</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td></tr></table></div>
+Final answer: <em></em>INLINE<em>CODE</em>92<em></em> ✔️ matches the expected output!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>93<em></em> — these two arrays are the core of Union-Find. <em></em>INLINE<em>CODE</em>94<em></em> tells you \"who is index <em></em>INLINE<em>CODE</em>95<em></em> currently pointing to as its group leader.\" <em></em>INLINE<em>CODE</em>96<em></em> is a rough measure of how \"tall\" a group's tree structure is, used just to keep things efficient.
+</em> <em></em>INLINE<em>CODE</em>97<em></em> — at the very start, every index is its own separate group (pointing to itself).
+<em> <em></em>INLINE<em>CODE</em>98<em></em> — we bundle each value together with its original position, because after sorting by value, we still need to remember </em>where<em> it came from.
+</em> <em></em>INLINE<em>CODE</em>99<em></em> — sort these pairs purely by value (ascending), keeping the original index attached to each.
+<em> The <em></em>INLINE<em>CODE</em>100<em></em> loop with <em></em>INLINE<em>CODE</em>101<em></em> — this is where we build our groups. We check every </em>consecutive<em> pair in the sorted-by-value list; if their values are close enough (<em></em>INLINE<em>CODE</em>102<em></em>), we merge their original indices into the same Union-Find group. We only need to check consecutive pairs because if a chain exists at all, it will show up as a sequence of consecutive \"close enough\" jumps once sorted.
+</em> <em></em>INLINE<em>CODE</em>103<em></em> — this function walks up the \"parent\" pointers until it finds an index that points to itself (the group's leader / root), and <em>path compression</em> (<em></em>INLINE<em>CODE</em>104<em></em>) flattens the structure as we go, making future lookups faster.
+<em> <em></em>INLINE<em>CODE</em>105<em></em> — finds each side's group leader; if they're already the same, nothing to do. Otherwise, it attaches one group under the other, using <em></em>INLINE<em>CODE</em>106<em></em> to decide which one becomes the new leader (keeping the overall structure shallow, so <em></em>INLINE<em>CODE</em>107<em></em> stays fast).
+</em> <em></em>INLINE<em>CODE</em>108<em></em> — after all unions are done, we go through every index <em></em>INLINE<em>CODE</em>109<em></em>, ask \"who's your group leader (root)?\", and collect all indices sharing the same leader into one list. This effectively rebuilds our \"friend groups\" from the analogy.
+<em> Inside the <em></em>INLINE<em>CODE</em>110<em></em> loop:
+  </em> <em></em>INLINE<em>CODE</em>111<em></em> — sort the <em>positions</em> in this group in increasing order (so we know which position is \"first,\" \"second,\" etc., within the group).
+  <em> We gather all the actual <em></em>INLINE<em>CODE</em>112<em></em> values that live at those positions, into a list called <em></em>INLINE<em>CODE</em>113<em></em>, then sort </em>that<em> list too.
+  </em> <em></em>INLINE<em>CODE</em>114<em></em> — this is the final matching step: the smallest position in the group gets the smallest value, the second-smallest position gets the second-smallest value, and so on.
+<em> Finally, we return <em></em>INLINE<em>CODE</em>115<em></em>, the completed answer array.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>116<em></em> → dry-ran manually in Section 6 → Output: <em></em>INLINE<em>CODE</em>117<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>118<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>119<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (no operations possible at all)</h3>
+<em></em>INLINE<em>CODE</em>120<em></em>. Sort: <em></em>INLINE<em>CODE</em>121<em></em>. Check consecutive gaps: <em></em>INLINE<em>CODE</em>122<em></em> (no), <em></em>INLINE<em>CODE</em>123<em></em> (yes! within limit), <em></em>INLINE<em>CODE</em>124<em></em> (no), <em></em>INLINE<em>CODE</em>125<em></em> (no). So <em></em>INLINE<em>CODE</em>126<em></em> and <em></em>INLINE<em>CODE</em>127<em></em> actually </em>do<em> form a small group together — but wait, in the original array they're at positions: value <em></em>INLINE<em>CODE</em>128<em></em> is at index 1, value <em></em>INLINE<em>CODE</em>129<em></em> is at index 4. Group <em></em>INLINE<em>CODE</em>130<em></em>: sorted indices <em></em>INLINE<em>CODE</em>131<em></em>, sorted values <em></em>INLINE<em>CODE</em>132<em></em> → position 1 gets 7 (unchanged), position 4 gets 10 (unchanged)! Since the group happens to already have its smallest value at its smallest position, nothing visibly changes. All other values are alone in their own groups (no legal swap partner), so they also stay put. Final output: <em></em>INLINE<em>CODE</em>133<em></em> — unchanged ✔️, matching the expected output, and showing why even a \"matched\" group can result in no visible change if it was already optimally arranged.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Array has only one element</strong> → trivially, it's already the smallest possible arrangement (no swaps needed or possible).
+<em> <strong>No two numbers are within <em></em>INLINE<em>CODE</em>134<em></em> of each other</strong> → every number is its own group of size 1 → output equals input, unchanged.
+</em> <strong>All numbers are within <em></em>INLINE<em>CODE</em>135<em></em> of each other (one giant group)</strong> → the entire array becomes fully sorted, just like a normal sort.
+<em> <strong>Duplicate values</strong> → they'll always be within <em></em>INLINE<em>CODE</em>136<em></em> (difference <em></em>INLINE<em>CODE</em>137<em></em>), so duplicates always end up in the same group as each other (and often pull in more neighbors too).
+</em> <strong>Very large values close to the max (<em></em>INLINE<em>CODE</em>138<em></em>)</strong> — since we only ever compute differences between actual array values (never adding unrelated large numbers together in a way that could overflow), we're safe using regular <em></em>INLINE<em>CODE</em>139<em></em> subtraction here in Java, as both values fit well within int range and the difference does too.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> It estimates how the total amount of work grows as your input grows — like estimating that alphabetizing a bigger stack of files takes proportionally longer, using a general rule of thumb rather than a stopwatch.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> The dominant cost is sorting — both the initial sort of all values, and later, all the little per-group sorts (which together touch each element only a constant number of times, but still cost a log factor). Union-Find itself is famously close to <em></em>INLINE<em>CODE</em>140<em></em> per operation on average (technically <em></em>INLINE<em>CODE</em>141<em></em>, an extremely slowly-growing function you can safely think of as \"basically constant\"). Compare this to brute-force <em></em>INLINE<em>CODE</em>142<em></em> simulation: for <em></em>INLINE<em>CODE</em>143<em></em>, <em></em>INLINE<em>CODE</em>144<em></em> is about 1.7 million operations, while <em></em>INLINE<em>CODE</em>145<em></em> would be 10,000,000,000 — a massive, practically-infinite difference in real time.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>146<em></em> and <em></em>INLINE<em>CODE</em>147<em></em> arrays: size <em></em>INLINE<em>CODE</em>148<em></em> each.
+</em> The <em></em>INLINE<em>CODE</em>149<em></em> array: size <em></em>INLINE<em>CODE</em>150<em></em> (each holding 2 numbers).
+<em> The <em></em>INLINE<em>CODE</em>151<em></em> map and its lists: together hold every index exactly once, so <em></em>INLINE<em>CODE</em>152<em></em> total.
+</em> The <em></em>INLINE<em>CODE</em>153<em></em> array: size <em></em>INLINE<em>CODE</em>154<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Overall extra space: <em></em>INLINE<em>CODE</em>155<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ \"I should check every pair of numbers in the array to see if they're within <em></em>INLINE<em>CODE</em>156<em></em>, and connect them directly.\"
+✅ You only need to check <strong>consecutive pairs after sorting</strong> — if a longer chain exists, it will always show up as a sequence of consecutive close-enough jumps in the sorted order, so checking neighbors is enough and much faster.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ \"Since I can only directly swap numbers within <em></em>INLINE<em>CODE</em>157<em></em>, only <em>directly</em> swappable pairs can end up trading places.\"
+✅ Swaps can chain — if <em></em>INLINE<em>CODE</em>158<em></em> can swap with <em></em>INLINE<em>CODE</em>159<em></em>, and <em></em>INLINE<em>CODE</em>160<em></em> can swap with <em></em>INLINE<em>CODE</em>161<em></em>, then <em></em>INLINE<em>CODE</em>162<em></em>'s value can eventually reach where <em></em>INLINE<em>CODE</em>163<em></em> was (through a sequence of swaps), even if <em></em>INLINE<em>CODE</em>164<em></em> and <em></em>INLINE<em>CODE</em>165<em></em> themselves are too far apart to swap directly.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ \"I should sort the whole array and just return that.\"
+✅ Full sorting is only correct when <em>everything</em> forms one giant group. If some values are too far apart to ever connect (directly or indirectly), those values must stay confined to their own original group's positions — sorting everything blindly would be an illegal rearrangement.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ \"I'll assign the smallest position to whatever value happens to come first.\"
+✅ You must sort <strong>both</strong> the group's positions and the group's values independently, then match them up smallest-to-smallest — this greedy matching is what actually produces the lexicographically smallest result.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever swapping/merging is allowed <strong>transitively</strong> (through chains, not just direct pairs) and you need to find what's ultimately interchangeable, think <strong>Union-Find / connected components</strong>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: sorting first exposes the chain structure cheaply, Union-Find captures \"who's ultimately interchangeable with whom,\" and the final greedy match (smallest value ↔ smallest position, per group) finishes the job.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. If <em></em>INLINE<em>CODE</em>166<em></em> and <em></em>INLINE<em>CODE</em>167<em></em>, which pairs (by value) are directly within <em></em>INLINE<em>CODE</em>168<em></em> of each other? Are all three numbers in one group, or split into groups?
+2. Once you know the groups from Question 1, and you know which original positions each group's numbers came from, what's the final rule for assigning values back to positions?
+3. Why do we only need to compare <strong>consecutive</strong> elements in the sorted array to build all the groups, instead of comparing every pair?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Sorted: <em></em>INLINE<em>CODE</em>169<em></em>. <em></em>INLINE<em>CODE</em>170<em></em> (connected), <em></em>INLINE<em>CODE</em>171<em></em> (connected). So all three end up in <strong>one single group</strong> (2 connects to 4, 4 connects to 6, so 2 and 6 are indirectly linked too, even though <em></em>INLINE<em>CODE</em>172<em></em> directly).
+2. Sort the group's original positions, sort the group's values, then assign the smallest value to the smallest position, the second-smallest value to the second-smallest position, and so on.
+3. Because if two values are far apart in <em>sorted order</em> with nothing \"in between\" close enough, checking non-consecutive pairs can never reveal a connection that consecutive-pair-checking would miss — any indirect chain between two far-apart values must physically pass through the values sitted between them once sorted, so scanning neighbor-to-neighbor is guaranteed to catch every real connection.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Group numbers that can be transitively swapped (chain of differences ≤ limit), then within each group place the smallest values at the smallest original positions.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+\"Can swap\" is transitive, so this is a connected-components problem — solve it with sorting + Union-Find, then greedily match sorted values to sorted positions within each group.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Pair each value with its original index; sort these pairs by value.
+2. Union consecutive pairs (by value) whenever their difference is ≤ limit.
+3. Group all original indices by their final Union-Find root.
+4. For each group: sort its positions, sort its values, assign smallest value → smallest position, and so on.
+5. Return the assembled result array.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>173<em></em>
+Space: <em></em>INLINE<em>CODE</em>174<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+Transitive \"can-connect\" relationship + \"make it smallest\" → sort + Union-Find (connected components) + greedy match within each group.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why can two numbers end up swappable even if their direct difference is bigger than <em></em>INLINE<em>CODE</em>175<em></em>?
+2. <strong>(Basic concept)</strong> What does a \"connected component\" mean in your own words, using this problem as the example?
+3. <strong>(Logic)</strong> Why is it enough to check only <em>consecutive</em> elements in the sorted array when building groups, instead of checking all pairs?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>176<em></em>, sort the values, identify the groups, and figure out the final answer array.
+5. <strong>(Complexity/pattern)</strong> Why is the final time complexity <em></em>INLINE<em>CODE</em>177<em></em> rather than <em></em>INLINE<em>CODE</em>178<em></em>, and what key phrase in a problem statement should make you think \"Union-Find / connected components\" in the future?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take your time — send me your answers whenever you're ready, and I'll walk through them with you!</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

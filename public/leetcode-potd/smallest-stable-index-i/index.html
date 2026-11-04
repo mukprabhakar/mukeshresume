@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3903. Smallest Stable Index I Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find the smallest index where the maximum of all elements from the start minus the minimum of all elements to the end is at most k using prefix max and suffix min precomputations." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/smallest-stable-index-i" />
+  
+  <meta property="og:title" content="3903. Smallest Stable Index I Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find the smallest index where the maximum of all elements from the start minus the minimum of all elements to the end is at most k using prefix max and suffix min precomputations." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/smallest-stable-index-i" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/smallest-stable-index-i';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3903. Smallest Stable Index I</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Easy</strong> | Published on <strong>2026-09-05</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's teach this one from absolute zero, same structure as always.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You have an array of numbers, <em></em>INLINE<em>CODE</em>0<em></em>, and a threshold number <em></em>INLINE<em>CODE</em>1<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For <strong>every single index</strong> <em></em>INLINE<em>CODE</em>2<em></em> in the array, you compute a special value called its <strong>instability score</strong>, defined as:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Look at all the numbers from the <strong>very start</strong> of the array up through index <em></em>INLINE<em>CODE</em>3<em></em> (inclusive) — find the <strong>biggest</strong> number among them.
+</em> Look at all the numbers from index <em></em>INLINE<em>CODE</em>4<em></em> (inclusive) all the way to the <strong>very end</strong> of the array — find the <strong>smallest</strong> number among them.
+<em> Subtract: <em></em>INLINE<em>CODE</em>5<em></em>. That's the instability score for index <em></em>INLINE<em>CODE</em>6<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Notice something important: index <em></em>INLINE<em>CODE</em>7<em></em> is included in <strong>both</strong> halves — once when finding the max of "everything up to and including <em></em>INLINE<em>CODE</em>8<em></em>," and once when finding the min of "everything from <em></em>INLINE<em>CODE</em>9<em></em> to the end, including <em></em>INLINE<em>CODE</em>10<em></em>."</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">An index is called <strong>stable</strong> if its instability score is <em></em>INLINE<em>CODE</em>11<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> find the <strong>smallest</strong> index that is stable. If no index qualifies, return <em></em>INLINE<em>CODE</em>12<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What's given:</strong> the array <em></em>INLINE<em>CODE</em>13<em></em>, and threshold <em></em>INLINE<em>CODE</em>14<em></em>.
+<em> <strong>What to find:</strong> for each index, the max-of-left-part minus min-of-right-part, then the earliest index where this is small enough.
+</em> <strong>What to return:</strong> that smallest stable index, or <em></em>INLINE<em>CODE</em>15<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine you're standing at some point along a hiking trail, looking both ways. Looking <strong>backward</strong> (toward the start of the trail, including where you're standing), you note the <strong>highest peak</strong> you can see behind you. Looking <strong>forward</strong> (toward the end of the trail, including where you're standing), you note the <strong>lowest valley</strong> you can see ahead of you.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Your "instability score" at this spot is: how much higher is that tallest peak behind you compared to that lowest valley ahead of you? If that difference is small enough (≤ some tolerance <em></em>INLINE<em>CODE</em>16<em></em>), you'd call this spot "stable" — the terrain immediately behind and ahead doesn't swing too wildly. You want to find the <strong>very first (leftmost)</strong> spot along the trail where this is true.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array</h3>
+<em> <strong>Concept:</strong> A numbered list of values, indexed from 0.
+</em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>17<em></em> — index 0 holds <em></em>INLINE<em>CODE</em>18<em></em>, index 3 holds <em></em>INLINE<em>CODE</em>19<em></em>.
+<em> <strong>Why we need it:</strong> Our input and all our reasoning happen over this array.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Variable</h3>
+</em> <strong>Concept:</strong> A named "box" holding a value we can update.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>20<em></em>
+</em> <strong>Why we need it:</strong> We'll track a "max so far" and a "min so far" as we scan.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Loop</h3>
+<em> <strong>Concept:</strong> Repeats an action across every item in a list.
+</em> <strong>Example:</strong> "For each index, update the running maximum."
+<em> <strong>Why we need it:</strong> We need to scan the array (potentially more than once) to build up the information needed at every index.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">If/else</h3>
+</em> <strong>Concept:</strong> Branching based on a condition.
+<em> <strong>Example:</strong> "If this index's instability score is ≤ k, we found our answer."
+</em> <strong>Why we need it:</strong> Checking the stability condition, and updating running max/min, both require decisions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Prefix Max (a new but simple pattern)</h3>
+<em> <strong>Concept:</strong> A <strong>prefix max array</strong> is a helper array where position <em></em>INLINE<em>CODE</em>21<em></em> stores "the biggest value seen from the start of the array up through position <em></em>INLINE<em>CODE</em>22<em></em>." You build it left-to-right, and each entry only ever needs to compare the </em>previous<em> prefix max to the current element — no need to rescan everything from the start each time.
+</em> <strong>Example:</strong> For <em></em>INLINE<em>CODE</em>23<em></em>: prefixMax = <em></em>INLINE<em>CODE</em>24<em></em> (since <em></em>INLINE<em>CODE</em>25<em></em> is the biggest seen at every point from index 0 onward).
+<em> <strong>Why we need it:</strong> The problem needs "max of everything from 0 to <em></em>INLINE<em>CODE</em>26<em></em>" for </em>every<em> <em></em>INLINE<em>CODE</em>27<em></em> — precomputing this once, left to right, avoids recalculating that max from scratch for every index.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Suffix Min (the mirror-image idea)</h3>
+</em> <strong>Concept:</strong> A <strong>suffix min array</strong> stores, at position <em></em>INLINE<em>CODE</em>28<em></em>, "the smallest value seen from position <em></em>INLINE<em>CODE</em>29<em></em> all the way to the end." You build it <strong>right-to-left</strong>, comparing each entry to the <em>next</em> suffix min.
+<em> <strong>Example:</strong> For <em></em>INLINE<em>CODE</em>30<em></em>: suffixMin = <em></em>INLINE<em>CODE</em>31<em></em> (reading right to left: at index 3, min is 4; at index 2, min of <em></em>INLINE<em>CODE</em>32<em></em> is 1; at index 1, min of <em></em>INLINE<em>CODE</em>33<em></em> is 0; at index 0, min of <em></em>INLINE<em>CODE</em>34<em></em> is 0).
+</em> <strong>Why we need it:</strong> The problem needs "min of everything from <em></em>INLINE<em>CODE</em>35<em></em> to the end" for every <em></em>INLINE<em>CODE</em>36<em></em> — precomputing this once, right to left, similarly avoids repeated rescanning.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Time Complexity</h3>
+We'll use this to explain why our approach (with <em></em>INLINE<em>CODE</em>37<em></em> up to only 100 here, admittedly tiny) is efficient and clean.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">0</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">1</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">2</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">3</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Value</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td></tr></table></div>
+<em> We need, for <strong>each</strong> index <em></em>INLINE<em>CODE</em>38<em></em>, two numbers: the max from index <em></em>INLINE<em>CODE</em>39<em></em> to <em></em>INLINE<em>CODE</em>40<em></em>, and the min from index <em></em>INLINE<em>CODE</em>41<em></em> to the end (index 3).
+</em> <em></em>INLINE<em>CODE</em>42<em></em> is our tolerance — we want the smallest index where <em></em>INLINE<em>CODE</em>43<em></em>.
+<em> Why does index <em></em>INLINE<em>CODE</em>44<em></em> belong to </em>both<em> parts? Because the problem explicitly defines both ranges (<em></em>INLINE<em>CODE</em>45<em></em> and <em></em>INLINE<em>CODE</em>46<em></em>) as inclusive of <em></em>INLINE<em>CODE</em>47<em></em> itself — this is a detail worth double-checking carefully, since it's easy to accidentally exclude <em></em>INLINE<em>CODE</em>48<em></em> from one side.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>49<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> At index 0: max of <em></em>INLINE<em>CODE</em>50<em></em> = 5; min of <em></em>INLINE<em>CODE</em>51<em></em> = 0; score = <em></em>INLINE<em>CODE</em>52<em></em>. Not ≤ 3.
+<em> At index 1: max of <em></em>INLINE<em>CODE</em>53<em></em> = 5; min of <em></em>INLINE<em>CODE</em>54<em></em> = 0; score = <em></em>INLINE<em>CODE</em>55<em></em>. Not ≤ 3.
+</em> At index 2: max of <em></em>INLINE<em>CODE</em>56<em></em> = 5; min of <em></em>INLINE<em>CODE</em>57<em></em> = 1; score = <em></em>INLINE<em>CODE</em>58<em></em>. Not ≤ 3.
+<em> At index 3: max of <em></em>INLINE<em>CODE</em>59<em></em> = 5; min of <em></em>INLINE<em>CODE</em>60<em></em> = 4; score = <em></em>INLINE<em>CODE</em>61<em></em>. <strong>This is ≤ 3!</strong> Stable.
+</em> Since index 3 is the <em>first</em> index where the score drops to ≤ k, the answer is <em></em>INLINE<em>CODE</em>62<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's build the two helper arrays by hand for <em></em>INLINE<em>CODE</em>63<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Build the prefix max array, left to right.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Compare to previous prefix max</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">New prefix max</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(nothing before) start with 5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">max(5, 0) = 5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">max(5, 1) = 5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">max(5, 4) = 5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td></tr></table></div>
+<em></em>INLINE<em>CODE</em>64<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Build the suffix min array, right to left.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Compare to next suffix min</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">New suffix min</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(nothing after) start with 4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">min(1, 4) = 1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">min(0, 1) = 0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">min(5, 0) = 0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td></tr></table></div>
+<em></em>INLINE<em>CODE</em>65<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Scan left to right, compute <em></em>INLINE<em>CODE</em>66<em></em>, and stop at the first index where it's ≤ k.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">prefixMax</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">suffixMin</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Score</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">≤ k(3)?</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>Yes!</strong></td></tr></table></div>
+First qualifying index: <em></em>INLINE<em>CODE</em>67<em></em>. ✔️ matches!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> For any index, I need "max of everything up to here" and "min of everything from here onward."
+</em> <strong>What do I need to find?</strong> The smallest index where the difference of these two is small enough.
+<em> <strong>What can I try?</strong> The most direct idea: for each index <em></em>INLINE<em>CODE</em>68<em></em>, separately scan <em></em>INLINE<em>CODE</em>69<em></em> for the max and separately scan <em></em>INLINE<em>CODE</em>70<em></em> for the min, then compare. This works, but redoes a lot of scanning repeatedly for every <em></em>INLINE<em>CODE</em>71<em></em>.
+</em> <strong>What happens if I try every possibility?</strong> For each of the <em></em>INLINE<em>CODE</em>72<em></em> indices, scanning up to <em></em>INLINE<em>CODE</em>73<em></em> elements twice (once for the max part, once for the min part) costs about <em></em>INLINE<em>CODE</em>74<em></em> per index, so <em></em>INLINE<em>CODE</em>75<em></em> total. With <em></em>INLINE<em>CODE</em>76<em></em> only up to <em></em>INLINE<em>CODE</em>77<em></em> here, this is actually totally fine performance-wise — but it's still wasteful, and understanding the smarter way matters for building good habits (and for when <em></em>INLINE<em>CODE</em>78<em></em> is much bigger in similar problems).
+<em> <strong>Can I make it faster?</strong> Yes — notice that "max of <em></em>INLINE<em>CODE</em>79<em></em>" only ever changes by </em>possibly<em> growing as <em></em>INLINE<em>CODE</em>80<em></em> increases (each step, we just compare the new element to the </em>previous<em> max-so-far, we never need to rescan). Similarly, "min of <em></em>INLINE<em>CODE</em>81<em></em>" only changes as <em></em>INLINE<em>CODE</em>82<em></em> decreases (walking right to left, comparing to the </em>previous<em> min-so-far in that direction). This means we can compute </em>all<em> prefix maxes in a single left-to-right pass, and </em>all<em> suffix mins in a single right-to-left pass — each index's answer becomes an O(1) lookup after that.
+</em> <strong>What information should I remember?</strong> Two full helper arrays (<em></em>INLINE<em>CODE</em>83<em></em>, <em></em>INLINE<em>CODE</em>84<em></em>), each built with a single running "best so far" variable during its own pass.
+<em> <strong>What pattern do I notice?</strong> This is a classic <strong>prefix/suffix precomputation</strong> pattern: whenever you need "some aggregate over everything to the left" and/or "some aggregate over everything to the right," for </em>every<em> position, build those aggregates once in a single pass each, rather than recomputing them from scratch per position.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> For each index <em></em>INLINE<em>CODE</em>85<em></em> from 0 to <em></em>INLINE<em>CODE</em>86<em></em>, scan <em></em>INLINE<em>CODE</em>87<em></em> to find the max, scan <em></em>INLINE<em>CODE</em>88<em></em> to find the min, compute the difference, and check against <em></em>INLINE<em>CODE</em>89<em></em>. Return the first <em></em>INLINE<em>CODE</em>90<em></em> that qualifies.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> It directly computes exactly what the problem defines, for every index, with no shortcuts — guaranteed correct.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> For each of the <em></em>INLINE<em>CODE</em>91<em></em> indices, we do up to <em></em>INLINE<em>CODE</em>92<em></em> work scanning both halves, so <em></em>INLINE<em>CODE</em>93<em></em> total.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> <em></em>INLINE<em>CODE</em>94<em></em> extra (just a couple of tracking variables per index, no persistent extra array needed).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>95<em></em> — total number of elements.
+<em> The outer <em></em>INLINE<em>CODE</em>96<em></em> loop — tries every index in order, from smallest to largest (so the very first one that qualifies is naturally the </em>smallest<em> stable index).
+</em> <em></em>INLINE<em>CODE</em>97<em></em> — start impossibly small, so any real value we compare against it will correctly update it.
+<em> The inner <em></em>INLINE<em>CODE</em>98<em></em> loop — scans every index from <em></em>INLINE<em>CODE</em>99<em></em> up to and including <em></em>INLINE<em>CODE</em>100<em></em>, updating <em></em>INLINE<em>CODE</em>101<em></em> to be the running biggest value seen. This directly computes <em></em>INLINE<em>CODE</em>102<em></em>.
+</em> <em></em>INLINE<em>CODE</em>103<em></em> — start impossibly large, so it will correctly shrink down to the true minimum as we scan.
+<em> The inner <em></em>INLINE<em>CODE</em>104<em></em> loop — scans every index from <em></em>INLINE<em>CODE</em>105<em></em> to the end, updating <em></em>INLINE<em>CODE</em>106<em></em> to the running smallest value. This computes <em></em>INLINE<em>CODE</em>107<em></em>.
+</em> <em></em>INLINE<em>CODE</em>108<em></em> — check the stability condition; if satisfied, we've found our answer, so return immediately.
+<em> <em></em>INLINE<em>CODE</em>109<em></em> — if we finish the outer loop without ever returning, no index was stable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Might the Brute Force Not Be Ideal (in general)?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For this specific problem, <em></em>INLINE<em>CODE</em>110<em></em> is capped at just <em></em>INLINE<em>CODE</em>111<em></em>, so <em></em>INLINE<em>CODE</em>112<em></em> is at most <em></em>INLINE<em>CODE</em>113<em></em> operations — genuinely no performance problem at all here. But imagine a </em>similar<em> problem where <em></em>INLINE<em>CODE</em>114<em></em> could be <em></em>INLINE<em>CODE</em>115<em></em> — then <em></em>INLINE<em>CODE</em>116<em></em> would balloon to <em></em>INLINE<em>CODE</em>117<em></em> billion operations, far too slow. It's worth learning the faster technique now, both because it's cleaner code and because it's the </em>right<em> habit for when constraints are bigger.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It feels like finding "max of everything up to <em></em>INLINE<em>CODE</em>118<em></em>" and "min of everything from <em></em>INLINE<em>CODE</em>119<em></em> onward" requires looking at a growing/shrinking chunk of the array fresh, for every single <em></em>INLINE<em>CODE</em>120<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Rescanning a growing or shrinking range from scratch, for every index, repeats a huge amount of comparison work that's almost entirely redundant between consecutive indices.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong><em></em>INLINE<em>CODE</em>121<em></em> is just <em></em>INLINE<em>CODE</em>122<em></em></strong> — the max up to <em></em>INLINE<em>CODE</em>123<em></em> is simply "whatever the max was one step earlier, compared with the one new element." This means we can build the </em>entire<em> prefix-max array with a single left-to-right sweep, carrying forward one running value. The exact same logic applies in reverse for the suffix-min array, built with a single right-to-left sweep.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+Once both helper arrays exist, answering "what's the instability score at index <em></em>INLINE<em>CODE</em>124<em></em>?" for </em>every<em> <em></em>INLINE<em>CODE</em>125<em></em> becomes an instant lookup (<em></em>INLINE<em>CODE</em>126<em></em>) — no rescanning at all. The whole algorithm becomes three simple, single-direction passes.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 2</strong>: <em></em>INLINE<em>CODE</em>127<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Build prefixMax (left to right).</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">prefixMax</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">max(3,2)=3</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">max(3,1)=3</td></tr></table></div>
+<em></em>INLINE<em>CODE</em>128<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Build suffixMin (right to left).</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">suffixMin</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">min(2,1)=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">min(3,1)=1</td></tr></table></div>
+<em></em>INLINE<em>CODE</em>129<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Scan for the first index where <em></em>INLINE<em>CODE</em>130<em></em>.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">prefixMax</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">suffixMin</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Score</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">≤ 1?</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td></tr></table></div>
+No index qualifies → return <em></em>INLINE<em>CODE</em>131<em></em>. ✔️ matches!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>132<em></em> — total element count.
+<em> <em></em>INLINE<em>CODE</em>133<em></em> — a new array where <em></em>INLINE<em>CODE</em>134<em></em> will hold <em></em>INLINE<em>CODE</em>135<em></em>.
+</em> <em></em>INLINE<em>CODE</em>136<em></em> — the base case: with only one element (index 0) considered, the max is that element itself.
+<em> The <em></em>INLINE<em>CODE</em>137<em></em> loop — for every later index, <em></em>INLINE<em>CODE</em>138<em></em>: take whatever the max was one step back, compare it to the current element, and keep the bigger one.
+</em> <em></em>INLINE<em>CODE</em>139<em></em> — similarly, <em></em>INLINE<em>CODE</em>140<em></em> will hold <em></em>INLINE<em>CODE</em>141<em></em>.
+<em> <em></em>INLINE<em>CODE</em>142<em></em> — base case: with only the last element considered, the min is just that element.
+</em> The <em></em>INLINE<em>CODE</em>143<em></em> loop — walks <strong>backward</strong> from the second-to-last index down to <em></em>INLINE<em>CODE</em>144<em></em>. <em></em>INLINE<em>CODE</em>145<em></em>: take whatever the min was one step ahead, compare it to the current element, keep the smaller one.
+<em> The final <em></em>INLINE<em>CODE</em>146<em></em> loop — scans indices in increasing order and checks <em></em>INLINE<em>CODE</em>147<em></em>. The moment this is true, we return <em></em>INLINE<em>CODE</em>148<em></em> immediately (guaranteed to be the smallest such index).
+</em> <em></em>INLINE<em>CODE</em>149<em></em> — if no index satisfies the condition, none is stable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>150<em></em> → dry-ran manually in Section 6 → Output: <em></em>INLINE<em>CODE</em>151<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>152<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>153<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (single element)</h3>
+<em></em>INLINE<em>CODE</em>154<em></em>. <em></em>INLINE<em>CODE</em>155<em></em>. <em></em>INLINE<em>CODE</em>156<em></em>, <em></em>INLINE<em>CODE</em>157<em></em>. Check index 0: <em></em>INLINE<em>CODE</em>158<em></em>? Yes! → Output: <em></em>INLINE<em>CODE</em>159<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Single-element array (<em></em>INLINE<em>CODE</em>160<em></em>)</strong> → both helper arrays are just the base case, index 0's score is <em></em>INLINE<em>CODE</em>161<em></em>, so it's stable exactly when <em></em>INLINE<em>CODE</em>162<em></em> — which is guaranteed by constraints, so a single-element array is <strong>always</strong> stable at index 0.
+</em> <strong>No stable index exists at all</strong> → the final scan finishes without returning, correctly falling through to <em></em>INLINE<em>CODE</em>163<em></em>.
+<em> <strong>The array is already fully sorted increasing</strong> (e.g., <em></em>INLINE<em>CODE</em>164<em></em>) → at the last index, <em></em>INLINE<em>CODE</em>165<em></em> = last element, <em></em>INLINE<em>CODE</em>166<em></em> = last element, score is <em></em>INLINE<em>CODE</em>167<em></em>, so the last index is always stable.
+</em> <strong>The array is sorted strictly decreasing</strong> (e.g., <em></em>INLINE<em>CODE</em>168<em></em>) → <em></em>INLINE<em>CODE</em>169<em></em> stays at the first element; <em></em>INLINE<em>CODE</em>170<em></em> stays at the last element throughout — every index has the same score (<em></em>INLINE<em>CODE</em>171<em></em>).
+<em> <strong>All elements identical</strong> → <em></em>INLINE<em>CODE</em>172<em></em> everywhere → score is always <em></em>INLINE<em>CODE</em>173<em></em> → index 0 is always stable.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> Each of our three passes touches every element exactly once, doing constant work per element. The total work scales linearly with <em></em>INLINE<em>CODE</em>174<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>175<em></em> and <em></em>INLINE<em>CODE</em>176<em></em> are each full arrays of length <em></em>INLINE<em>CODE</em>177<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So extra space used is <em></em>INLINE<em>CODE</em>178<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "The max range is <em></em>INLINE<em>CODE</em>179<em></em> to <em></em>INLINE<em>CODE</em>180<em></em>, and the min range is <em></em>INLINE<em>CODE</em>181<em></em> to <em></em>INLINE<em>CODE</em>182<em></em> (excluding <em></em>INLINE<em>CODE</em>183<em></em> from both)."
+✅ Both <em></em>INLINE<em>CODE</em>184<em></em> and <em></em>INLINE<em>CODE</em>185<em></em> <strong>include</strong> index <em></em>INLINE<em>CODE</em>186<em></em> itself.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I should rescan the whole 0..i range from scratch every time to compute the prefix max."
+✅ You only need the <em>previous</em> prefix max value plus the current element: <em></em>INLINE<em>CODE</em>187<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I'll build the suffix min array left to right, like the prefix max."
+✅ The suffix min must be built <strong>right to left</strong>, since <em></em>INLINE<em>CODE</em>188<em></em> depends on <em></em>INLINE<em>CODE</em>189<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a problem asks you to compute some aggregate of everything to one side for every position, think <strong>prefix array</strong> or <strong>suffix array</strong> to optimize $O(N^2)$ to $O(N)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why do we build the prefix max array by comparing to the <em>previous</em> prefix max, rather than the original array's previous <em>element</em>?
+2. If <em></em>INLINE<em>CODE</em>190<em></em>, what would <em></em>INLINE<em>CODE</em>191<em></em> and <em></em>INLINE<em>CODE</em>192<em></em> look like, and what's the instability score at every index?
+3. Why is scanning left-to-right in the final step (rather than right-to-left) important for correctly returning the <em>smallest</em> stable index?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Because the prefix max needs to reflect the biggest value seen across <em>all</em> elements up to this point, not just a comparison with the single element right before it.
+2. <em></em>INLINE<em>CODE</em>193<em></em>, <em></em>INLINE<em>CODE</em>194<em></em> — every index has score <em></em>INLINE<em>CODE</em>195<em></em>. Index 0 is stable, answer is <em></em>INLINE<em>CODE</em>196<em></em>.
+3. Scanning left to right guarantees you encounter indices in increasing order, so the very first match you find is naturally the smallest.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Find the smallest index where the maximum of everything to its left (inclusive) minus the minimum of everything to its right (inclusive) is at most <em></em>INLINE<em>CODE</em>197<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+Precompute a prefix-max array (left to right) and a suffix-min array (right to left), then scan once for the first index where their difference is at most <em></em>INLINE<em>CODE</em>198<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Build <em></em>INLINE<em>CODE</em>199<em></em>, left to right.
+2. Build <em></em>INLINE<em>CODE</em>200<em></em>, right to left.
+3. Scan indices left to right, returning the first <em></em>INLINE<em>CODE</em>201<em></em> where <em></em>INLINE<em>CODE</em>202<em></em>.
+4. If none found, return <em></em>INLINE<em>CODE</em>203<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>204<em></em>
+Space: <em></em>INLINE<em>CODE</em>205<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+"Aggregate over everything to the left/right, for every index" → prefix/suffix precomputation, not repeated rescanning.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why is index <em></em>INLINE<em>CODE</em>206<em></em> included in <em>both</em> the left range and the right range when computing its instability score?
+2. <strong>(Basic concept)</strong> What's the difference between how you build a prefix max array versus a suffix min array — which direction does each one scan?
+3. <strong>(Logic)</strong> Why is it safe to return the first index (scanning left to right) that satisfies the stability condition, without needing to check any later indices?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>207<em></em>, build the prefix max and suffix min arrays, and find the smallest stable index (or determine there isn't one).
+5. <strong>(Complexity/pattern)</strong> Why does this problem's brute force (<em></em>INLINE<em>CODE</em>208<em></em>) run instantly anyway given the constraints, and what specific phrase in the problem statement ("for each index... 0 to i" and "i to n-1") should cue you to reach for prefix/suffix arrays regardless of whether the constraints strictly require it?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3870. Count Commas in Range Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Count the total number of commas across standard-formatted integers from 1 to n using digit grouping and mathematical division." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/count-commas-in-range" />
+  
+  <meta property="og:title" content="3870. Count Commas in Range Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Count the total number of commas across standard-formatted integers from 1 to n using digit grouping and mathematical division." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/count-commas-in-range" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/count-commas-in-range';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3870. Count Commas in Range</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Easy</strong> | Published on <strong>2026-09-08</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A nice, approachable "Easy" problem — let's still build it up carefully from zero, since even simple-sounding problems can trip you up on the details (like off-by-one digit counting).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're given a number <em></em>INLINE<em>CODE</em>0<em></em>. Imagine writing out <strong>every whole number from 1 to <em></em>INLINE<em>CODE</em>1<em></em></strong>, one after another, using the normal way we format big numbers with commas — like <em></em>INLINE<em>CODE</em>2<em></em> or <em></em>INLINE<em>CODE</em>3<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The rule for where commas go: starting from the <strong>rightmost</strong> digit and counting leftward, you insert a comma after every group of 3 digits. Numbers with 3 digits or fewer (so, 1 to 999) never get any comma at all.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Your job: count the <strong>total number of commas</strong> used, if you wrote out every single number from <em></em>INLINE<em>CODE</em>4<em></em> to <em></em>INLINE<em>CODE</em>5<em></em> this way and added up all the commas across all of them.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> a single integer <em></em>INLINE<em>CODE</em>6<em></em>.
+</em> <strong>What to find:</strong> how many commas appear in total, across the standard-formatted versions of every integer from <em></em>INLINE<em>CODE</em>7<em></em> to <em></em>INLINE<em>CODE</em>8<em></em>.
+<em> <strong>What to return:</strong> that total count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine you're a bank teller printing out receipts for every dollar amount from <em></em>INLINE<em>CODE</em>9<em></em> to <em></em>INLINE<em>CODE</em>10<em></em>, and your printer automatically adds commas to big numbers (like <em></em>INLINE<em>CODE</em>11<em></em>) the way we normally read money. Some receipts (small amounts, under <em></em>INLINE<em>CODE</em>12<em></em>) come out with no commas at all. Others (like <em></em>INLINE<em>CODE</em>13<em></em>) get exactly one comma. Really huge ones would get two or more. You want to know: if you printed </em>every single receipt<em> from <em></em>INLINE<em>CODE</em>14<em></em> up through <em></em>INLINE<em>CODE</em>15<em></em>, how many commas would show up in total, across the whole stack?</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Digit Count of a Number</h3>
+</em> <strong>Concept:</strong> How many digits a number has when written normally. <em></em>INLINE<em>CODE</em>16<em></em> has 1 digit, <em></em>INLINE<em>CODE</em>17<em></em> has 2 digits, <em></em>INLINE<em>CODE</em>18<em></em> has 4 digits.
+<em> <strong>Why we need it:</strong> The number of commas a number gets depends </em>entirely<em> on how many digits it has — nothing else matters.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The comma-counting rule, translated into math</h3>
+</em> <strong>Concept:</strong> A comma appears after every group of 3 digits, counting from the right. This means:
+  <em> 1-3 digit numbers → 0 commas.
+  </em> 4-6 digit numbers → 1 comma.
+  <em> 7-9 digit numbers → 2 commas.
+  </em> In general, a number with <em></em>INLINE<em>CODE</em>19<em></em> digits gets exactly <em></em>INLINE<em>CODE</em>20<em></em> commas, using <strong>integer division</strong> (which automatically rounds down / drops any remainder).
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>21<em></em> → <em></em>INLINE<em>CODE</em>22<em></em> comma. <em></em>INLINE<em>CODE</em>23<em></em> → <em></em>INLINE<em>CODE</em>24<em></em> (integer division drops the <em></em>INLINE<em>CODE</em>25<em></em>) → still 1 comma (correct: <em></em>INLINE<em>CODE</em>26<em></em> has exactly 1 comma). <em></em>INLINE<em>CODE</em>27<em></em> → <em></em>INLINE<em>CODE</em>28<em></em> commas (correct: <em></em>INLINE<em>CODE</em>29<em></em> has 2 commas).
+</em> <strong>Why we need it:</strong> This one small formula is the entire mathematical engine behind the whole problem.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Integer Division</h3>
+<em> <strong>Concept:</strong> When dividing two integers in Java using <em></em>INLINE<em>CODE</em>30<em></em>, the result is automatically truncated (rounded toward zero) — no decimal part is kept.
+</em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>31<em></em> (not <em></em>INLINE<em>CODE</em>32<em></em>), <em></em>INLINE<em>CODE</em>33<em></em>.
+<em> <strong>Why we need it:</strong> Our comma-count formula, <em></em>INLINE<em>CODE</em>34<em></em>, relies specifically on this truncating behavior.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Loop</h3>
+</em> <strong>Concept:</strong> Repeats an action for every item in a range.
+<em> <strong>Why we need it:</strong> We need to consider every number from 1 to <em></em>INLINE<em>CODE</em>35<em></em> (or, in the optimized version, every possible </em>digit-length group<em> within that range).
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Grouping by digit length (a new, useful pattern)</h3>
+</em> <strong>Concept:</strong> Instead of processing numbers one at a time, notice that <strong>all numbers with the same digit count get the exact same number of commas</strong>. So instead of asking "how many commas does 1000 get? 1001? 1002?" one at a time, we can ask "how many 4-digit numbers are there in our range, and multiply that count by 1 (the commas each one gets)?" — all at once.
+<em> <strong>Why we need it:</strong> This turns our solution into something that only needs to check a tiny handful of digit-length "groups" (since <em></em>INLINE<em>CODE</em>36<em></em> can have at most a few digits), rather than looping through every single number.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> We're writing out every number from <em></em>INLINE<em>CODE</em>37<em></em> to <em></em>INLINE<em>CODE</em>38<em></em>.
+<em> Most of these numbers (1 through 999) have 3 or fewer digits, so they contribute 0 commas each.
+</em> The numbers <em></em>INLINE<em>CODE</em>39<em></em>, <em></em>INLINE<em>CODE</em>40<em></em>, and <em></em>INLINE<em>CODE</em>41<em></em> each have 4 digits, so each contributes exactly <em></em>INLINE<em>CODE</em>42<em></em> comma.
+<em> Why does it matter that exactly </em>three<em> numbers (<em></em>INLINE<em>CODE</em>43<em></em>) fall into the "4-digit" group within our range? Because the total comma count is just "how many numbers are in each digit-length group" multiplied by "how many commas that group's numbers each get," summed across all groups.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>44<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Numbers 1 through 999: 0 digits-group contribution (0 commas each, 999 numbers, <em></em>INLINE<em>CODE</em>45<em></em> total commas).
+<em> Numbers 1000 through 1002: this is a 4-digit group; each number here gets exactly 1 comma; there are 3 such numbers in our range (<em></em>INLINE<em>CODE</em>46<em></em>); so <em></em>INLINE<em>CODE</em>47<em></em> commas.
+</em> Grand total: <em></em>INLINE<em>CODE</em>48<em></em>. ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually work through Example 1 (<em></em>INLINE<em>CODE</em>49<em></em>) using the "group by digit length" idea.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Figure out the digit-length groups that fall (even partially) within <em></em>INLINE<em>CODE</em>50<em></em>.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> 1-digit numbers: <em></em>INLINE<em>CODE</em>51<em></em> to <em></em>INLINE<em>CODE</em>52<em></em> (9 numbers total in this group, all fully within our range since <em></em>INLINE<em>CODE</em>53<em></em>).
+</em> 2-digit numbers: <em></em>INLINE<em>CODE</em>54<em></em> to <em></em>INLINE<em>CODE</em>55<em></em> (90 numbers, fully within range).
+<em> 3-digit numbers: <em></em>INLINE<em>CODE</em>56<em></em> to <em></em>INLINE<em>CODE</em>57<em></em> (900 numbers, fully within range).
+</em> 4-digit numbers: <em></em>INLINE<em>CODE</em>58<em></em> to <em></em>INLINE<em>CODE</em>59<em></em> normally — but our range stops at <em></em>INLINE<em>CODE</em>60<em></em>, so only <em></em>INLINE<em>CODE</em>61<em></em> to <em></em>INLINE<em>CODE</em>62<em></em> actually falls within <em></em>INLINE<em>CODE</em>63<em></em> (3 numbers, a <em>partial</em> group).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: For each group, compute commas-per-number, and how many numbers from that group are actually in <em></em>INLINE<em>CODE</em>64<em></em>.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Digit length (d)</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Commas per number: (d-1)/3</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Full range of d-digit numbers</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Numbers actually in [1, n]</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Count in range</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Commas contributed</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1-1)/3 = 0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1 to 9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1 to 9 (all fit, since 9 ≤ 1002)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9 × 0 = 0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2-1)/3 = 0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">10 to 99</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">10 to 99 (all fit)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">90</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">90 × 0 = 0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(3-1)/3 = 0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">100 to 999</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">100 to 999 (all fit)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">900</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">900 × 0 = 0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(4-1)/3 = 1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1000 to 9999</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1000 to <strong>1002</strong> (capped by n)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3 × 1 = 3</td></tr></table></div>
+<strong>Step 3: Sum all the "commas contributed" values.</strong>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>65<em></em>. ✔️ matches!</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Notice groups 1, 2, and 3 all contribute <em></em>INLINE<em>CODE</em>66<em></em> total commas anyway (since <em></em>INLINE<em>CODE</em>67<em></em> for <em></em>INLINE<em>CODE</em>68<em></em>), so really only 4-digit-and-beyond groups can ever contribute anything — but it's still good practice to see the general method applied to every group, since for a bigger <em></em>INLINE<em>CODE</em>69<em></em>, later groups (5-digit, 6-digit, etc.) <em>would</em> start contributing.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> Every number's comma count depends only on its digit length, via the formula <em></em>INLINE<em>CODE</em>70<em></em>.
+</em> <strong>What do I need to find?</strong> The sum of comma-counts across every number from 1 to <em></em>INLINE<em>CODE</em>71<em></em>.
+<em> <strong>What can I try?</strong> The most direct approach: loop through every number from 1 to <em></em>INLINE<em>CODE</em>72<em></em>, figure out its digit length (e.g., by converting to a string and checking its length, or by repeated division), compute its comma count, and add it to a running total.
+</em> <strong>What happens if I try every possibility?</strong> With <em></em>INLINE<em>CODE</em>73<em></em> capped at <em></em>INLINE<em>CODE</em>74<em></em> (per the constraints — <em></em>INLINE<em>CODE</em>75<em></em>), looping through every single number is only <em></em>INLINE<em>CODE</em>76<em></em> iterations — genuinely fast and totally fine for this problem's size.
+<em> <strong>Can I make it faster / cleaner anyway?</strong> Yes — since numbers with the </em>same digit length<em> always contribute the </em>same<em> number of commas each, we can process entire digit-length </em>groups<em> at once (as done in Section 6), rather than one number at a time. This is both faster (only a handful of groups to consider, since <em></em>INLINE<em>CODE</em>77<em></em> means at most 6 digits) and arguably a cleaner way to think about the problem.
+</em> <strong>What information should I remember?</strong> For each digit length <em></em>INLINE<em>CODE</em>78<em></em> from 1 upward (until we exceed <em></em>INLINE<em>CODE</em>79<em></em>), the size of the <em>overlap</em> between "all d-digit numbers" (<em></em>INLINE<em>CODE</em>80<em></em> to <em></em>INLINE<em>CODE</em>81<em></em>) and our actual range (<em></em>INLINE<em>CODE</em>82<em></em> to <em></em>INLINE<em>CODE</em>83<em></em>).
+<em> <strong>What pattern do I notice?</strong> This is fundamentally a <strong>counting-by-groups</strong> problem: instead of processing each individual item, identify a small number of "buckets" (digit-length groups here) where every item in the bucket behaves identically, and process each bucket as a whole.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Loop through every integer from <em></em>INLINE<em>CODE</em>84<em></em> to <em></em>INLINE<em>CODE</em>85<em></em>. For each one, determine its digit count (e.g., via <em></em>INLINE<em>CODE</em>86<em></em>), compute its comma count via the formula, and add it to a running sum.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> It directly computes the comma count for every single number in the range and sums them — a completely literal implementation of the problem statement.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> <em></em>INLINE<em>CODE</em>87<em></em> iterations, and converting each number to a string to get its length takes time roughly proportional to the number of digits (which is at most <em></em>INLINE<em>CODE</em>88<em></em>) — so overall <em></em>INLINE<em>CODE</em>89<em></em> in the strictest sense, though for <em></em>INLINE<em>CODE</em>90<em></em> up to <em></em>INLINE<em>CODE</em>91<em></em>, this is trivially fast regardless.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> <em></em>INLINE<em>CODE</em>92<em></em> extra (not counting temporary string allocations).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>93<em></em> — our running sum, starting at zero.
+<em> <em></em>INLINE<em>CODE</em>94<em></em> — walks through every integer from <em></em>INLINE<em>CODE</em>95<em></em> to <em></em>INLINE<em>CODE</em>96<em></em>, inclusive, exactly as the problem describes.
+</em> <em></em>INLINE<em>CODE</em>97<em></em> — converts the current number <em></em>INLINE<em>CODE</em>98<em></em> into its string form (e.g., <em></em>INLINE<em>CODE</em>99<em></em> becomes <em></em>INLINE<em>CODE</em>100<em></em>) and measures how many characters (digits) it has.
+<em> <em></em>INLINE<em>CODE</em>101<em></em> — applies our formula from Section 3: a number with <em></em>INLINE<em>CODE</em>102<em></em> digits gets exactly <em></em>INLINE<em>CODE</em>103<em></em> commas (using integer division, which naturally truncates/rounds down).
+</em> <em></em>INLINE<em>CODE</em>104<em></em> — adds this number's comma contribution to our running total.
+<em> <em></em>INLINE<em>CODE</em>105<em></em> — after checking every number, return the grand total.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Might We Want Something Even Cleaner?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For this specific problem, with <em></em>INLINE<em>CODE</em>106<em></em> capped at only <em></em>INLINE<em>CODE</em>107<em></em>, the brute force above is already extremely fast — there's no risk of it being "too slow." But it's worth learning the <strong>grouped</strong> approach too, both because it's a more elegant/insightful solution, and because it's the kind of technique that </em>would<em> be necessary if <em></em>INLINE<em>CODE</em>108<em></em> were allowed to be much larger (say, up into the billions or beyond) — where looping one-by-one would eventually become impractical.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better (Grouped) Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we process many numbers at once, instead of one at a time?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes — using the "group by digit length" idea from Section 6:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It seems natural to check every number individually to find its comma count.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+This is more work than necessary — most of that work is redundant, since large </em>groups<em> of consecutive numbers (all numbers with the same digit length) share the exact same comma count.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>A number's comma count depends ONLY on its digit length, via <em></em>INLINE<em>CODE</em>109<em></em> — nothing else about the number matters.</strong> This means we can skip checking numbers individually altogether, and instead directly compute, for each digit length <em></em>INLINE<em>CODE</em>110<em></em>, exactly how many numbers of that length fall within our range <em></em>INLINE<em>CODE</em>111<em></em> — using simple arithmetic on the boundaries <em></em>INLINE<em>CODE</em>112<em></em> and <em></em>INLINE<em>CODE</em>113<em></em>, capped by <em></em>INLINE<em>CODE</em>114<em></em> — then multiply that count by the (fixed) comma count for that digit length.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The entire problem shrinks from "process up to 100,000 individual numbers" down to "process at most 6 digit-length groups" (since <em></em>INLINE<em>CODE</em>115<em></em> means digit lengths only range from 1 to 6), each handled with simple arithmetic.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Grouped Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 2</strong>: <em></em>INLINE<em>CODE</em>116<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Digit length 1 (numbers 1-9):</strong> Fully within range (<em></em>INLINE<em>CODE</em>117<em></em>). Count = <em></em>INLINE<em>CODE</em>118<em></em>. Commas per number = <em></em>INLINE<em>CODE</em>119<em></em>. Contribution = <em></em>INLINE<em>CODE</em>120<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Digit length 2 (numbers 10-99):</strong> Fully within range. Count = <em></em>INLINE<em>CODE</em>121<em></em>. Commas per number = <em></em>INLINE<em>CODE</em>122<em></em>. Contribution = <em></em>INLINE<em>CODE</em>123<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Digit length 3 (numbers 100-999, but capped at n=998):</strong> The natural range is <em></em>INLINE<em>CODE</em>124<em></em> to <em></em>INLINE<em>CODE</em>125<em></em>, but since <em></em>INLINE<em>CODE</em>126<em></em>, we cap the upper end at <em></em>INLINE<em>CODE</em>127<em></em>. Count = <em></em>INLINE<em>CODE</em>128<em></em>. Commas per number = <em></em>INLINE<em>CODE</em>129<em></em> (integer division). Contribution = <em></em>INLINE<em>CODE</em>130<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Digit length 4 and beyond:</strong> The natural range would start at <em></em>INLINE<em>CODE</em>131<em></em>, but our <em></em>INLINE<em>CODE</em>132<em></em> is smaller than <em></em>INLINE<em>CODE</em>133<em></em> — so there are <strong>zero</strong> numbers of digit length 4 (or more) within <em></em>INLINE<em>CODE</em>134<em></em>. We stop here.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Total:</strong> <em></em>INLINE<em>CODE</em>135<em></em>. ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized (Grouped) Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Grouped Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>136<em></em> — our running sum, same as before.
+<em> <em></em>INLINE<em>CODE</em>137<em></em> — the starting point of the current digit-length group. We begin with 1-digit numbers, which start at <em></em>INLINE<em>CODE</em>138<em></em>. (We use <em></em>INLINE<em>CODE</em>139<em></em> here purely as a safety habit for intermediate arithmetic like <em></em>INLINE<em>CODE</em>140<em></em>).
+</em> <em></em>INLINE<em>CODE</em>141<em></em> — tracks how many digits the current group's numbers have.
+<em> <em></em>INLINE<em>CODE</em>142<em></em> — we keep processing digit-length groups as long as the </em>start<em> of the next group is still within our range; once a group's start exceeds <em></em>INLINE<em>CODE</em>143<em></em>, there's nothing left to count.
+</em> <em></em>INLINE<em>CODE</em>144<em></em> — computes the natural upper end of this digit-length group. For example, if <em></em>INLINE<em>CODE</em>145<em></em> (3-digit numbers begin here), then <em></em>INLINE<em>CODE</em>146<em></em>.
+<em> <em></em>INLINE<em>CODE</em>147<em></em> — since our range might not reach all the way to the group's natural end, we cap it using <em></em>INLINE<em>CODE</em>148<em></em>.
+</em> <em></em>INLINE<em>CODE</em>149<em></em> — standard inclusive range count formula: <em></em>INLINE<em>CODE</em>150<em></em>.
+<em> <em></em>INLINE<em>CODE</em>151<em></em> — our comma formula from Section 3, applied to this group's shared digit length.
+</em> <em></em>INLINE<em>CODE</em>152<em></em> — adds this entire group's total comma contribution to our running sum all at once.
+<em> <em></em>INLINE<em>CODE</em>153<em></em> — advance to the next digit-length group and increment our digit-length tracker.
+</em> <em></em>INLINE<em>CODE</em>154<em></em> — after all applicable groups have been processed, return the final sum.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>155<em></em> → dry-ran manually in Section 6 → Output: <em></em>INLINE<em>CODE</em>156<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>157<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>158<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (very small n)</h3>
+<em></em>INLINE<em>CODE</em>159<em></em>. <em></em>INLINE<em>CODE</em>160<em></em>, which is <em></em>INLINE<em>CODE</em>161<em></em>: <em></em>INLINE<em>CODE</em>162<em></em>, <em></em>INLINE<em>CODE</em>163<em></em>, <em></em>INLINE<em>CODE</em>164<em></em>, <em></em>INLINE<em>CODE</em>165<em></em>, contribution = <em></em>INLINE<em>CODE</em>166<em></em>. <em></em>INLINE<em>CODE</em>167<em></em>. Next <em></em>INLINE<em>CODE</em>168<em></em> becomes <em></em>INLINE<em>CODE</em>169<em></em>, loop terminates. Output: <em></em>INLINE<em>CODE</em>170<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong><em></em>INLINE<em>CODE</em>171<em></em> (smallest possible input)</strong> → only the single number <em></em>INLINE<em>CODE</em>172<em></em> is considered, which trivially has 0 commas → output <em></em>INLINE<em>CODE</em>173<em></em>.
+</em> <strong><em></em>INLINE<em>CODE</em>174<em></em> exactly at a "boundary" like <em></em>INLINE<em>CODE</em>175<em></em> or <em></em>INLINE<em>CODE</em>176<em></em></strong> → correctly handled by the <em></em>INLINE<em>CODE</em>177<em></em> capping — e.g., <em></em>INLINE<em>CODE</em>178<em></em> never enters the 4-digit group loop iteration, while <em></em>INLINE<em>CODE</em>179<em></em> does enter it with <em></em>INLINE<em>CODE</em>180<em></em> correctly capped at <em></em>INLINE<em>CODE</em>181<em></em>.
+<em> <strong><em></em>INLINE<em>CODE</em>182<em></em> such that no group ever reaches 4+ digits</strong> (<em></em>INLINE<em>CODE</em>183<em></em>) → every group's <em></em>INLINE<em>CODE</em>184<em></em> evaluates to <em></em>INLINE<em>CODE</em>185<em></em>, so the total is always <em></em>INLINE<em>CODE</em>186<em></em>.
+</em> <strong>Maximum <em></em>INLINE<em>CODE</em>187<em></em> (up to <em></em>INLINE<em>CODE</em>188<em></em>, i.e., 6 digits)</strong> → our loop runs at most 6 times, executing in microseconds.
+<em> <strong><em></em>INLINE<em>CODE</em>189<em></em> right at a power of 10 transition</strong> — naturally handled by the group-boundary math.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> An estimate of how the amount of work grows as the input grows, using a general trend.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> In the grouped approach, we never look at individual numbers — we only ever process one group per possible digit length (at most 6 for <em></em>INLINE<em>CODE</em>190<em></em>, and at most 10 for any 32-bit integer).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Both approaches use only a small, fixed number of extra variables (<em></em>INLINE<em>CODE</em>191<em></em>, <em></em>INLINE<em>CODE</em>192<em></em>, <em></em>INLINE<em>CODE</em>193<em></em>).
+<em> Extra space: <em></em>INLINE<em>CODE</em>194<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ <strong>"The comma formula should be <em></em>INLINE<em>CODE</em>195<em></em>, without the <em></em>INLINE<em>CODE</em>196<em></em>."</strong>
+  <em> ✅ It must be <em></em>INLINE<em>CODE</em>197<em></em> — for <em></em>INLINE<em>CODE</em>198<em></em>, <em></em>INLINE<em>CODE</em>199<em></em> would wrongly suggest 3-digit numbers get a comma, whereas <em></em>INLINE<em>CODE</em>200<em></em> correctly gives zero.
+</em> ❌ <strong>"The group boundaries should be <em></em>INLINE<em>CODE</em>201<em></em> to <em></em>INLINE<em>CODE</em>202<em></em>."</strong>
+  <em> ✅ Careful with off-by-one: 1-digit numbers are <em></em>INLINE<em>CODE</em>203<em></em> to <em></em>INLINE<em>CODE</em>204<em></em>, 2-digit are <em></em>INLINE<em>CODE</em>205<em></em> to <em></em>INLINE<em>CODE</em>206<em></em>, 3-digit are <em></em>INLINE<em>CODE</em>207<em></em> to <em></em>INLINE<em>CODE</em>208<em></em>. Pattern: starts at <em></em>INLINE<em>CODE</em>209<em></em>, ends at <em></em>INLINE<em>CODE</em>210<em></em>.
+</em> ❌ <strong>"I don't need to cap the group's end using <em></em>INLINE<em>CODE</em>211<em></em>."</strong>
+  <em> ✅ When <em></em>INLINE<em>CODE</em>212<em></em> falls within a digit-length group, capping with <em></em>INLINE<em>CODE</em>213<em></em> is essential to avoid overcounting numbers greater than <em></em>INLINE<em>CODE</em>214<em></em>.
+</em> ❌ <strong>"This requires string formatting."</strong>
+  <em> ✅ The problem reduces entirely to digit-counting mathematics without any string allocations.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a per-number property is shared by large groups of consecutive numbers, think: <strong>process by group, not by individual number</strong> — compute <em></em>INLINE<em>CODE</em>215<em></em> across $O(\log<em>{10} N)$ groups.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em><em>CODE</em>BLOCK<em>8</em><em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why does the formula </em><em>INLINE</em>CODE<em>216</em><em> give </em><em>INLINE</em>CODE<em>217</em><em> for any </em><em>INLINE</em>CODE<em>218</em><em> of 1, 2, or 3, but </em><em>INLINE</em>CODE<em>219</em><em> for digitCount of 4, 5, or 6?
+2. If </em><em>INLINE</em>CODE<em>220</em><em>, which digit-length groups would be processed, and would any of them need </em><em>INLINE</em>CODE<em>221</em><em> capping applied?
+3. Why does the grouped approach only ever need to loop a handful of times, no matter how big </em><em>INLINE</em>CODE<em>222</em><em> gets (within reason)?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Integer division </em><em>INLINE</em>CODE<em>223</em><em> only increments when </em><em>INLINE</em>CODE<em>224</em><em> crosses multiples of 3. For </em><em>INLINE</em>CODE<em>225</em><em>: </em><em>INLINE</em>CODE<em>226</em><em> is </em><em>INLINE</em>CODE<em>227</em><em> (all yield </em><em>INLINE</em>CODE<em>228</em><em>). For </em><em>INLINE</em>CODE<em>229</em><em>: </em><em>INLINE</em>CODE<em>230</em><em> is </em><em>INLINE</em>CODE<em>231</em><em> (all yield </em><em>INLINE</em>CODE<em>232</em><em>). This mirrors the standard 3-digit comma rule.
+2. For </em><em>INLINE</em>CODE<em>233</em><em> (5 digits): groups 1 (1-9), 2 (10-99), 3 (100-999), 4 (1000-9999) are fully included. Group 5 (10000-99999) is capped at </em><em>INLINE</em>CODE<em>234</em><em>.
+3. The number of groups equals the number of digits in </em><em>INLINE</em>CODE<em>235</em><em>, which is at most 10 for standard 32-bit integers.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Count the total number of commas across the standard-formatted versions of every integer from 1 to </em><em>INLINE</em>CODE<em>236</em><em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+A number's comma count depends only on its digit length via </em><em>INLINE</em>CODE<em>237</em><em>. Process entire digit-length groups at once, multiplying each group's size by its shared comma count.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. For each digit length </em><em>INLINE</em>CODE<em>238</em><em> starting at 1, find that group's natural range (</em><em>INLINE</em>CODE<em>239</em><em> to </em><em>INLINE</em>CODE<em>240</em><em>).
+2. Cap the group's upper end at </em><em>INLINE</em>CODE<em>241</em><em> if needed (</em><em>INLINE</em>CODE<em>242</em><em>).
+3. If </em><em>INLINE</em>CODE<em>243</em><em>, stop.
+4. Otherwise, add </em><em>INLINE</em>CODE<em>244</em><em> to the total.
+5. Advance to the next power of 10 and repeat.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+</em> <strong>Time:</strong> </em><em>INLINE</em>CODE<em>245</em><em> (grouped)<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li><strong>Space:</strong> </em><em>INLINE</em>CODE<em>246</em><em></li></ul>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🎯 Pattern to Remember</h3>
+When properties are uniform across digit ranges, group by powers of 10 to turn $O(N)$ simulations into $O(\log N)$ range calculations.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why do numbers with 1, 2, or 3 digits never contain any commas?
+2. <strong>(Basic concept)</strong> What is </em><em>INLINE</em>CODE<em>247</em><em> using integer division, and what does that tell you about how many commas a 7-digit number has?
+3. <strong>(Logic)</strong> Why is </em><em>INLINE</em>CODE<em>248</em><em> necessary when computing a group's actual upper bound?
+4. <strong>(Dry run)</strong> For </em><em>INLINE</em>CODE<em>249</em><em>, determine which digit-length groups get processed, their capped ranges, and the final total comma count.
+5. <strong>(Complexity/pattern)</strong> Given that </em><em>INLINE</em>CODE<em>250</em><em> is capped at only </em><em>INLINE</em>CODE<em>251</em><em> in this specific problem, why is the simple </em><em>INLINE</em>CODE<em>252</em><em> brute-force loop perfectly acceptable here, and under what circumstances would you need the grouped </em><em>INLINE</em>CODE<em>253</em>_ approach instead?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3871. Count Commas in Range II Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Count the total number of commas across standard-formatted integers from 1 to n for massive constraints (up to 10^15) using 64-bit integer range grouping." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/count-commas-in-range-ii" />
+  
+  <meta property="og:title" content="3871. Count Commas in Range II Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Count the total number of commas across standard-formatted integers from 1 to n for massive constraints (up to 10^15) using 64-bit integer range grouping." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/count-commas-in-range-ii" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/count-commas-in-range-ii';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3871. Count Commas in Range II</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-08</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same problem as Part I, word for word — except <em></em>INLINE<em>CODE</em>0<em></em> can now be as large as <em></em>INLINE<em>CODE</em>1<em></em> instead of <em></em>INLINE<em>CODE</em>2<em></em>. That single constraint change is the entire story here: the simple "loop from 1 to n" brute force is no longer just slow, it's <strong>completely impossible</strong> to run in time. Let's confirm why, and reuse the grouped approach from Part I — this time as a requirement, not a bonus technique.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical to Part I: write out every integer from <em></em>INLINE<em>CODE</em>3<em></em> to <em></em>INLINE<em>CODE</em>4<em></em> using standard comma formatting (a comma after every group of 3 digits from the right; numbers under 1000 get no commas). Count the <strong>total number of commas</strong> used across all of them.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> a single integer <em></em>INLINE<em>CODE</em>5<em></em> (up to <em></em>INLINE<em>CODE</em>6<em></em>).
+</em> <strong>What's different:</strong> <em></em>INLINE<em>CODE</em>7<em></em> can now be up to <em></em>INLINE<em>CODE</em>8<em></em> (a quadrillion) — a number with <strong>16 digits</strong>.
+<em> <strong>What to return:</strong> the total comma count, as a 64-bit integer (<em></em>INLINE<em>CODE</em>9<em></em> / <em></em>INLINE<em>CODE</em>10<em></em>).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same bank-receipt analogy as Part I — except now you're asked to print a receipt for every dollar amount from <em></em>INLINE<em>CODE</em>11<em></em> up to <strong>one quadrillion</strong>. There is no printer, and no amount of time, that could physically print a quadrillion individual receipts one at a time. You need a method that answers the question <strong>without ever "touching" each individual number</strong> — exactly the grouped, digit-length-based approach from Part I.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Everything from Part I carries over directly:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Comma formula:</strong> a number with <em></em>INLINE<em>CODE</em>12<em></em> digits gets exactly <em></em>INLINE<em>CODE</em>13<em></em> commas (integer division).
+<em> <strong>Grouping by digit length:</strong> all numbers with the same digit count behave identically, so we can process entire ranges of numbers at once instead of one at a time.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">New concept: <em></em>INLINE<em>CODE</em>14<em></em> instead of <em></em>INLINE<em>CODE</em>15<em></em></h3>
+</em> <strong>Concept:</strong> Java's <em></em>INLINE<em>CODE</em>16<em></em> type can only hold values up to about <em></em>INLINE<em>CODE</em>17<em></em> before overflowing (wrapping around to nonsense values). Since <em></em>INLINE<em>CODE</em>18<em></em> here can be up to <em></em>INLINE<em>CODE</em>19<em></em> — far beyond that — we must use Java's <em></em>INLINE<em>CODE</em>20<em></em> type instead, which comfortably holds values up into the quintillions.
+<em> <strong>Why we need it:</strong> The method signature itself has changed from <em></em>INLINE<em>CODE</em>21<em></em> to <em></em>INLINE<em>CODE</em>22<em></em> — a direct signal that both the input and the output (total comma count, which can also be huge) need this wider type. Every intermediate calculation (group boundaries, counts, sums) must also use <em></em>INLINE<em>CODE</em>23<em></em>, or we risk silent overflow bugs.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Why brute force is now truly impossible (not just slow)</h3>
+</em> <strong>Concept:</strong> A loop that runs <em></em>INLINE<em>CODE</em>24<em></em> times, for <em></em>INLINE<em>CODE</em>25<em></em> (one quadrillion), would take... even at an extremely generous <em>one billion</em> iterations per second, that's <em></em>INLINE<em>CODE</em>26<em></em> seconds — roughly <strong>11.5 days</strong> of continuous computation. This isn't "slow," it's simply not going to finish within any reasonable time limit (typically a couple of seconds).
+<em> <strong>Why we need it:</strong> This makes Part I's grouped, digit-length-based approach mandatory — there's no way around it.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same structure as Part I — a single integer <em></em>INLINE<em>CODE</em>27<em></em>. The only difference: it can now have up to <strong>16 digits</strong> (since <em></em>INLINE<em>CODE</em>28<em></em> has 16 digits: <em></em>INLINE<em>CODE</em>29<em></em>).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For Example 1 (<em></em>INLINE<em>CODE</em>30<em></em>), nothing about the meaning changes from Part I — see Part I Sections 4-6 for the full manual walkthrough. What </em>does<em> change is that our algorithm must gracefully handle inputs vastly larger than this example, up to 16 digits long.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same as Part I: <em></em>INLINE<em>CODE</em>31<em></em>, <em></em>INLINE<em>CODE</em>32<em></em>. The formula and reasoning are identical; only the required </em>scale<em> of correctness (and data type) has grown.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical manual process to Part I, Section 6 — no changes here. The insight (group by digit length, cap each group's range at <em></em>INLINE<em>CODE</em>33<em></em>, multiply group size by that group's fixed comma count) applies exactly the same way, whether <em></em>INLINE<em>CODE</em>34<em></em> has 4 digits or 16 digits.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What do I know?</strong> The exact same digit-length grouping insight from Part I: <em></em>INLINE<em>CODE</em>35<em></em>, and each digit-length group spans <em></em>INLINE<em>CODE</em>36<em></em> to <em></em>INLINE<em>CODE</em>37<em></em>.
+<em> <strong>What's different this time?</strong> With <em></em>INLINE<em>CODE</em>38<em></em> up to <em></em>INLINE<em>CODE</em>39<em></em>, a digit-length group can now go all the way up to digit length <strong>16</strong>. There are at most about 16 groups to process — still an extremely small, fixed number, completely independent of how large <em></em>INLINE<em>CODE</em>40<em></em>'s actual </em>value<em> is.
+</em> <strong>What must I watch out for?</strong> Every number involved in the calculation — group boundaries, counts, the running total — must use <em></em>INLINE<em>CODE</em>41<em></em>, since values like <em></em>INLINE<em>CODE</em>42<em></em> and beyond would overflow a regular <em></em>INLINE<em>CODE</em>43<em></em>.
+<em> <strong>Is there anything conceptually new to solve?</strong> No — this is purely a "port Part I's optimized solution to use <em></em>INLINE<em>CODE</em>44<em></em> throughout" exercise. The moment you tried the brute-force loop from Part I here, it would time out instantly (well, </em>eventually<em> — after failing to finish for days), immediately signaling that the grouped approach isn't optional this time.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Why the Part I Brute Force Now Fails</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it fails:</strong> The loop itself would need to run up to <strong>one quadrillion</strong> times. Even if each iteration took only a single nanosecond (physically unrealistic for something involving string conversion), that's still over 11 days of runtime. This isn't a "might time out on an unlucky test case" situation — it is <strong>guaranteed</strong> to time out on any reasonably large input, every single time.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. The Fix: Reuse Part I's Grouped Approach, with <em></em>INLINE<em>CODE</em>45<em></em></h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It might seem like this "Part II" needs a fundamentally new algorithm, since it's labeled "Medium" instead of "Easy" and the constraint looks dramatically scarier.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Nothing about the underlying math changed at all — the comma formula and digit-length grouping are identical to Part I. What changed is purely the <strong>scale</strong>, which makes any <em></em>INLINE<em>CODE</em>46<em></em> approach (even a very simple one) computationally impossible, not just "less than ideal."
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>The grouped, digit-length-based approach from Part I was already <em></em>INLINE<em>CODE</em>47<em></em> — completely independent of <em></em>INLINE<em>CODE</em>48<em></em>'s actual value, only dependent on how many </em>digits<em> <em></em>INLINE<em>CODE</em>49<em></em> has.</strong> Since even <em></em>INLINE<em>CODE</em>50<em></em> only has 16 digits, this approach handles the new constraint just as easily as it handled Part I's tiny one — we just need to switch from <em></em>INLINE<em>CODE</em>51<em></em> to <em></em>INLINE<em>CODE</em>52<em></em> everywhere to safely hold the larger numbers involved.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+We reuse Part I's exact grouped algorithm, unchanged in structure, just with <em></em>INLINE<em>CODE</em>53<em></em> types throughout.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical mechanics to Part I's Section 13 dry runs (Examples 1 and 2 give <em></em>INLINE<em>CODE</em>54<em></em> and <em></em>INLINE<em>CODE</em>55<em></em> respectively, following the exact same group-by-group arithmetic). The only thing to double check: every value manipulated (<em></em>INLINE<em>CODE</em>56<em></em>, <em></em>INLINE<em>CODE</em>57<em></em>, <em></em>INLINE<em>CODE</em>58<em></em>, <em></em>INLINE<em>CODE</em>59<em></em>, <em></em>INLINE<em>CODE</em>60<em></em>) is now a <em></em>INLINE<em>CODE</em>61<em></em>, so that even if we later fed in <em></em>INLINE<em>CODE</em>62<em></em>, none of these intermediate values would overflow.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's specifically verify the <strong>largest</strong> group that could ever come up, to make sure our approach scales correctly: for <em></em>INLINE<em>CODE</em>63<em></em>, the relevant digit-length groups go up to <em></em>INLINE<em>CODE</em>64<em></em> (since <em></em>INLINE<em>CODE</em>65<em></em> itself is a 16-digit number: <em></em>INLINE<em>CODE</em>66<em></em> — one followed by fifteen zeros, sixteen digits total). The group for <em></em>INLINE<em>CODE</em>67<em></em> would naturally span <em></em>INLINE<em>CODE</em>68<em></em> to <em></em>INLINE<em>CODE</em>69<em></em>, capped at <em></em>INLINE<em>CODE</em>70<em></em> (just the single number <em></em>INLINE<em>CODE</em>71<em></em> itself, if <em></em>INLINE<em>CODE</em>72<em></em> equals exactly that). <em></em>INLINE<em>CODE</em>73<em></em> — meaning the number <em></em>INLINE<em>CODE</em>74<em></em>, written out fully, is <em></em>INLINE<em>CODE</em>75<em></em>, which indeed has exactly 5 commas. This all checks out using plain <em></em>INLINE<em>CODE</em>76<em></em> arithmetic with no overflow.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is line-for-line the same algorithm as Part I's optimized solution — the only changes are: the method signature now takes and returns <em></em>INLINE<em>CODE</em>77<em></em> (or <em></em>INLINE<em>CODE</em>78<em></em> in JS), <em></em>INLINE<em>CODE</em>79<em></em> is explicitly declared <em></em>INLINE<em>CODE</em>80<em></em> (a <em></em>INLINE<em>CODE</em>81<em></em> literal) to guarantee all its arithmetic stays in <em></em>INLINE<em>CODE</em>82<em></em> from the very first operation, and <em></em>INLINE<em>CODE</em>83<em></em> is declared as <em></em>INLINE<em>CODE</em>84<em></em> rather than <em></em>INLINE<em>CODE</em>85<em></em> for consistency.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>86<em></em> — 64-bit accumulator for storing the large total comma count.
+<em> <em></em>INLINE<em>CODE</em>87<em></em> — starts at 1, representing the lowest 1-digit number.
+</em> <em></em>INLINE<em>CODE</em>88<em></em> — iterates up to 16 times as <em></em>INLINE<em>CODE</em>89<em></em> scales by $10\times$ per loop (<em></em>INLINE<em>CODE</em>90<em></em>).
+<em> <em></em>INLINE<em>CODE</em>91<em></em> — computes group ceiling without overflow in 64-bit integer limits (<em></em>INLINE<em>CODE</em>92<em></em>).
+</em> <em></em>INLINE<em>CODE</em>93<em></em> — caps the range at <em></em>INLINE<em>CODE</em>94<em></em>.
+<em> <em></em>INLINE<em>CODE</em>95<em></em> — counts elements inside the clamped digit bracket.
+</em> <em></em>INLINE<em>CODE</em>96<em></em> — integer division yields the exact comma count per item.
+<em> <em></em>INLINE<em>CODE</em>97<em></em> — batches the computation for up to hundreds of trillions of numbers in a single addition.
+</em> <em></em>INLINE<em>CODE</em>98<em></em> — advances to the next digit order of magnitude.
+<em> <em></em>INLINE<em>CODE</em>99<em></em> — returns the completed sum.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>100<em></em> → Output: <em></em>INLINE<em>CODE</em>101<em></em> ✔️ (identical to Part I)
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>102<em></em> → Output: <em></em>INLINE<em>CODE</em>103<em></em> ✔️ (identical to Part I)
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — The case that actually distinguishes Part I from Part II</h3>
+<em></em>INLINE<em>CODE</em>104<em></em> ($10^{15}$, the maximum allowed). Our loop runs through digit lengths <em></em>INLINE<em>CODE</em>105<em></em> through <em></em>INLINE<em>CODE</em>106<em></em> — just <strong>16 iterations total</strong> — each doing a handful of <em></em>INLINE<em>CODE</em>107<em></em> arithmetic operations, finishing in a tiny fraction of a millisecond. The brute-force loop from Part I, by contrast, would need on the order of <strong>10^15 iterations</strong>, which would take over 11 days to complete.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">All the same edge cases from Part I apply (n=1, boundaries at powers of 10, n fully under 1000). The genuinely new edge case here:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Maximum-size input (<em></em>INLINE<em>CODE</em>108<em></em>)</strong> → our grouped approach handles this in essentially constant time (at most ~16 loop iterations), while the naive brute force would never finish. This is the entire point of the "II" sequel.
+<em> <strong><em></em>INLINE<em>CODE</em>109<em></em> overflow risk in intermediate steps</strong> → specifically, <em></em>INLINE<em>CODE</em>110<em></em> at the largest group (<em></em>INLINE<em>CODE</em>111<em></em> around <em></em>INLINE<em>CODE</em>112<em></em>, multiplied by 10 gives <em></em>INLINE<em>CODE</em>113<em></em>) is still comfortably within <em></em>INLINE<em>CODE</em>114<em></em>'s range (which extends past <em></em>INLINE<em>CODE</em>115<em></em>), so there's no overflow risk even at the problem's maximum constraint.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why this matters so much more now than in Part I:</strong> In Part I, <em></em>INLINE<em>CODE</em>116<em></em> meant even the "bad" <em></em>INLINE<em>CODE</em>117<em></em> approach was only 100,000 operations — trivially fast. Here, <em></em>INLINE<em>CODE</em>118<em></em> makes that same <em></em>INLINE<em>CODE</em>119<em></em> approach represent roughly <strong>ten billion times more work</strong> than Part I's worst case — a difference that turns "instant" into "practically never." This is precisely why Part II exists: to confirm you understood </em>why<em> the grouped approach works, rather than just having gotten lucky that Part I's small constraints let a simpler method slide by.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>120<em></em> — a handful of <em></em>INLINE<em>CODE</em>121<em></em> variables, none of which grow with <em></em>INLINE<em>CODE</em>122<em></em>. Identical to Part I's space usage.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ <strong>"I'll just change <em></em>INLINE<em>CODE</em>123<em></em> to <em></em>INLINE<em>CODE</em>124<em></em> in my Part I brute-force loop and submit that."</strong>
+  <em> ✅ Changing the data type fixes potential overflow issues but does <strong>nothing</strong> about the fundamental speed problem — a loop of <em></em>INLINE<em>CODE</em>125<em></em> iterations is just as impossibly slow whether it's counting with <em></em>INLINE<em>CODE</em>126<em></em> or <em></em>INLINE<em>CODE</em>127<em></em>. You must switch to the grouped <em></em>INLINE<em>CODE</em>128<em></em> algorithm entirely, not just patch the data types in the slow one.
+</em> ❌ <strong>"Since <em></em>INLINE<em>CODE</em>129<em></em> fits in a <em></em>INLINE<em>CODE</em>130<em></em>, all my intermediate variables can stay as <em></em>INLINE<em>CODE</em>131<em></em>."</strong>
+  <em> ✅ Any variable that could hold a value derived from <em></em>INLINE<em>CODE</em>132<em></em> (like <em></em>INLINE<em>CODE</em>133<em></em>, which can reach up to <em></em>INLINE<em>CODE</em>134<em></em> or beyond during the loop) must also be <em></em>INLINE<em>CODE</em>135<em></em> — mixing <em></em>INLINE<em>CODE</em>136<em></em> and <em></em>INLINE<em>CODE</em>137<em></em> carelessly risks silent overflow the moment an <em></em>INLINE<em>CODE</em>138<em></em> variable is asked to hold a value bigger than about 2.1 billion.
+</em> ❌ <strong>"This must need some fancy new mathematical trick since it's rated 'Medium' now instead of 'Easy'."</strong>
+  <em> ✅ The difficulty bump reflects exactly one thing: whether you reach for the <em></em>INLINE<em>CODE</em>139<em></em> or the <em></em>INLINE<em>CODE</em>140<em></em> approach. The </em>math<em> (comma formula, digit-length grouping) is unchanged from Part I.
+</em> ❌ <strong>"<em></em>INLINE<em>CODE</em>141<em></em> might overflow for very large <em></em>INLINE<em>CODE</em>142<em></em>, so I need some special overflow-safe multiplication."</strong>
+  <em> ✅ For this problem's specific bound (<em></em>INLINE<em>CODE</em>143<em></em>), plain <em></em>INLINE<em>CODE</em>144<em></em> arithmetic is entirely sufficient — <em></em>INLINE<em>CODE</em>145<em></em> safely holds values up past <em></em>INLINE<em>CODE</em>146<em></em>, far beyond anything this problem could ever produce (<em></em>INLINE<em>CODE</em>147<em></em>, at most, appears in intermediate group-boundary calculations).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same meta-lesson as the other "Part II" sequels in this series:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. How many digit-length groups would need to be processed for <em></em>INLINE<em>CODE</em>148<em></em> exactly, and why?
+2. If you forgot to change <em></em>INLINE<em>CODE</em>149<em></em> to a <em></em>INLINE<em>CODE</em>150<em></em>-compatible calculation somewhere, but <em></em>INLINE<em>CODE</em>151<em></em> itself was correctly declared <em></em>INLINE<em>CODE</em>152<em></em>, where specifically might a bug sneak in?
+3. Why does the number of loop iterations in the grouped approach stay small even if <em></em>INLINE<em>CODE</em>153<em></em> were hypothetically increased to <em></em>INLINE<em>CODE</em>154<em></em> (close to <em></em>INLINE<em>CODE</em>155<em></em>'s actual maximum)?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <em></em>INLINE<em>CODE</em>156<em></em> is written as <em></em>INLINE<em>CODE</em>157<em></em> followed by 15 zeros — that's <strong>16 digits</strong> total. So digit-length groups from <em></em>INLINE<em>CODE</em>158<em></em> through <em></em>INLINE<em>CODE</em>159<em></em> would all potentially be processed (16 groups), with the 16th group being just the single number <em></em>INLINE<em>CODE</em>160<em></em> itself (capped by <em></em>INLINE<em>CODE</em>161<em></em>).
+2. If, for example, <em></em>INLINE<em>CODE</em>162<em></em> were computed via something like <em></em>INLINE<em>CODE</em>163<em></em> where <em></em>INLINE<em>CODE</em>164<em></em> itself was accidentally still typed as <em></em>INLINE<em>CODE</em>165<em></em> somewhere in a refactor, or if a group-boundary calculation like <em></em>INLINE<em>CODE</em>166<em></em> were performed using <em></em>INLINE<em>CODE</em>167<em></em> arithmetic instead of <em></em>INLINE<em>CODE</em>168<em></em>, the multiplication could silently overflow and wrap around to a nonsensical (often negative) value well before reaching realistic-sized groups — this is exactly the kind of subtle bug that "looks correct" on Part I's small <em></em>INLINE<em>CODE</em>169<em></em> but breaks silently on Part II's larger range.
+3. Because the number of digit-length groups is tied to how many <strong>digits</strong> <em></em>INLINE<em>CODE</em>170<em></em> has, not <em></em>INLINE<em>CODE</em>171<em></em>'s raw value — and even <em></em>INLINE<em>CODE</em>172<em></em> only has 19 digits. Going from <em></em>INLINE<em>CODE</em>173<em></em> (16 digits) to <em></em>INLINE<em>CODE</em>174<em></em> (19 digits) only adds 3 more loop iterations, a negligible increase, illustrating just how powerfully "logarithmic in n" scales compared to "linear in n."</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Identical to Part I: count total commas across standard-formatted integers from 1 to <em></em>INLINE<em>CODE</em>175<em></em> — but now <em></em>INLINE<em>CODE</em>176<em></em> can be up to <em></em>INLINE<em>CODE</em>177<em></em>, making the <em></em>INLINE<em>CODE</em>178<em></em> grouped approach (and <em></em>INLINE<em>CODE</em>179<em></em> arithmetic) mandatory rather than optional.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Part I's digit-length-grouping insight was already independent of <em></em>INLINE<em>CODE</em>180<em></em>'s magnitude (only dependent on its digit count) — so the fix is simply reusing that exact algorithm with <em></em>INLINE<em>CODE</em>181<em></em> types throughout, instead of the now-infeasible <em></em>INLINE<em>CODE</em>182<em></em> brute-force loop.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. For each digit length <em></em>INLINE<em>CODE</em>183<em></em>, compute the group's natural range <em></em>INLINE<em>CODE</em>184<em></em>.
+2. Cap the group's end at <em></em>INLINE<em>CODE</em>185<em></em>.
+3. Add <em></em>INLINE<em>CODE</em>186<em></em> to the running total.
+4. Advance to the next digit length; stop once the group's start exceeds <em></em>INLINE<em>CODE</em>187<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+</em> <strong>Time:</strong> <em></em>INLINE<em>CODE</em>188<em></em> (at most ~16 iterations for <em></em>INLINE<em>CODE</em>189<em></em> up to <em></em>INLINE<em>CODE</em>190<em></em>)<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li><strong>Space:</strong> <em></em>INLINE<em>CODE</em>191<em></em></li></ul>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🎯 Pattern to Remember</h3>
+When a "Part II" sequel keeps the same logic but pushes <em></em>INLINE<em>CODE</em>192<em></em> from a small bound to an astronomically larger one, check whether your optimized Part I solution was already independent of <em></em>INLINE<em>CODE</em>193<em></em>'s raw magnitude — if it was <em></em>INLINE<em>CODE</em>194<em></em> (or similar) already, the fix is often just a data-type upgrade, not new logic.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> What is the only conceptual difference between Part I and Part II of this problem?
+2. <strong>(Basic concept)</strong> Roughly how many seconds/days would a brute-force <em></em>INLINE<em>CODE</em>195<em></em> loop take to process <em></em>INLINE<em>CODE</em>196<em></em>, assuming a generous one billion operations per second?
+3. <strong>(Logic)</strong> Why does switching from <em></em>INLINE<em>CODE</em>197<em></em> to <em></em>INLINE<em>CODE</em>198<em></em> alone NOT fix the brute-force approach's fundamental problem?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>199<em></em> (fifteen 9s, a 15-digit number, one less than 10^15), determine how many digit-length groups are processed and what the final digit-length-15 group's comma-per-number value is.
+5. <strong>(Complexity/pattern)</strong> Why does the grouped approach's runtime stay almost unchanged whether <em></em>INLINE<em>CODE</em>200<em></em> is <em></em>INLINE<em>CODE</em>201<em></em>, <em></em>INLINE<em>CODE</em>202<em></em>, or even <em></em>INLINE<em>CODE</em>203<em></em>, and what specific aspect of the algorithm (mentioned in the Key Insight) explains this remarkable scalability?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

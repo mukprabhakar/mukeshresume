@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2472. Maximum Number of Non-overlapping Palindrome Substrings Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find the maximum number of non-overlapping palindromic substrings of length at least k using 2D palindrome precomputation and a greedy-pruned prefix dynamic programming transition." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/maximum-number-of-non-overlapping-palindrome-substrings" />
+  
+  <meta property="og:title" content="2472. Maximum Number of Non-overlapping Palindrome Substrings Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find the maximum number of non-overlapping palindromic substrings of length at least k using 2D palindrome precomputation and a greedy-pruned prefix dynamic programming transition." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/maximum-number-of-non-overlapping-palindrome-substrings" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/maximum-number-of-non-overlapping-palindrome-substrings';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">2472. Maximum Number of Non-overlapping Palindrome Substrings</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Hard</strong> | Published on <strong>2026-09-15</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is a genuinely hard problem that combines three ideas: palindrome-checking, dynamic programming over string positions, and a clever greedy "shrink to the smallest valid piece" trick. Let's build it up from zero.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You have a string <em></em>INLINE<em>CODE</em>0<em></em> and a number <em></em>INLINE<em>CODE</em>1<em></em>. You want to pick out several <strong>pieces</strong> (substrings) of <em></em>INLINE<em>CODE</em>2<em></em>, such that:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Each piece is a <strong>palindrome</strong> (reads the same forwards and backwards).
+</em> Each piece has length <strong>at least <em></em>INLINE<em>CODE</em>3<em></em></strong>.
+<em> The pieces don't <strong>overlap</strong> — once you use some characters for one piece, you can't reuse any of those same characters in another piece (though pieces don't need to be adjacent — there can be gaps of unused characters between them).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> pick as <strong>many</strong> such non-overlapping pieces as possible.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What's given:</strong> the string <em></em>INLINE<em>CODE</em>4<em></em>, and the minimum length <em></em>INLINE<em>CODE</em>5<em></em>.
+<em> <strong>What to find:</strong> the largest possible count of non-overlapping, length-≥k palindromic substrings you can select.
+</em> <strong>What to return:</strong> that count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a long string of Christmas lights, where you're looking for "symmetric" light patterns — stretches that look the same read left-to-right as right-to-left, using at least <em></em>INLINE<em>CODE</em>6<em></em> bulbs. You want to cut out as many <em>separate</em> symmetric stretches as possible from the string, where "separate" means no light bulb belongs to two different stretches at once. You want to know the maximum number of these symmetric snippets you can carve out.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Palindrome (recap)</h3>
+A string that reads the same forwards and backwards. <em></em>INLINE<em>CODE</em>7<em></em> is a palindrome if <em></em>INLINE<em>CODE</em>8<em></em> and the "inside" (<em></em>INLINE<em>CODE</em>9<em></em>) is also a palindrome.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">2D "is this a palindrome" table</h3>
+<em> <strong>Concept:</strong> Build a table <em></em>INLINE<em>CODE</em>10<em></em> = true if <em></em>INLINE<em>CODE</em>11<em></em> is a palindrome. We fill it using the recursive relationship above: <em></em>INLINE<em>CODE</em>12<em></em>. Fill it by increasing substring length, so smaller answers are ready when needed by bigger ones.
+</em> <strong>Why we need it:</strong> Checking "is this a palindrome" naively (comparing characters from both ends) takes $O(\text{length})$ time each time; precomputing this table once lets us answer <em>any</em> "is s[l..r] a palindrome?" question in $O(1)$ afterward.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Dynamic Programming over string prefixes</h3>
+<em> <strong>Concept:</strong> <em></em>INLINE<em>CODE</em>13<em></em> = the maximum number of valid non-overlapping palindromic pieces we can select from just the <strong>first <em></em>INLINE<em>CODE</em>14<em></em> characters</strong> of <em></em>INLINE<em>CODE</em>15<em></em> (i.e., <em></em>INLINE<em>CODE</em>16<em></em>). We build this up left to right: <em></em>INLINE<em>CODE</em>17<em></em> is either "same as <em></em>INLINE<em>CODE</em>18<em></em>" (don't use position <em></em>INLINE<em>CODE</em>19<em></em> in any new piece) or "1 + dp[j]" for some <em></em>INLINE<em>CODE</em>20<em></em> where <em></em>INLINE<em>CODE</em>21<em></em> is a valid piece (ending right at position <em></em>INLINE<em>CODE</em>22<em></em>, starting at <em></em>INLINE<em>CODE</em>23<em></em>).
+</em> <strong>Why we need it:</strong> This naturally captures "process the string left to right, deciding where to place pieces, while respecting the non-overlapping rule" — a classic 1D DP over string position.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The key greedy trick: shrinking a palindrome from the outside</h3>
+<em> <strong>Concept:</strong> If <em></em>INLINE<em>CODE</em>24<em></em> is a palindrome of length $\ge k+2$, then <strong>peeling off</strong> its outermost matching character pair (<em></em>INLINE<em>CODE</em>25<em></em> and <em></em>INLINE<em>CODE</em>26<em></em>, which we know are equal, since it's a palindrome) leaves <em></em>INLINE<em>CODE</em>27<em></em>, which is <strong>also a palindrome</strong>, just 2 characters shorter. You can keep peeling like this, layer by layer, like an onion, until you reach a palindrome of length exactly <em></em>INLINE<em>CODE</em>28<em></em> or <em></em>INLINE<em>CODE</em>29<em></em> (whichever matches the original length's parity), <strong>without ever moving the right endpoint <em></em>INLINE<em>CODE</em>30<em></em>.</strong>
+</em> <strong>Why we need it:</strong> This means: if <em>any</em> valid (length $\ge k$) palindrome ends at position <em></em>INLINE<em>CODE</em>31<em></em>, there's <em>also</em> a valid palindrome of length exactly <em></em>INLINE<em>CODE</em>32<em></em> or <em></em>INLINE<em>CODE</em>33<em></em> ending at that <strong>same</strong> position <em></em>INLINE<em>CODE</em>34<em></em>. And using the <em>smaller</em> one is never worse — it uses fewer characters, leaving more room (to the left) for other pieces — so we only ever need to check <strong>two fixed lengths</strong> (<em></em>INLINE<em>CODE</em>35<em></em> and <em></em>INLINE<em>CODE</em>36<em></em>) when looking for a piece ending at any given position, instead of checking every possible longer length too.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Indices: <em></em>INLINE<em>CODE</em>37<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> We want to select non-overlapping substrings, each a palindrome, each length $\ge 3$.
+</em> Candidates include <em></em>INLINE<em>CODE</em>38<em></em> (indices 0-2, a palindrome of length 3) and <em></em>INLINE<em>CODE</em>39<em></em> (indices 5-8, a palindrome of length 4).
+<em> We want the </em>maximum count<em> of such pieces we can pick without any shared characters.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>40<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>41<em></em> (0-2) and <em></em>INLINE<em>CODE</em>42<em></em> (5-8) don't overlap (indices 0-2 vs 5-8, no shared positions) — both are palindromes of length $\ge 3$.
+<em> Could we possibly fit 3 non-overlapping valid pieces? The string only has 9 characters, and each piece needs at least 3, so at most $\lfloor 9/3 \rfloor = 3$ pieces could theoretically fit — but as the explanation states, no arrangement actually achieves 3 pieces here (there just aren't enough non-overlapping valid palindromes available), so <em></em>INLINE<em>CODE</em>43<em></em> is the true maximum.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually find every palindromic substring of length $\ge 3$ in <em></em>INLINE<em>CODE</em>44<em></em>, then reason about the best non-overlapping selection.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Scanning for palindromes of length $\ge 3$:
+</em> <em></em>INLINE<em>CODE</em>45<em></em> at indices 0-2 (length 3) — palindrome.
+<em> <em></em>INLINE<em>CODE</em>46<em></em> — length 2, too short, skip (need $\ge 3$).
+</em> <em></em>INLINE<em>CODE</em>47<em></em> at 6-7 — length 2, too short.
+<em> <em></em>INLINE<em>CODE</em>48<em></em> at 5-8 (length 4) — check: <em></em>INLINE<em>CODE</em>49<em></em> (ends), inside is <em></em>INLINE<em>CODE</em>50<em></em> which is a palindrome $\rightarrow$ yes, <em></em>INLINE<em>CODE</em>51<em></em> is a palindrome of length 4.
+</em> No other length-$\ge 3$ palindromic substrings exist in this particular string.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So our only two usable pieces are <em></em>INLINE<em>CODE</em>52<em></em> (0-2) and <em></em>INLINE<em>CODE</em>53<em></em> (5-8) — they don't overlap, so we take both: <strong>2</strong> pieces. This matches, and also confirms there's no way to squeeze out a third piece, since there simply isn't a third valid palindrome available anywhere else in the string.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> For a piece "ending at position <em></em>INLINE<em>CODE</em>54<em></em>," I need to know if some substring ending there, of length $\ge k$, is a palindrome — and if so, what's the </em>best<em> count achievable by using it.
+</em> <strong>What do I need to find?</strong> The overall maximum count, built up as we scan left to right through the string.
+<em> <strong>What can I try?</strong> Define <em></em>INLINE<em>CODE</em>55<em></em> = best count using only <em></em>INLINE<em>CODE</em>56<em></em>. For each <em></em>INLINE<em>CODE</em>57<em></em>, either don't place a piece ending exactly at <em></em>INLINE<em>CODE</em>58<em></em> (<em></em>INLINE<em>CODE</em>59<em></em>), or place one that ends there: for every possible starting point <em></em>INLINE<em>CODE</em>60<em></em> such that <em></em>INLINE<em>CODE</em>61<em></em> is a valid (length $\ge k$) palindrome, try <em></em>INLINE<em>CODE</em>62<em></em>.
+</em> <strong>What happens if I try every possibility (every <em></em>INLINE<em>CODE</em>63<em></em>) for every <em></em>INLINE<em>CODE</em>64<em></em>?</strong> That's $O(n)$ choices of <em></em>INLINE<em>CODE</em>65<em></em> for each of $O(n)$ positions <em></em>INLINE<em>CODE</em>66<em></em>, giving $O(n^2)$ dp transitions — each needing an $O(1)$ palindrome lookup (from our precomputed table) — so $O(n^2)$ total, which for $n=2000$ is $4,000,000$ operations — perfectly fast!</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Actually, thanks to the "shrink to length k or k+1" insight, we only ever need to check <strong>two specific candidate pieces</strong> ending at position <em></em>INLINE<em>CODE</em>67<em></em>: the one of length exactly <em></em>INLINE<em>CODE</em>68<em></em>, and the one of length exactly <em></em>INLINE<em>CODE</em>69<em></em>. If <em>either</em> is a valid palindrome, using it is at least as good as using any longer palindrome ending at the same spot (since a longer one could always be shrunk down to one of these two without losing validity, and shrinking only ever <em>frees up</em> more room for other pieces, never using it up).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What information should I remember?</strong> The <em></em>INLINE<em>CODE</em>70<em></em> table (built once, $O(n^2)$), and the <em></em>INLINE<em>CODE</em>71<em></em> array ($O(n)$), built left to right.
+</em> <strong>What pattern do I notice?</strong> This is a "DP with a greedy-pruned transition" — instead of trying all possible previous cut points, we prove that only two specific lengths ever need checking, cutting the DP transition down to $O(1)$ per position instead of $O(n)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Precompute the <em></em>INLINE<em>CODE</em>72<em></em> table ($O(n^2)$), then run the DP checking <strong>every</strong> possible starting point <em></em>INLINE<em>CODE</em>73<em></em> for every ending point <em></em>INLINE<em>CODE</em>74<em></em> (not just the two "shrunk" lengths).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> It directly implements the DP recurrence from Section 7, trying every legitimate placement.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> Building <em></em>INLINE<em>CODE</em>75<em></em> is $O(n^2)$. The DP itself, trying every <em></em>INLINE<em>CODE</em>76<em></em> for every <em></em>INLINE<em>CODE</em>77<em></em>, is also $O(n^2)$ (for each of the <em></em>INLINE<em>CODE</em>78<em></em> values of <em></em>INLINE<em>CODE</em>79<em></em>, up to <em></em>INLINE<em>CODE</em>80<em></em> values of <em></em>INLINE<em>CODE</em>81<em></em>). Total: $O(n^2)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> The <em></em>INLINE<em>CODE</em>82<em></em> construction loop — builds up palindrome-checking results by <strong>increasing length</strong>, so that whenever we need <em></em>INLINE<em>CODE</em>83<em></em> (a </em>shorter<em> substring) to determine <em></em>INLINE<em>CODE</em>84<em></em>, it's already been computed in an earlier iteration of the outer <em></em>INLINE<em>CODE</em>85<em></em> loop.
+</em> <em></em>INLINE<em>CODE</em>86<em></em> — a single character is trivially a palindrome.
+<em> <em></em>INLINE<em>CODE</em>87<em></em> — a 2-character substring is a palindrome exactly when both characters match.
+</em> <em></em>INLINE<em>CODE</em>88<em></em> — for longer substrings, it's a palindrome exactly when the outer characters match AND the inside (already computed, since it's shorter) is a palindrome.
+<em> <em></em>INLINE<em>CODE</em>89<em></em> — baseline: whatever the best count was using one fewer character, we can always match that (simply don't place anything new ending exactly here).
+</em> The inner <em></em>INLINE<em>CODE</em>90<em></em> loop — tries every starting position <em></em>INLINE<em>CODE</em>91<em></em> such that the resulting substring <em></em>INLINE<em>CODE</em>92<em></em> has length at least <em></em>INLINE<em>CODE</em>93<em></em> (<em></em>INLINE<em>CODE</em>94<em></em>, rearranged to <em></em>INLINE<em>CODE</em>95<em></em>).
+<em> <em></em>INLINE<em>CODE</em>96<em></em> — only consider this <em></em>INLINE<em>CODE</em>97<em></em> if the substring is actually a palindrome.
+</em> <em></em>INLINE<em>CODE</em>98<em></em> — if valid, this represents "place a piece from <em></em>INLINE<em>CODE</em>99<em></em> to <em></em>INLINE<em>CODE</em>100<em></em>, plus whatever the best count was using everything strictly before <em></em>INLINE<em>CODE</em>101<em></em>."</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Do We Still Want the Sharper Version?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Even though $O(n^2)$ is already fast enough here, checking every <em></em>INLINE<em>CODE</em>102<em></em> per <em></em>INLINE<em>CODE</em>103<em></em> is doing more work than strictly necessary — most of those <em></em>INLINE<em>CODE</em>104<em></em> checks either fail the palindrome test or, even when they succeed, would never actually be the <em>optimal</em> choice (since a longer valid palindrome ending at <em></em>INLINE<em>CODE</em>105<em></em> can always be replaced by a shorter one ending at the same spot without hurting the final answer). Understanding <em>why</em> only two lengths ever need checking is the real "hard problem" insight here, and turns the DP transition into a clean $O(1)$ step.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Do we really need to check every possible starting point <em></em>INLINE<em>CODE</em>106<em></em>?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">No — using the "shrinking" insight from Section 3:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It seems like we need to consider every possible palindrome length ending at each position, to be sure we're not missing a better option.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Checking every length is more work than needed, and it obscures a beautiful structural fact about palindromes.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>If <em></em>INLINE<em>CODE</em>107<em></em> is a palindrome with length $\ge k+2$, then <em></em>INLINE<em>CODE</em>108<em></em> is automatically also a palindrome (2 shorter), still ending at the exact same right endpoint <em></em>INLINE<em>CODE</em>109<em></em>.</strong> Repeating this peeling process, any valid (length $\ge k$) palindrome ending at <em></em>INLINE<em>CODE</em>110<em></em> can always be shrunk down — still ending at <em></em>INLINE<em>CODE</em>111<em></em> — to a palindrome of length exactly <em></em>INLINE<em>CODE</em>112<em></em> (if the original length has the same parity as <em></em>INLINE<em>CODE</em>113<em></em>) or <em></em>INLINE<em>CODE</em>114<em></em> (if the parities differ by one). Using this shrunk version instead of the original never makes our answer worse — it uses strictly fewer characters, potentially freeing up <em>more</em> room for additional pieces, never less.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+For every ending position, we only ever need to check <strong>two fixed-length candidates</strong> (length <em></em>INLINE<em>CODE</em>115<em></em> and length <em></em>INLINE<em>CODE</em>116<em></em>) rather than searching through all possible lengths — collapsing the DP's inner search into a constant number of checks.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run on Example 1: <em></em>INLINE<em>CODE</em>117<em></em>, <em></em>INLINE<em>CODE</em>118<em></em>. <em></em>INLINE<em>CODE</em>119<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We build <em></em>INLINE<em>CODE</em>120<em></em> (details as in Section 8), then run the DP with the sharper transition: for each <em></em>INLINE<em>CODE</em>121<em></em>, check only the length-<em></em>INLINE<em>CODE</em>122<em></em>(3) piece ending at <em></em>INLINE<em>CODE</em>123<em></em>, and the length-<em></em>INLINE<em>CODE</em>124<em></em>(4) piece ending at <em></em>INLINE<em>CODE</em>125<em></em>.</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">i</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Position i-1 (char)</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Length-3 piece ending here</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Palindrome?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Length-4 piece ending here</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Palindrome?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">dp[i]</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[0]=0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">a(0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(too short)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(too short)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[1]=0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">b(1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(too short)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(too short)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[2]=0</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">a(2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[0..2]="aba"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes! dp[3]=max(dp[2], 1+dp[0])=1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(too short)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[3]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">c(3)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[1..3]="bac"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[0..3]="abac"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[4]=dp[3]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">5</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">c(4)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[2..4]="acc"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[1..4]="bacc"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[5]=dp[4]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">6</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">d(5)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[3..5]="ccd"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[2..5]="accd"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[6]=dp[5]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">7</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">b(6)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[4..6]="cdb"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[3..6]="ccdb"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[7]=dp[6]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">8</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">b(7)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[5..7]="dbb"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[4..7]="cdbb"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[8]=dp[7]=1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">d(8)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[6..8]="bbd"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">s[5..8]="dbbd"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes! dp[9]=max(dp[8], 1+dp[5])=2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">dp[9]=2</td></tr></table></div>
+Final: <em></em>INLINE<em>CODE</em>126<em></em>. ✔️ matches!
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> The <em></em>INLINE<em>CODE</em>127<em></em> table construction — identical to Section 9's explanation.
+</em> <em></em>INLINE<em>CODE</em>128<em></em> — <em></em>INLINE<em>CODE</em>129<em></em> = max valid pieces achievable using only <em></em>INLINE<em>CODE</em>130<em></em>. <em></em>INLINE<em>CODE</em>131<em></em> (empty prefix, no pieces possible), left at its default.
+<em> <em></em>INLINE<em>CODE</em>132<em></em> — baseline: skip using position <em></em>INLINE<em>CODE</em>133<em></em> in any new piece.
+</em> <em></em>INLINE<em>CODE</em>134<em></em> — check the length-<em></em>INLINE<em>CODE</em>135<em></em> candidate ending at <em></em>INLINE<em>CODE</em>136<em></em> (starting at <em></em>INLINE<em>CODE</em>137<em></em>); the <em></em>INLINE<em>CODE</em>138<em></em> guard ensures this starting index is valid (non-negative).
+<em> <em></em>INLINE<em>CODE</em>139<em></em> — if that candidate is a valid palindrome, consider using it: 1 new piece, plus the best achievable using everything strictly before it.
+</em> <em></em>INLINE<em>CODE</em>140<em></em> — check the length-<em></em>INLINE<em>CODE</em>141<em></em> candidate similarly.
+<em> <em></em>INLINE<em>CODE</em>142<em></em> — same update logic for this second candidate.
+</em> <em></em>INLINE<em>CODE</em>143<em></em> — the final answer, using the <em>entire</em> string.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Why checking just these two lengths suffices: by the Key Insight, any valid (length $\ge k$) palindrome ending at <em></em>INLINE<em>CODE</em>144<em></em> can be shrunk (same ending point) to length <em></em>INLINE<em>CODE</em>145<em></em> or <em></em>INLINE<em>CODE</em>146<em></em>, and using that shrunk version is never worse for the DP's purposes — so the maximum achievable by "placing <em>some</em> valid piece ending at i-1" is <em>always</em> captured by checking just these two minimal lengths.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>147<em></em> $\rightarrow$ dry-ran fully in Section 13 $\rightarrow$ Output: <em></em>INLINE<em>CODE</em>148<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>149<em></em>. Checking every position for length-2 and length-3 palindromic pieces ending there: none of the possible 2-character or 3-character windows in <em></em>INLINE<em>CODE</em>150<em></em> turn out to be palindromes. So <em></em>INLINE<em>CODE</em>151<em></em> throughout, and the final <em></em>INLINE<em>CODE</em>152<em></em>. Output: <em></em>INLINE<em>CODE</em>153<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>No valid palindrome exists anywhere</strong> (Example 2) $\rightarrow$ <em></em>INLINE<em>CODE</em>154<em></em> never increases, final answer <em></em>INLINE<em>CODE</em>155<em></em>.
+</em> <strong><em></em>INLINE<em>CODE</em>156<em></em> equal to <em></em>INLINE<em>CODE</em>157<em></em></strong> $\rightarrow$ only the entire string itself could ever qualify (if it's a palindrome); answer is <em></em>INLINE<em>CODE</em>158<em></em> or <em></em>INLINE<em>CODE</em>159<em></em> accordingly.
+<em> <strong><em></em>INLINE<em>CODE</em>160<em></em></strong> $\rightarrow$ every single character (length-1 substring) is trivially a palindrome, so at minimum, you could always pick every other single character as its own piece — this problem still works correctly, since checking "length k(1)" candidates would find single characters, and "length k+1(2)" candidates would find adjacent-matching-pairs, both valid inputs to the same shrink-based logic.
+</em> <strong>Overlap-avoidance forcing a trade-off</strong> $\rightarrow$ correctly handled by the DP's <em></em>INLINE<em>CODE</em>161<em></em> comparisons at every step, naturally exploring "use this piece" vs. "don't use it" at every position.
+<em> <strong><em></em>INLINE<em>CODE</em>162<em></em> entirely made of the same repeated character</strong> (e.g., <em></em>INLINE<em>CODE</em>163<em></em>, <em></em>INLINE<em>CODE</em>164<em></em>) $\rightarrow$ many overlapping candidate palindromes exist; the DP correctly finds the maximum non-overlapping count (which would greedily chop the string into as many length-<em></em>INLINE<em>CODE</em>165<em></em> or length-<em></em>INLINE<em>CODE</em>166<em></em> pieces as fit, back to back).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> The palindrome table construction inherently requires checking $O(n^2)$ substrings (all possible <em></em>INLINE<em>CODE</em>167<em></em> pairs), each in $O(1)$ given the smaller sub-results are already computed. The DP loop itself, thanks to the "only check 2 lengths" insight, does a fixed, small amount of work per position, contributing only $O(n)$. The table construction dominates, giving $O(n^2)$ overall — for $n=2000$, that's $4,000,000$ operations, comfortably fast.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>168<em></em> is an $n \times n$ boolean table $\rightarrow O(n^2)$ space. <em></em>INLINE<em>CODE</em>169<em></em> is $O(n)$. Overall: $O(n^2)$ — for $n=2000$, that's $4,000,000$ booleans (about 4MB) — comfortably within memory limits.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "I need to check every possible length ending at each position, not just k and k+1."  
+  ✅ The shrinking insight proves checking just these two lengths is always sufficient — any longer valid palindrome can be shrunk to one of these two without losing validity or hurting the final answer.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "I should build the palindrome table by length increasing from the OUTSIDE in, rather than shortest-to-longest."  
+  ✅ You must process by <strong>increasing length</strong>, since <em></em>INLINE<em>CODE</em>170<em></em> depends on the </em>shorter<em> <em></em>INLINE<em>CODE</em>171<em></em> — building longer substrings before their shorter "insides" are ready would reference uncomputed (default <em></em>INLINE<em>CODE</em>172<em></em>) values, giving wrong answers.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "dp[i] should represent 'best count ending exactly at position i-1', not 'best count using the whole prefix'."  
+  ✅ Defining it as "best using the whole prefix s[0..i-1]" is what correctly allows the simple <em></em>INLINE<em>CODE</em>173<em></em> baseline (skip this position) — a "must end exactly here" definition would need extra handling to combine with earlier, unused stretches of string.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "The two lengths to check should be <em></em>INLINE<em>CODE</em>174<em></em> and <em></em>INLINE<em>CODE</em>175<em></em>, not <em></em>INLINE<em>CODE</em>176<em></em> and <em></em>INLINE<em>CODE</em>177<em></em>."  
+  ✅ We need lengths <strong>at least</strong> <em></em>INLINE<em>CODE</em>178<em></em> — checking <em></em>INLINE<em>CODE</em>179<em></em> would violate the minimum-length requirement. We check <em></em>INLINE<em>CODE</em>180<em></em> and <em></em>INLINE<em>CODE</em>181<em></em> because between these two, one of them always matches the parity of any longer valid palindrome, allowing the full shrink-down argument to apply correctly regardless of whether the "true" palindrome's length is even or odd.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever you see "maximize non-overlapping pieces satisfying some property, each with a minimum length," think <strong>prefix DP</strong>, and separately ask whether the "some property" (like palindrome-ness) has a <strong>structural shrinking argument</strong> that limits how many candidate lengths you actually need to check per position.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why does peeling the outer characters off a palindrome (removing <em></em>INLINE<em>CODE</em>182<em></em> and <em></em>INLINE<em>CODE</em>183<em></em>) always leave another valid palindrome behind?
+2. If a palindrome has length 7 and <em></em>INLINE<em>CODE</em>184<em></em>, would we shrink it down to length 3 or length 4? Why?
+3. Why is <em></em>INLINE<em>CODE</em>185<em></em> always a safe "baseline" option to include in the max, even when a valid piece </em>does<em> exist ending at position <em></em>INLINE<em>CODE</em>186<em></em>?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Because a palindrome's defining property is symmetric: <em></em>INLINE<em>CODE</em>187<em></em>, <em></em>INLINE<em>CODE</em>188<em></em>, and so on, inward. Removing the matched outermost pair leaves all the </em>remaining* symmetric pairs intact — the inside was already forced to be a palindrome by the original palindrome's own definition.
+2. Length 7, shrinking by 2 at a time (7 $\rightarrow$ 5 $\rightarrow$ 3), reaches length 3 — matching <em></em>INLINE<em>CODE</em>189<em></em> exactly, since 7 and 3 have the same parity (both odd). We'd never need to reach for length $k+1=4$ in this specific case.
+3. Because using a piece ending at <em></em>INLINE<em>CODE</em>190<em></em> is only beneficial if it actually improves the count — sometimes skipping is just as good or better. Including <em></em>INLINE<em>CODE</em>191<em></em> as a baseline ensures we never accidentally force a piece placement that turns out to be suboptimal; <em></em>INLINE<em>CODE</em>192<em></em> naturally picks whichever option is actually best.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Find the maximum number of non-overlapping, length-$\ge k$ palindromic substrings selectable from <em></em>INLINE<em>CODE</em>193<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Any valid (length $\ge k$) palindrome ending at some position can be shrunk, same ending point, down to length exactly <em></em>INLINE<em>CODE</em>194<em></em> or <em></em>INLINE<em>CODE</em>195<em></em> — so a prefix DP only ever needs to check these two fixed lengths at each position, not every possible length.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. Build <em></em>INLINE<em>CODE</em>196<em></em> via $O(n^2)$ DP over increasing substring length.
+2. <em></em>INLINE<em>CODE</em>197<em></em> = best count using <em></em>INLINE<em>CODE</em>198<em></em>; base <em></em>INLINE<em>CODE</em>199<em></em>.
+3. If <em></em>INLINE<em>CODE</em>200<em></em> is a palindrome, try <em></em>INLINE<em>CODE</em>201<em></em>.
+4. If <em></em>INLINE<em>CODE</em>202<em></em> is a palindrome, try <em></em>INLINE<em>CODE</em>203<em></em>.
+5. Return <em></em>INLINE<em>CODE</em>204<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+Time: $O(n^2)$  
+Space: $O(n^2)$
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🎯 Pattern to Remember</h3>
+"Max non-overlapping pieces, min length, DP over prefix" combined with a structural "shrink to a minimal representative" argument that limits transition checks to a constant number of candidate lengths.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why must selected substrings not overlap, and what does "overlap" mean precisely here?
+2. <strong>(Basic concept)</strong> What does <em></em>INLINE<em>CODE</em>205<em></em> represent, and why must it be built in order of increasing length?
+3. <strong>(Logic)</strong> Why does checking only lengths <em></em>INLINE<em>CODE</em>206<em></em> and <em></em>INLINE<em>CODE</em>207<em></em> at each ending position suffice, instead of checking every length from <em></em>INLINE<em>CODE</em>208<em></em> up to the maximum possible?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>209<em></em>, <em></em>INLINE<em>CODE</em>210<em></em>, build the relevant palindrome checks ending at each position and compute the final <em></em>INLINE<em>CODE</em>211<em></em> array.
+5. <strong>(Complexity/pattern)</strong> Why is this problem's time complexity $O(n^2)$ rather than $O(n^3)$ or worse, and what specific structural property of palindromes (from the Key Insight) is what enables collapsing the DP transition down to $O(1)$ per position?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

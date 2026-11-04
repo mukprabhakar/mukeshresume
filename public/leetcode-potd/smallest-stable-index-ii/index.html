@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3904. Smallest Stable Index II Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find the smallest index where the maximum of all elements from the start minus the minimum of all elements to the end is at most k with large constraints (N up to 100,000) using prefix max and suffix min precomputation." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/smallest-stable-index-ii" />
+  
+  <meta property="og:title" content="3904. Smallest Stable Index II Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find the smallest index where the maximum of all elements from the start minus the minimum of all elements to the end is at most k with large constraints (N up to 100,000) using prefix max and suffix min precomputation." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/smallest-stable-index-ii" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/smallest-stable-index-ii';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3904. Smallest Stable Index II</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-05</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Good news: this is <strong>exactly the same problem</strong> as Part I — same definition, same examples — with only one thing changed in the constraints: <em></em>INLINE<em>CODE</em>0<em></em> can now be up to <em></em>INLINE<em>CODE</em>1<em></em> instead of <em></em>INLINE<em>CODE</em>2<em></em>. That single change is the whole story of this "sequel." Let's walk through it properly anyway, since it's worth understanding <em>why</em> this constraint bump matters.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical to Part I: for every index <em></em>INLINE<em>CODE</em>3<em></em>, the <strong>instability score</strong> is <em></em>INLINE<em>CODE</em>4<em></em> — the biggest value from the start through <em></em>INLINE<em>CODE</em>5<em></em> (inclusive), minus the smallest value from <em></em>INLINE<em>CODE</em>6<em></em> through the end (inclusive). An index is <strong>stable</strong> if this score is <em></em>INLINE<em>CODE</em>7<em></em>. Find the smallest stable index, or <em></em>INLINE<em>CODE</em>8<em></em> if none exists.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> <em></em>INLINE<em>CODE</em>9<em></em>, <em></em>INLINE<em>CODE</em>10<em></em> — but now <em></em>INLINE<em>CODE</em>11<em></em> can have up to 100,000 elements.
+</em> <strong>What to find:</strong> the same thing as before.
+<em> <strong>What to return:</strong> the same thing as before.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same hiking-trail analogy as Part I: standing at any point, you look backward for the highest peak you've passed, and forward for the lowest valley ahead. You want the first spot where that gap is small enough. The only difference now: <strong>the trail is 1,000 times longer</strong> — so whatever method you use to scan it needs to not get dramatically slower just because the trail grew.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Everything from Part I still applies directly:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Prefix Max</strong> — <em></em>INLINE<em>CODE</em>12<em></em>, built in one left-to-right pass, where <em></em>INLINE<em>CODE</em>13<em></em>.
+<em> <strong>Suffix Min</strong> — <em></em>INLINE<em>CODE</em>14<em></em>, built in one right-to-left pass, where <em></em>INLINE<em>CODE</em>15<em></em>.
+</em> <strong>Why these avoid rescanning:</strong> each one only ever needs "the previous running best" plus "the one new element," never a fresh look back over the whole range.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">New concept this time: Why constraints actually matter here</h3>
+<em> <strong>Concept:</strong> A brute-force approach with nested loops (<em></em>INLINE<em>CODE</em>16<em></em>) that seemed "fine" when <em></em>INLINE<em>CODE</em>17<em></em> (at most <em></em>INLINE<em>CODE</em>18<em></em> operations) becomes catastrophic when <em></em>INLINE<em>CODE</em>19<em></em> (up to <em></em>INLINE<em>CODE</em>20<em></em> operations) — the </em>exact same code<em>, just given a bigger input, goes from "instant" to "would take minutes or longer," which competitive judges like LeetCode simply won't wait for (they enforce a time limit, typically a couple of seconds).
+</em> <strong>Why we need it:</strong> This is precisely why Part I could get away with brute force but Part II cannot — the algorithm must be genuinely <em></em>INLINE<em>CODE</em>21<em></em> (or close to it) this time, not just "technically correct."
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical to Part I's Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical reasoning to Part I: output is <em></em>INLINE<em>CODE</em>22<em></em>, since index 3 is the first index where <em></em>INLINE<em>CODE</em>23<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is identical to Part I's Section 6 — building <em></em>INLINE<em>CODE</em>24<em></em> and <em></em>INLINE<em>CODE</em>25<em></em>, then finding index <em></em>INLINE<em>CODE</em>26<em></em> as the first place where <em></em>INLINE<em>CODE</em>27<em></em>. Nothing changes about the manual process — only about how we'd have to implement it if <em></em>INLINE<em>CODE</em>28<em></em> were huge.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> The exact same relationships as Part I: <em></em>INLINE<em>CODE</em>29<em></em>, and <em></em>INLINE<em>CODE</em>30<em></em>.
+</em> <strong>What's different this time?</strong> With <em></em>INLINE<em>CODE</em>31<em></em> up to <em></em>INLINE<em>CODE</em>32<em></em>, any approach that does <em></em>INLINE<em>CODE</em>33<em></em> work <em>per index</em> (like rescanning a growing/shrinking range from scratch for every <em></em>INLINE<em>CODE</em>34<em></em>) totals <em></em>INLINE<em>CODE</em>35<em></em> ≈ <em></em>INLINE<em>CODE</em>36<em></em> billion operations in the worst case — this <strong>will time out</strong>.
+<em> <strong>What must I do instead?</strong> Use the prefix-max / suffix-min precomputation from Part I — which was already the "proper" <em></em>INLINE<em>CODE</em>37<em></em> solution there, just not strictly </em>required<em> by Part I's tiny constraints. Now, it's mandatory.
+</em> <strong>Is there anything conceptually new to figure out?</strong> No — the insight is 100% the same as Part I. This "Part II" is really testing whether you <em>actually</em> understood why the optimized approach works, or whether you just happened to get away with brute force last time because the input was small.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Why the Part I Brute Force Now Fails</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's revisit the brute force from Part I to see exactly where it breaks:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it times out:</strong> The outer loop runs <em></em>INLINE<em>CODE</em>38<em></em> times, and <em>each</em> iteration does up to <em></em>INLINE<em>CODE</em>39<em></em> work (rescanning both the left part and the right part from scratch). That's <em></em>INLINE<em>CODE</em>40<em></em> total — for <em></em>INLINE<em>CODE</em>41<em></em>, that's on the order of <em></em>INLINE<em>CODE</em>42<em></em> billion basic operations. Even at a very generous "100 million operations per second" estimate, that's roughly 100 seconds — far beyond what any judge will allow (typically 1-2 seconds for Java).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. The Fix: Reuse Part I's Optimized Approach</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It's tempting to think "Part II is a totally new, harder problem" just because the constraints grew.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Nothing about the <em>definition</em> changed — only the <em>scale</em>. If you don't already have a truly <em></em>INLINE<em>CODE</em>43<em></em> (or <em></em>INLINE<em>CODE</em>44<em></em>) solution, the bigger input size will expose that weakness immediately via a timeout, even though your Part I brute-force logic was 100% <em>correct</em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Constraint changes between "Part I" and "Part II" versions of a problem are almost always a direct signal about required time complexity, not a signal that the core logic needs to change.</strong> The prefix-max / suffix-min technique from Part I was <em>already</em> the right full solution — Part I just didn't force you to discover it. Part II does.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+We reuse the exact same algorithm, unchanged in structure, and it now comfortably handles the full constraint range.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Identical to Part I's Section 13 (Example 2: <em></em>INLINE<em>CODE</em>45<em></em> → <em></em>INLINE<em>CODE</em>46<em></em>, <em></em>INLINE<em>CODE</em>47<em></em>, every index scores <em></em>INLINE<em>CODE</em>48<em></em>, none <em></em>INLINE<em>CODE</em>49<em></em> → <em></em>INLINE<em>CODE</em>50<em></em>). The computation process is completely unchanged; only the <em>size</em> of array this process needs to comfortably scale to has grown.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>51<em></em> → Output: <em></em>INLINE<em>CODE</em>52<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>53<em></em> → Output: <em></em>INLINE<em>CODE</em>54<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case</h3>
+<em></em>INLINE<em>CODE</em>55<em></em> → Output: <em></em>INLINE<em>CODE</em>56<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 4 — The case that actually distinguishes Part I from Part II</h3>
+A worst-case-shaped array of length <em></em>INLINE<em>CODE</em>57<em></em>, e.g. strictly decreasing (<em></em>INLINE<em>CODE</em>58<em></em>), with a generous <em></em>INLINE<em>CODE</em>59<em></em>. The brute force from Section 8 would take on the order of <strong>10 billion operations</strong> and time out. The prefix/suffix version processes this instantly, doing three clean passes of <em></em>INLINE<em>CODE</em>60<em></em> steps each — about <em></em>INLINE<em>CODE</em>61<em></em> total operations, finishing in a few milliseconds.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">All the same edge cases from Part I apply unchanged (single element, all-increasing, all-decreasing, all-equal, no stable index). One <em>new</em> thing worth calling out explicitly for this version:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Maximum-size input (<em></em>INLINE<em>CODE</em>62<em></em>) combined with an unlucky shape (e.g., no stable index exists at all, forcing a full scan through all 100,000 indices before returning <em></em>INLINE<em>CODE</em>63<em></em>)</strong> — this is the true stress test. Our <em></em>INLINE<em>CODE</em>64<em></em> solution handles it easily (three <em></em>INLINE<em>CODE</em>65<em></em>-length passes); the brute force from Section 8 would not.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why this matters now, when it didn't in Part I:</strong> with <em></em>INLINE<em>CODE</em>66<em></em>, <em></em>INLINE<em>CODE</em>67<em></em> tops out at <em></em>INLINE<em>CODE</em>68<em></em> operations — trivially fast regardless of approach. With <em></em>INLINE<em>CODE</em>69<em></em>, <em></em>INLINE<em>CODE</em>70<em></em> explodes to <em></em>INLINE<em>CODE</em>71<em></em> billion — a difference of roughly a <strong>million-fold</strong> increase in work, purely from the constraint change. This is exactly why "Part II" versions of easy problems exist: to force you to actually use the efficient technique, not just the correct-but-slow one.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same as Part I: <em></em>INLINE<em>CODE</em>72<em></em>, for the two helper arrays <em></em>INLINE<em>CODE</em>73<em></em> and <em></em>INLINE<em>CODE</em>74<em></em>. This is very comfortable even at <em></em>INLINE<em>CODE</em>75<em></em> (two arrays of 100,000 integers each is trivial memory usage).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "My Part I brute-force solution worked, so it must still be correct here — maybe there's a bug elsewhere."
+✅ The logic is correct, but </em>too slow<em>. A "Time Limit Exceeded" verdict (rather than "Wrong Answer") is the classic symptom of an algorithm that's logically right but complexity-wise inadequate for the given constraints — the fix is a faster algorithm, not different logic.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I'll just try to make the brute force's inner loops slightly faster (micro-optimizing the same O(n²) shape)."
+✅ Shaving constants off an <em></em>INLINE<em>CODE</em>76<em></em> algorithm doesn't change the fundamental scaling problem — at <em></em>INLINE<em>CODE</em>77<em></em>, even a "twice as fast" <em></em>INLINE<em>CODE</em>78<em></em> solution is still on the order of 5 billion operations, still far too slow. You need to change the </em>complexity class<em> entirely (to <em></em>INLINE<em>CODE</em>79<em></em>), not just optimize within the slow one.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "This must require a totally different, more advanced algorithm since it's now rated differently or has bigger constraints."
+✅ Not necessarily — sometimes (like here), the </em>correct<em> efficient algorithm was already fully knowable from the original problem statement; the bigger constraints just remove the option of skipping it.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever you see a "II" sequel with the exact same wording but drastically bigger limits, your first move should be: <strong>re-examine your Part I solution's complexity, and if it wasn't already O(n) or O(n log n), figure out the version of it that is</strong>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The interview lesson here: always ask yourself, even when brute force technically passes, <strong>"would this still work if the input were 1,000x bigger?"</strong> — that habit is exactly what separates a solution that happens to pass small tests from one that's genuinely correct in complexity.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. If <em></em>INLINE<em>CODE</em>80<em></em> and the array happens to be sorted in strictly increasing order, roughly how many operations would the Part I brute force perform in the worst case (as it checks index by index)? Roughly how many would the optimized version perform?
+2. Why doesn't building <em></em>INLINE<em>CODE</em>81<em></em> and <em></em>INLINE<em>CODE</em>82<em></em> as two </em>separate* <em></em>INLINE<em>CODE</em>83<em></em> passes (rather than one combined pass) hurt our overall complexity?
+3. If a future "Part III" of this problem allowed <em></em>INLINE<em>CODE</em>84<em></em> up to <em></em>INLINE<em>CODE</em>85<em></em>, would the current <em></em>INLINE<em>CODE</em>86<em></em> solution still likely be fast enough? Why?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Brute force: roughly <em></em>INLINE<em>CODE</em>87<em></em> billion operations in the worst case. Optimized: roughly <em></em>INLINE<em>CODE</em>88<em></em> operations total (one pass each for prefixMax, suffixMin, and the final scan) — a difference of about four orders of magnitude.
+2. Because <em></em>INLINE<em>CODE</em>89<em></em> is still <em></em>INLINE<em>CODE</em>90<em></em> overall — adding a fixed number of linear passes together doesn't change the overall growth rate; it's still "grows proportionally to n," just with a bigger constant multiplier (3x instead of 1x).
+3. Very likely yes — <em></em>INLINE<em>CODE</em>91<em></em> with <em></em>INLINE<em>CODE</em>92<em></em> is about 10 million basic operations across each pass (30 million total), which modern judges can typically handle within a couple of seconds.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Identical to Part I: find the smallest index where the max of everything to its left (inclusive) minus the min of everything to its right (inclusive) is at most <em></em>INLINE<em>CODE</em>93<em></em> — but now <em></em>INLINE<em>CODE</em>94<em></em> can be up to <em></em>INLINE<em>CODE</em>95<em></em>, so the solution must genuinely be <em></em>INLINE<em>CODE</em>96<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+The Part I "optimized" approach (prefix-max + suffix-min precomputation) wasn't optional flourish — it's the mandatory solution once <em></em>INLINE<em>CODE</em>97<em></em> grows large, since the brute-force <em></em>INLINE<em>CODE</em>98<em></em> rescanning approach becomes computationally infeasible.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Build <em></em>INLINE<em>CODE</em>99<em></em>, left to right.
+2. Build <em></em>INLINE<em>CODE</em>100<em></em>, right to left.
+3. Scan left to right, return the first <em></em>INLINE<em>CODE</em>101<em></em> where <em></em>INLINE<em>CODE</em>102<em></em>.
+4. If none found, return <em></em>INLINE<em>CODE</em>103<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>104<em></em>
+Space: <em></em>INLINE<em>CODE</em>105<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+When a "Part II" keeps the same definition but massively raises <em></em>INLINE<em>CODE</em>106<em></em>, treat it as a direct instruction: <strong>your solution must be O(n) or O(n log n) — go find (or reuse) that version.</strong>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> What is the only thing that actually changed between Part I and Part II of this problem?
+2. <strong>(Basic concept)</strong> Roughly how many operations does an <em></em>INLINE<em>CODE</em>107<em></em> algorithm perform when <em></em>INLINE<em>CODE</em>108<em></em>, and how does that compare to an <em></em>INLINE<em>CODE</em>109<em></em> algorithm on the same input?
+3. <strong>(Logic)</strong> Why does a solution that passes all of Part I's test cases not guarantee it will pass Part II's, even though the problem statement is word-for-word identical?
+4. <strong>(Dry run)</strong> For a strictly decreasing array of length 5, <em></em>INLINE<em>CODE</em>110<em></em>, with <em></em>INLINE<em>CODE</em>111<em></em>, compute <em></em>INLINE<em>CODE</em>112<em></em>, <em></em>INLINE<em>CODE</em>113<em></em>, and find the smallest stable index using the optimized approach.
+5. <strong>(Complexity/pattern)</strong> What general lesson should you take away for recognizing "Part II" style sequels on LeetCode, specifically regarding how much attention to pay to the constraints section versus the problem description?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

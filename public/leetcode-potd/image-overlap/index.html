@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>835. Image Overlap Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Find the translation of one binary grid that maximizes overlapping 1s using shift vector enumeration and hash map frequency voting." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/image-overlap" />
+  
+  <meta property="og:title" content="835. Image Overlap Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Find the translation of one binary grid that maximizes overlapping 1s using shift vector enumeration and hash map frequency voting." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/image-overlap" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/image-overlap';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">835. Image Overlap</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-14</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is a nice step up from Rectangle Overlap — same "translate and compare" flavor, but on grids of 0s and 1s, and it introduces a slick "count shift vectors" trick. Let's build it from zero.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You have two square grids of the same size, <em></em>INLINE<em>CODE</em>0<em></em> and <em></em>INLINE<em>CODE</em>1<em></em>, each filled with <em></em>INLINE<em>CODE</em>2<em></em>s and <em></em>INLINE<em>CODE</em>3<em></em>s. Think of the <em></em>INLINE<em>CODE</em>4<em></em>s as "lit pixels" and <em></em>INLINE<em>CODE</em>5<em></em>s as "dark pixels."</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're allowed to <strong>slide</strong> (translate) one entire image — left, right, up, or down, by any whole number of steps — and then lay it on top of the other image. Sliding never rotates or flips anything, it just shifts every <em></em>INLINE<em>CODE</em>6<em></em> bit by the same amount in the same direction. Any <em></em>INLINE<em>CODE</em>7<em></em>s that get pushed off the edge of the grid during this slide simply disappear (they're erased, not wrapped around).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">After sliding (by whichever amount you choose) and overlaying, you count how many grid positions have a <em></em>INLINE<em>CODE</em>8<em></em> in <strong>both</strong> images at once — that's the "overlap" for that particular slide.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Goal:</strong> find the slide (shift amount) that produces the <strong>largest possible overlap</strong> count.
+</em> <strong>What's given:</strong> two <em></em>INLINE<em>CODE</em>9<em></em> binary grids.
+<em> <strong>What to find:</strong> the best possible shift of one grid relative to the other, to maximize matching <em></em>INLINE<em>CODE</em>10<em></em>-positions.
+</em> <strong>What to return:</strong> that maximum overlap count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine two transparent sheets of graph paper, each with some squares colored in black (the <em></em>INLINE<em>CODE</em>11<em></em>s) and the rest left blank (the <em></em>INLINE<em>CODE</em>12<em></em>s). You can slide one sheet around — left, right, up, down, any distance — and then stack it directly on top of the other sheet (still keeping both sheets facing the same way, no rotating or flipping). You want to find the sliding position where the <strong>most black squares from sheet A land exactly on top of black squares from sheet B</strong>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">2D Array / Grid</h3>
+<em> <strong>Concept:</strong> A grid of values, indexed by row and column, <em></em>INLINE<em>CODE</em>13<em></em>.
+</em> <strong>Why we need it:</strong> Both <em></em>INLINE<em>CODE</em>14<em></em> and <em></em>INLINE<em>CODE</em>15<em></em> are given as <em></em>INLINE<em>CODE</em>16<em></em> grids.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Translation (Shift) Vector</h3>
+<em> <strong>Concept:</strong> A translation is described by two numbers: <em></em>INLINE<em>CODE</em>17<em></em> (how far to shift horizontally — columns) and <em></em>INLINE<em>CODE</em>18<em></em> (how far to shift vertically — rows). A single point <em></em>INLINE<em>CODE</em>19<em></em> moves to <em></em>INLINE<em>CODE</em>20<em></em> after this shift.
+</em> <strong>Example:</strong> Shifting by <em></em>INLINE<em>CODE</em>21<em></em> moves the point <em></em>INLINE<em>CODE</em>22<em></em> to <em></em>INLINE<em>CODE</em>23<em></em>.
+<em> <strong>Why we need it:</strong> The entire problem is about finding the </em>best<em> single shift vector to apply to one whole image.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Coordinates of <em></em>INLINE<em>CODE</em>24<em></em>s (as a list of points)</h3>
+</em> <strong>Concept:</strong> Instead of thinking about a grid as a big 2D block, we can instead just list out <em>where</em> the <em></em>INLINE<em>CODE</em>25<em></em>s are — as a collection of <em></em>INLINE<em>CODE</em>26<em></em> coordinate pairs. Everywhere else is implicitly <em></em>INLINE<em>CODE</em>27<em></em> and can be ignored.
+<em> <strong>Why we need it:</strong> Since only <em></em>INLINE<em>CODE</em>28<em></em>-positions can ever contribute to an overlap (a <em></em>INLINE<em>CODE</em>29<em></em> overlapping anything is never counted), we only actually care about the <em></em>INLINE<em>CODE</em>30<em></em>s' locations — not the full grid.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Pairing up points from two lists, and computing their relative offset</h3>
+</em> <strong>Concept:</strong> If you have a <em></em>INLINE<em>CODE</em>31<em></em> at position <em></em>INLINE<em>CODE</em>32<em></em> in <em></em>INLINE<em>CODE</em>33<em></em>, and a <em></em>INLINE<em>CODE</em>34<em></em> at position <em></em>INLINE<em>CODE</em>35<em></em> in <em></em>INLINE<em>CODE</em>36<em></em>, then the <em>specific shift</em> that would move <em></em>INLINE<em>CODE</em>37<em></em> exactly onto <em></em>INLINE<em>CODE</em>38<em></em> is <em></em>INLINE<em>CODE</em>39<em></em> (subtracting row from row, column from column). If we later actually apply <em>that</em> shift to the <em>entire</em> <em></em>INLINE<em>CODE</em>40<em></em>, this particular pair would indeed land on top of each other.
+<em> <strong>Why we need it:</strong> This is the heart of the algorithm — see Section 7.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">HashMap for counting occurrences</h3>
+</em> <strong>Concept:</strong> A <em></em>INLINE<em>CODE</em>41<em></em> lets us associate a "key" with a "value," and quickly look up or update that value later. Here, we'll use a shift vector (packaged as a single key, like <em></em>INLINE<em>CODE</em>42<em></em>, encoded into an integer) as the key, and "how many <em></em>INLINE<em>CODE</em>43<em></em>-pairs would align under this exact shift" as the value.
+<em> <strong>Why we need it:</strong> Many different pairs of <em></em>INLINE<em>CODE</em>44<em></em>s might all happen to require the </em>same<em> shift vector to align — we want to count, for each </em>distinct<em> possible shift, how many pairs it would successfully align, and then find the shift with the highest such count.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>45<em></em>'s <em></em>INLINE<em>CODE</em>46<em></em>s are located at: <em></em>INLINE<em>CODE</em>47<em></em>.
+<em> <em></em>INLINE<em>CODE</em>48<em></em>'s <em></em>INLINE<em>CODE</em>49<em></em>s are located at: <em></em>INLINE<em>CODE</em>50<em></em>.
+</em> We want to find some shift <em></em>INLINE<em>CODE</em>51<em></em> such that, after moving <em>every</em> <em></em>INLINE<em>CODE</em>52<em></em> of <em></em>INLINE<em>CODE</em>53<em></em> by that same amount, the number of resulting positions that also hold a <em></em>INLINE<em>CODE</em>54<em></em> in <em></em>INLINE<em>CODE</em>55<em></em> is as large as possible.
+<em> Why does it matter that we listed out just the <em></em>INLINE<em>CODE</em>56<em></em> positions, rather than looking at the whole 3×3 grid? Because the <em></em>INLINE<em>CODE</em>57<em></em> cells can never contribute to an overlap count — only matching up <em></em>INLINE<em>CODE</em>58<em></em>-with-<em></em>INLINE<em>CODE</em>59<em></em> matters, so we can completely ignore the <em></em>INLINE<em>CODE</em>60<em></em>s from the very start.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>61<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> The explanation says: shift <em></em>INLINE<em>CODE</em>62<em></em> right by 1 and down by 1 — that's a shift vector of <em></em>INLINE<em>CODE</em>63<em></em>.
+<em> Let's verify: applying <em></em>INLINE<em>CODE</em>64<em></em> to each of <em></em>INLINE<em>CODE</em>65<em></em>'s <em></em>INLINE<em>CODE</em>66<em></em>-positions:
+  </em> <em></em>INLINE<em>CODE</em>67<em></em> — is <em></em>INLINE<em>CODE</em>68<em></em> a <em></em>INLINE<em>CODE</em>69<em></em> in <em></em>INLINE<em>CODE</em>70<em></em>? Yes!
+  <em> <em></em>INLINE<em>CODE</em>71<em></em> — is <em></em>INLINE<em>CODE</em>72<em></em> a <em></em>INLINE<em>CODE</em>73<em></em> in <em></em>INLINE<em>CODE</em>74<em></em>? Yes!
+  </em> <em></em>INLINE<em>CODE</em>75<em></em> — is <em></em>INLINE<em>CODE</em>76<em></em> a <em></em>INLINE<em>CODE</em>77<em></em> in <em></em>INLINE<em>CODE</em>78<em></em>? Yes!
+  <em> <em></em>INLINE<em>CODE</em>79<em></em> — this is now <strong>outside</strong> the 3×3 grid (row 3 doesn't exist for a 3-row grid, indices 0-2 only) — this <em></em>INLINE<em>CODE</em>80<em></em> gets erased, contributing nothing.
+</em> Matches found: 3 (the first three). ✔️ matches the expected output!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually work through the logic behind <em>why</em> <em></em>INLINE<em>CODE</em>81<em></em> turns out to be the best shift, by considering <strong>every pair</strong> of (an <em></em>INLINE<em>CODE</em>82<em></em> 1-position, an <em></em>INLINE<em>CODE</em>83<em></em> 1-position) and figuring out what shift each pair would "vote for."</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>84<em></em>'s 1s: <em></em>INLINE<em>CODE</em>85<em></em>.  
+<em></em>INLINE<em>CODE</em>86<em></em>'s 1s: <em></em>INLINE<em>CODE</em>87<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For every pair <em></em>INLINE<em>CODE</em>88<em></em>, the shift that would align them is <em></em>INLINE<em>CODE</em>89<em></em> (row difference, column difference):</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Pair</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Ai</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Bj</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Shift (dy, dx) = Bj - Ai</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A1,B1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A1,B2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,2)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A1,B3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,0)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,2)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A2,B1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,0)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A2,B2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A2,B3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A3,B1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,0)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A3,B2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A3,B3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A4,B1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(-1,0)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A4,B2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(1,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(-1,1)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">A4,B3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(2,2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">(0,1)</td></tr></table></div>
+Now let's <strong>tally up</strong> how many times each distinct shift vector appears:
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>90<em></em> appears for pairs A1-B1, A2-B2, A3-B3 → <strong>3 times</strong>.
+</em> <em></em>INLINE<em>CODE</em>91<em></em> appears for pairs A3-B2, A4-B3 → 2 times.
+<em> All other shifts appear only once each.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The shift <em></em>INLINE<em>CODE</em>92<em></em> has the highest tally, <strong>3</strong>, meaning: if we apply shift <em></em>INLINE<em>CODE</em>93<em></em> to the </em>entire<em> <em></em>INLINE<em>CODE</em>94<em></em>, exactly 3 of its <em></em>INLINE<em>CODE</em>95<em></em>s will land on <em></em>INLINE<em>CODE</em>96<em></em>s in <em></em>INLINE<em>CODE</em>97<em></em> (precisely the 3 pairs that "voted" for this shift). This matches both our direct check in Section 5, and the expected output of <em></em>INLINE<em>CODE</em>98<em></em>. ✔️</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why does counting "votes" per shift work?</strong> Because a specific shift <em></em>INLINE<em>CODE</em>99<em></em>, when applied to the </em>whole<em> <em></em>INLINE<em>CODE</em>100<em></em>, causes <em></em>INLINE<em>CODE</em>101<em></em> to land exactly on <em></em>INLINE<em>CODE</em>102<em></em> if and only if <em></em>INLINE<em>CODE</em>103<em></em> equals that exact shift — so the total number of <em></em>INLINE<em>CODE</em>104<em></em> <em></em>INLINE<em>CODE</em>105<em></em>s that successfully land on an <em></em>INLINE<em>CODE</em>106<em></em> <em></em>INLINE<em>CODE</em>107<em></em> under a given shift is </em>exactly<em> the number of <em></em>INLINE<em>CODE</em>108<em></em> pairs whose difference equals that shift. Tallying all pairs' differences and taking the highest tally directly gives us the best possible shift's overlap count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What do I know?</strong> For any shift <em></em>INLINE<em>CODE</em>109<em></em> applied to all of <em></em>INLINE<em>CODE</em>110<em></em>, the overlap count equals the number of <em></em>INLINE<em>CODE</em>111<em></em> pairs where <em></em>INLINE<em>CODE</em>112<em></em>.
+<em> <strong>What do I need to find?</strong> The shift with the maximum such count.
+</em> <strong>What can I try?</strong> The most direct idea: try <em>every possible</em> shift <em></em>INLINE<em>CODE</em>113<em></em> (ranging from <em></em>INLINE<em>CODE</em>114<em></em> to <em></em>INLINE<em>CODE</em>115<em></em> in each direction, since shifting further than that would push everything off-grid), and for each one, actually apply it to the whole grid and count matches. This is a valid, direct simulation.
+<em> <strong>What happens if I try every possibility this way?</strong> There are $O(n^2)$ possible shift vectors (roughly $(2n-1) \times (2n-1)$), and for each one, checking the whole grid takes $O(n^2)$ — giving $O(n^4)$ total. For $n=30$, that's $30^4 = 810,000$ — actually still quite fast in absolute terms, but let's see if there's a cleverer, more targeted approach.
+</em> <strong>Can I make it faster / more targeted?</strong> Yes — as discovered in Section 6, we don't need to try shifts "blindly" and rescan the whole grid each time. Instead, we only care about pairing up <strong>actual <em></em>INLINE<em>CODE</em>116<em></em>-positions</strong> from each image and tallying up the <em>shift each pair implies</em>. If both images are sparse (relatively few <em></em>INLINE<em>CODE</em>117<em></em>s), this can be much faster than scanning the whole grid for every candidate shift.
+<em> <strong>What information should I remember?</strong> The list of <em></em>INLINE<em>CODE</em>118<em></em>-positions in <em></em>INLINE<em>CODE</em>119<em></em>, the list of <em></em>INLINE<em>CODE</em>120<em></em>-positions in <em></em>INLINE<em>CODE</em>121<em></em>, and a running tally (a <em></em>INLINE<em>CODE</em>122<em></em>) of "how many pairs imply this exact shift."
+</em> <strong>What pattern do I notice?</strong> This is a "vote counting" or "convolution-style" trick: instead of checking every possible transformation directly against the full data, look at every pair of "interesting" points (the <em></em>INLINE<em>CODE</em>123<em></em>s) and let each pair "vote" for the specific transformation that would align it — then find the transformation with the most votes.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Try every possible shift <em></em>INLINE<em>CODE</em>124<em></em> (both ranging from <em></em>INLINE<em>CODE</em>125<em></em> to <em></em>INLINE<em>CODE</em>126<em></em>). For each one, scan through <em>every</em> cell of <em></em>INLINE<em>CODE</em>127<em></em>; if it's a <em></em>INLINE<em>CODE</em>128<em></em>, compute where it would land after the shift, check if that landing spot is both within bounds and a <em></em>INLINE<em>CODE</em>129<em></em> in <em></em>INLINE<em>CODE</em>130<em></em>; count all such successful landings. Track the best (maximum) count found across all shifts.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> It directly simulates the problem's description — physically trying every possible slide amount and counting the resulting overlap for each.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it's correct:</strong> It exhaustively tries every possible shift and directly counts the resulting overlap for each, exactly matching the problem's definition — guaranteed to find the true maximum.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> $O(n^2)$ possible shifts, times $O(n^2)$ work to check each one $\rightarrow O(n^4)$. For $n=30$, that's about $810,000$ operations.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> $O(1)$ extra memory.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>131<em></em> — the grid's size.
+</em> <em></em>INLINE<em>CODE</em>132<em></em> — tracks the best (largest) overlap found across all tried shifts.
+<em> The two outer loops (<em></em>INLINE<em>CODE</em>133<em></em>, <em></em>INLINE<em>CODE</em>134<em></em>) — try every possible shift amount, from <em></em>INLINE<em>CODE</em>135<em></em> to <em></em>INLINE<em>CODE</em>136<em></em> in each direction. (Shifting further than <em></em>INLINE<em>CODE</em>137<em></em> in either direction would push </em>every<em> <em></em>INLINE<em>CODE</em>138<em></em> off the grid, guaranteeing zero overlap, so there's no need to check beyond this range.)
+</em> <em></em>INLINE<em>CODE</em>139<em></em> — resets the overlap counter for this specific shift attempt.
+<em> The two inner loops (<em></em>INLINE<em>CODE</em>140<em></em>, <em></em>INLINE<em>CODE</em>141<em></em>) — scan every cell of <em></em>INLINE<em>CODE</em>142<em></em>.
+</em> <em></em>INLINE<em>CODE</em>143<em></em> — only bother checking cells that are actually <em></em>INLINE<em>CODE</em>144<em></em> (a <em></em>INLINE<em>CODE</em>145<em></em> can never contribute to overlap).
+<em> <em></em>INLINE<em>CODE</em>146<em></em> — compute where this <em></em>INLINE<em>CODE</em>147<em></em> would land after applying the current shift.
+</em> <em></em>INLINE<em>CODE</em>148<em></em> — check that the landing spot is still within the grid's bounds (otherwise it's erased, per the problem's rule) AND that <em></em>INLINE<em>CODE</em>149<em></em> has a <em></em>INLINE<em>CODE</em>150<em></em> there too.
+<em> <em></em>INLINE<em>CODE</em>151<em></em> — if both conditions hold, this is a successful overlap; increment the count for this shift.
+</em> <em></em>INLINE<em>CODE</em>152<em></em> — after fully evaluating this shift, update our overall best-so-far if this shift did better.
+<em> <em></em>INLINE<em>CODE</em>153<em></em> — after trying every possible shift, return the best overlap found.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Might We Want Something Faster?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For $n=30$ specifically, the brute force above (<em></em>INLINE<em>CODE</em>154<em></em> operations) runs essentially instantly — there's no real performance problem here. But notice something wasteful: even when <em></em>INLINE<em>CODE</em>155<em></em> and <em></em>INLINE<em>CODE</em>156<em></em> are mostly <em></em>INLINE<em>CODE</em>157<em></em>s (sparse), we're still looping over </em>every<em> cell of the grid, for </em>every<em> candidate shift, even though only the relatively few <em></em>INLINE<em>CODE</em>158<em></em>-cells can ever actually matter. If $n$ were much larger, or if we wanted a more targeted approach that scales with "how many <em></em>INLINE<em>CODE</em>159<em></em>s there are" rather than "how big the grid is," we'd want the pairing/voting trick from Section 6.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better (Voting) Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we focus only on the cells that actually matter?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes — using the insight from Section 6:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It seems like we need to physically try every possible shift and rescan the whole grid to measure its resulting overlap.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Most of the grid is often <em></em>INLINE<em>CODE</em>160<em></em>s, which can never contribute to overlap — rescanning them repeatedly, once per candidate shift, is wasted effort.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Every possible overlapping pair (an <em></em>INLINE<em>CODE</em>161<em></em> <em></em>INLINE<em>CODE</em>162<em></em> at position <em></em>INLINE<em>CODE</em>163<em></em>, an <em></em>INLINE<em>CODE</em>164<em></em> <em></em>INLINE<em>CODE</em>165<em></em> at position <em></em>INLINE<em>CODE</em>166<em></em>) determines EXACTLY ONE shift — namely <em></em>INLINE<em>CODE</em>167<em></em> — that would cause <em></em>INLINE<em>CODE</em>168<em></em> to land on <em></em>INLINE<em>CODE</em>169<em></em>.</strong> If we consider </em>every<em> such pair and tally which shift each one "votes for," then the total number of votes any particular shift receives is </em>exactly<em> the total overlap count that shift would produce if actually applied to the whole image (since it's counting, precisely, how many <em></em>INLINE<em>CODE</em>170<em></em> <em></em>INLINE<em>CODE</em>171<em></em>s land on <em></em>INLINE<em>CODE</em>172<em></em> <em></em>INLINE<em>CODE</em>173<em></em>s under that shift). So instead of testing shifts directly, we can discover the best shift (and its overlap count) purely by counting votes among pairs of <em></em>INLINE<em>CODE</em>174<em></em>-positions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+We never need to "apply" any shift to the whole grid at all — we just enumerate all <em></em>INLINE<em>CODE</em>175<em></em> pairs, compute their implied shift, tally it in a <em></em>INLINE<em>CODE</em>176<em></em>, and read off the maximum tally at the end.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We already did the full dry run in <strong>Section 6</strong> for Example 1 — every pair's implied shift was computed and tallied, with <em></em>INLINE<em>CODE</em>177<em></em> winning with 3 votes, matching the expected output of <em></em>INLINE<em>CODE</em>178<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's also quickly dry-run <strong>Example 2</strong>: <em></em>INLINE<em>CODE</em>179<em></em>, <em></em>INLINE<em>CODE</em>180<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>181<em></em>'s 1-positions: just <em></em>INLINE<em>CODE</em>182<em></em>.
+<em> <em></em>INLINE<em>CODE</em>183<em></em>'s 1-positions: just <em></em>INLINE<em>CODE</em>184<em></em>.
+</em> Only one pair to consider: <em></em>INLINE<em>CODE</em>185<em></em>, implied shift = <em></em>INLINE<em>CODE</em>186<em></em>.
+<em> Tally: shift <em></em>INLINE<em>CODE</em>187<em></em> gets 1 vote.
+</em> Maximum tally: <em></em>INLINE<em>CODE</em>188<em></em>.
+<em> Output: <em></em>INLINE<em>CODE</em>189<em></em> ✔️ (makes sense — no shift at all is needed, since the single <em></em>INLINE<em>CODE</em>190<em></em> is already aligned).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">And <strong>Example 3</strong>: <em></em>INLINE<em>CODE</em>191<em></em>, <em></em>INLINE<em>CODE</em>192<em></em>. Neither image has </em>any<em> <em></em>INLINE<em>CODE</em>193<em></em>s at all — there are no pairs to consider whatsoever, so our tally map stays completely empty. The maximum of an empty collection of tallies should be treated as <em></em>INLINE<em>CODE</em>194<em></em> (no overlap is possible, since there's nothing to overlap). Output: <em></em>INLINE<em>CODE</em>195<em></em> ✔️.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>196<em></em> / <em></em>INLINE<em>CODE</em>197<em></em> — will hold the <em></em>INLINE<em>CODE</em>198<em></em> coordinates of every <em></em>INLINE<em>CODE</em>199<em></em> in each respective image.
+<em> The double loop over <em></em>INLINE<em>CODE</em>200<em></em> — scans the grid </em>once<em> to collect all <em></em>INLINE<em>CODE</em>201<em></em>-positions from both images simultaneously (a single pass does double duty here).
+</em> <em></em>INLINE<em>CODE</em>202<em></em> — record this position if it's a <em></em>INLINE<em>CODE</em>203<em></em> in <em></em>INLINE<em>CODE</em>204<em></em>. Same idea for <em></em>INLINE<em>CODE</em>205<em></em>.
+<em> <em></em>INLINE<em>CODE</em>206<em></em> — our tally: maps an </em>encoded<em> shift vector to how many <em></em>INLINE<em>CODE</em>207<em></em> pairs have implied that exact shift so far.
+</em> <em></em>INLINE<em>CODE</em>208<em></em> — tracks the highest tally seen (which directly corresponds to the best overlap count).
+<em> The nested <em></em>INLINE<em>CODE</em>209<em></em> — tries every possible pairing of an <em></em>INLINE<em>CODE</em>210<em></em> <em></em>INLINE<em>CODE</em>211<em></em>-position with an <em></em>INLINE<em>CODE</em>212<em></em> <em></em>INLINE<em>CODE</em>213<em></em>-position.
+</em> <em></em>INLINE<em>CODE</em>214<em></em> — computes the exact shift that would move <em></em>INLINE<em>CODE</em>215<em></em> onto <em></em>INLINE<em>CODE</em>216<em></em>.
+<em> <em></em>INLINE<em>CODE</em>217<em></em> — since <em></em>INLINE<em>CODE</em>218<em></em> and <em></em>INLINE<em>CODE</em>219<em></em> can each range from <em></em>INLINE<em>CODE</em>220<em></em> to <em></em>INLINE<em>CODE</em>221<em></em> (so they can be negative, which doesn't work well as a raw array index or simple map key without care), we shift both by <em></em>INLINE<em>CODE</em>222<em></em> to make them non-negative (<em></em>INLINE<em>CODE</em>223<em></em> ranges from <em></em>INLINE<em>CODE</em>224<em></em> to <em></em>INLINE<em>CODE</em>225<em></em>, always positive), then combine them into a single unique integer using a technique similar to how you'd flatten a 2D array index into 1D (<em></em>INLINE<em>CODE</em>226<em></em>) — here using <em></em>INLINE<em>CODE</em>227<em></em> as a safely-large "width" so that different <em></em>INLINE<em>CODE</em>228<em></em> pairs never accidentally produce the same combined key.
+</em> <em></em>INLINE<em>CODE</em>229<em></em> — look up how many votes this shift has received so far (or <em></em>INLINE<em>CODE</em>230<em></em> if it's never been seen), and add one more vote for the current pair.
+<em> <em></em>INLINE<em>CODE</em>231<em></em> — save this updated vote count back into the map.
+</em> <em></em>INLINE<em>CODE</em>232<em></em> — keep track of the highest vote count seen across all pairs processed so far — this running maximum, once every pair has been processed, is exactly our final answer (no need for a separate final pass over the map).
+<em> <em></em>INLINE<em>CODE</em>233<em></em> — return the largest overlap found.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>234<em></em> → dry-ran fully in Section 6 → Output: <em></em>INLINE<em>CODE</em>235<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>236<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>237<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (no 1s at all)</h3>
+<em></em>INLINE<em>CODE</em>238<em></em> → dry-ran in Section 13 → Output: <em></em>INLINE<em>CODE</em>239<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>One or both images have no <em></em>INLINE<em>CODE</em>240<em></em>s at all</strong> → no pairs exist to vote → <em></em>INLINE<em>CODE</em>241<em></em> stays empty → correctly returns the initial <em></em>INLINE<em>CODE</em>242<em></em>.
+<em> <strong>Both images are identical</strong> → the shift <em></em>INLINE<em>CODE</em>243<em></em> (no movement at all) will receive votes from every matching pair, and in particular, every <em></em>INLINE<em>CODE</em>244<em></em> in <em></em>INLINE<em>CODE</em>245<em></em> pairs with the </em>same-position<em> <em></em>INLINE<em>CODE</em>246<em></em> in <em></em>INLINE<em>CODE</em>247<em></em>, so <em></em>INLINE<em>CODE</em>248<em></em> gets at least as many votes as there are <em></em>INLINE<em>CODE</em>249<em></em>s total.
+</em> <strong><em></em>INLINE<em>CODE</em>250<em></em> (smallest possible grid)</strong> → only one possible cell; if both <em></em>INLINE<em>CODE</em>251<em></em> and <em></em>INLINE<em>CODE</em>252<em></em> are <em></em>INLINE<em>CODE</em>253<em></em>, output is <em></em>INLINE<em>CODE</em>254<em></em>; otherwise <em></em>INLINE<em>CODE</em>255<em></em> — handled correctly and trivially by the general algorithm.
+<em> <strong>Very sparse images</strong> (very few <em></em>INLINE<em>CODE</em>256<em></em>s in a large grid) → the voting approach shines here, since we only ever process pairs of </em>actual<em> <em></em>INLINE<em>CODE</em>257<em></em>-positions, never wasting time on the many <em></em>INLINE<em>CODE</em>258<em></em>-cells.
+</em> <strong>Very dense images</strong> (most cells are <em></em>INLINE<em>CODE</em>259<em></em>) → in the worst case (e.g., all cells are <em></em>INLINE<em>CODE</em>260<em></em> in both images), the number of pairs is $n^2 \times n^2 = n^4$ — the same order as the brute force's worst case, but for $n \le 30$ this remains entirely manageable either way.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> An estimate of how the total work grows as input size grows.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> The brute-force approach always pays the full $O(n^4)$ cost, no matter how few <em></em>INLINE<em>CODE</em>261<em></em>s actually exist. The voting approach's cost scales directly with <em>how many <em></em>INLINE<em>CODE</em>262<em></em>s there actually are</em> in each image — for sparse images, this can be dramatically faster; for maximally dense images, it converges to the same worst-case bound as brute force. For this problem's specific constraint ($n \le 30$), both approaches are comfortably fast in practice, but the voting technique is the more broadly scalable and commonly-expected solution for this type of "best alignment" problem.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>263<em></em>, <em></em>INLINE<em>CODE</em>264<em></em> — store up to $O(n^2)$ coordinate pairs each, in the worst case (a fully-<em></em>INLINE<em>CODE</em>265<em></em> image).
+</em> <em></em>INLINE<em>CODE</em>266<em></em> — stores at most $O((2n-1)^2)$ distinct shift-key entries (since there are only that many possible distinct <em></em>INLINE<em>CODE</em>267<em></em> combinations).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Overall space: $O(n^2)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "I should compute the shift as <em></em>INLINE<em>CODE</em>268<em></em> instead of <em></em>INLINE<em>CODE</em>269<em></em>."  
+  ✅ We want the shift that, when applied to <em></em>INLINE<em>CODE</em>270<em></em>'s point <em></em>INLINE<em>CODE</em>271<em></em>, lands it on <em></em>INLINE<em>CODE</em>272<em></em>'s point <em></em>INLINE<em>CODE</em>273<em></em> — that's <em></em>INLINE<em>CODE</em>274<em></em> (the destination minus the source). Reversing this would compute the </em>opposite<em> shift, effectively solving the mirror-image version of the intended question.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "I can just use a <em></em>INLINE<em>CODE</em>275<em></em> like <em></em>INLINE<em>CODE</em>276<em></em> as the HashMap key, no need to encode into a single integer."  
+  ✅ This works too, and is arguably simpler to read — using an encoded integer key (as shown) is just a common performance-minded alternative that avoids the overhead of string concatenation and string-based hashing; both approaches are valid, and beginners should feel free to use whichever is clearer to them.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "I need to also check the reverse direction — shifting <em></em>INLINE<em>CODE</em>277<em></em> instead of <em></em>INLINE<em>CODE</em>278<em></em>."  
+  ✅ Shifting <em></em>INLINE<em>CODE</em>279<em></em> by <em></em>INLINE<em>CODE</em>280<em></em> and shifting <em></em>INLINE<em>CODE</em>281<em></em> by <em></em>INLINE<em>CODE</em>282<em></em> produce the exact same </em>relative<em> alignment (and thus the same overlap count) — so considering all shifts of <em></em>INLINE<em>CODE</em>283<em></em> alone (across the full range of positive and negative <em></em>INLINE<em>CODE</em>284<em></em>) already covers every meaningful relative positioning.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "The valid shift range should be <em></em>INLINE<em>CODE</em>285<em></em> to <em></em>INLINE<em>CODE</em>286<em></em> only (non-negative), since 'sliding' sounds like it should always move things in a positive direction."  
+  ✅ Shifts can be negative too (sliding left or up) — the full valid range is <em></em>INLINE<em>CODE</em>287<em></em> to <em></em>INLINE<em>CODE</em>288<em></em> in each direction, covering every meaningful relative offset between the two images.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "If both images are empty (<em></em>INLINE<em>CODE</em>289<em></em> with all zeros, or larger all-zero grids), I should return something other than <em></em>INLINE<em>CODE</em>290<em></em>, since there's 'no overlap to compute'."  
+  ✅ Zero <em></em>INLINE<em>CODE</em>291<em></em>s means zero possible overlap, by definition — <em></em>INLINE<em>CODE</em>292<em></em> is exactly the correct answer, and the algorithm naturally produces it without needing any special-case handling.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever a problem asks you to find the best possible </em>translation<em> (shift) to align two sets of points/marked cells, and you'd otherwise need to "try every shift and rescan everything," think: <strong>enumerate every pair of points (one from each set), compute the shift each pair implies, and tally votes for each distinct shift in a HashMap</strong> — the shift with the most votes is the answer, and this scales with the number of </em>marked points<em>, not the size of the full grid.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: the "aha" is realizing that a </em>pair<em> of matched points fully determines a </em>specific<em> shift — turning a "try every transformation" search into a "count how many pairs agree on each transformation" tally, a very reusable trick for alignment-style problems.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why does the shift implied by a pair <em></em>INLINE<em>CODE</em>293<em></em> have to be computed as <em></em>INLINE<em>CODE</em>294<em></em>, and not, say, the midpoint or sum of the two points?
+2. If <em></em>INLINE<em>CODE</em>295<em></em> has 5 ones and <em></em>INLINE<em>CODE</em>296<em></em> has 4 ones, what is the maximum possible number of <em></em>INLINE<em>CODE</em>297<em></em> pairs we'd need to consider, and why can't the final answer (the best overlap count) exceed the smaller of these two counts (4)?
+3. Why is it safe to update <em></em>INLINE<em>CODE</em>298<em></em> incrementally, pair by pair, rather than waiting until the entire <em></em>INLINE<em>CODE</em>299<em></em> map is fully built before scanning it for the maximum?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. A "shift" represents "how far and in what direction do I move a point to get from its old location to its new location" — that's precisely <em></em>INLINE<em>CODE</em>300<em></em>. Since we're moving <em></em>INLINE<em>CODE</em>301<em></em>'s point <em></em>INLINE<em>CODE</em>302<em></em> to hopefully land on <em></em>INLINE<em>CODE</em>303<em></em>'s point <em></em>INLINE<em>CODE</em>304<em></em>, the required shift is <em></em>INLINE<em>CODE</em>305<em></em>. A midpoint or sum wouldn't represent "a translation amount" at all.
+2. There are at most $5 \times 4 = 20$ pairs to consider. The final answer can never exceed $4$ (the smaller count) because the overlap count for any given shift can never be larger than the total number of <em></em>INLINE<em>CODE</em>306<em></em>s in </em>either* image individually — you can't have more matching pairs than the total number of <em></em>INLINE<em>CODE</em>307<em></em>s available in the smaller image to match against.
+3. Because <em></em>INLINE<em>CODE</em>308<em></em> is commutative and order-independent — updating <em></em>INLINE<em>CODE</em>309<em></em> immediately after processing each pair, versus waiting and scanning the whole completed map at the very end, both arrive at the exact same final maximum value; doing it incrementally just avoids a separate final pass over the map, saving a small amount of extra work.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Find the translation of one binary grid that maximizes the number of positions where both grids have a <em></em>INLINE<em>CODE</em>310<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Every pair of (a <em></em>INLINE<em>CODE</em>311<em></em> in img1, a <em></em>INLINE<em>CODE</em>312<em></em> in img2) implies exactly one shift that would align them; tally how many pairs imply each distinct shift, and the highest tally is the answer.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. Collect the <em></em>INLINE<em>CODE</em>313<em></em> positions of all <em></em>INLINE<em>CODE</em>314<em></em>s in <em></em>INLINE<em>CODE</em>315<em></em> and in <em></em>INLINE<em>CODE</em>316<em></em>.
+2. For every pair <em></em>INLINE<em>CODE</em>317<em></em>, compute the implied shift <em></em>INLINE<em>CODE</em>318<em></em>.
+3. Tally each distinct shift's vote count in a <em></em>INLINE<em>CODE</em>319<em></em> (using an encoded integer key).
+4. Track and return the maximum tally seen across all pairs.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+Time: $O(A \times B)$, where $A, B$ are the counts of <em></em>INLINE<em>CODE</em>320<em></em>s in each image (worst case $O(n^4)$ for fully-dense images)  
+Space: $O(n^2)$
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🎯 Pattern to Remember</h3>
+"Best translation/alignment between two point sets" $\rightarrow$ enumerate point pairs, tally the shift each pair implies, take the shift with the most votes — rather than testing every possible shift directly against the full grid.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why can we completely ignore all the <em></em>INLINE<em>CODE</em>321<em></em>-cells in both images when solving this problem?
+2. <strong>(Basic concept)</strong> What does the shift value <em></em>INLINE<em>CODE</em>322<em></em> represent, in plain words?
+3. <strong>(Logic)</strong> Why does the number of votes a particular shift receives exactly equal the overlap count that shift would produce if actually applied to the whole image?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>323<em></em> and <em></em>INLINE<em>CODE</em>324<em></em>, list the 1-positions in each, compute the implied shift(s), and determine the final answer.
+5. <strong>(Complexity/pattern)</strong> Why does the voting approach's time complexity depend on the number of <em></em>INLINE<em>CODE</em>325<em></em>s rather than the grid's total size, and in what scenario (sparse vs. dense images) does this actually provide a meaningful speed advantage over the brute-force approach?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

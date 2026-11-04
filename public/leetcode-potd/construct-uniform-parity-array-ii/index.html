@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3876. Construct Uniform Parity Array II Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Determine if an array can be transformed into a uniform parity array when you can only subtract strictly smaller elements. Explains the forced minimum logic and parity rules." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/construct-uniform-parity-array-ii" />
+  
+  <meta property="og:title" content="3876. Construct Uniform Parity Array II Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Determine if an array can be transformed into a uniform parity array when you can only subtract strictly smaller elements. Explains the forced minimum logic and parity rules." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/construct-uniform-parity-array-ii" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/construct-uniform-parity-array-ii';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3876. Construct Uniform Parity Array II</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-04</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is Part II of the problem you just solved — same setup, but with <strong>one extra rule bolted onto the subtract option</strong>, and that one rule completely changes the answer from "always true" to something you actually have to check. Let's build it up.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Same setup as Part I: you have <em></em>INLINE<em>CODE</em>0<em></em>, all distinct integers, and you want to build <em></em>INLINE<em>CODE</em>1<em></em> (same length) where <strong>every element is odd, or every element is even</strong> — no mixing.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For each position <em></em>INLINE<em>CODE</em>2<em></em>, you choose one of:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>3<em></em> (copy), or
+</em> <em></em>INLINE<em>CODE</em>4<em></em> for some <em>other</em> index <em></em>INLINE<em>CODE</em>5<em></em>, <strong>but only if <em></em>INLINE<em>CODE</em>6<em></em></strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">That last condition is brand new compared to Part I, and it's the whole story here: since every value is a positive integer, <em></em>INLINE<em>CODE</em>7<em></em> simply means <strong><em></em>INLINE<em>CODE</em>8<em></em> must be strictly smaller than <em></em>INLINE<em>CODE</em>9<em></em></strong>. In Part I, you could subtract <em>any</em> other element, even a bigger one (giving a negative result, which was fine). Now, <strong>you can only subtract a smaller number from a bigger one.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> <em></em>INLINE<em>CODE</em>10<em></em>.
+</em> <strong>What to find:</strong> is there a way to fill <em></em>INLINE<em>CODE</em>11<em></em>, respecting this new "can only subtract something smaller" rule, so everything ends up the same parity?
+<em> <strong>What to return:</strong> <em></em>INLINE<em>CODE</em>12<em></em> or <em></em>INLINE<em>CODE</em>13<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Back to our lockers: each locker can either keep its own tag, or swap it for "my number minus a </em>smaller<em> number from some other locker." You're no longer allowed to subtract a bigger locker's number from yours (that trick, which let you sometimes go negative in Part I, is now off the table). This sounds like a small change, but it has a big consequence: <strong>the locker holding the smallest number in the entire row has nobody smaller to borrow from — it is physically forced to just keep its own tag.</strong></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Everything from Part I still applies (parity, the "subtracting odd flips parity, subtracting even doesn't" rule) — quick recap:</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Parity-flip rule (from Part I, still true here)</h3>
+<em></em>INLINE<em>CODE</em>14<em></em>, <em></em>INLINE<em>CODE</em>15<em></em>, <em></em>INLINE<em>CODE</em>16<em></em>, <em></em>INLINE<em>CODE</em>17<em></em>. In short: <strong>subtracting an odd number always flips parity; subtracting an even number never does</strong>, regardless of which number is bigger.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">New concept: "Forced move"</h3>
+</em> <strong>Concept:</strong> Sometimes a rule leaves you with <em>zero</em> legal choices except one — that one choice is "forced." Recognizing forced moves early often unlocks the whole problem, because they pin down facts you can build the rest of your reasoning on.
+<em> <strong>Why we need it:</strong> The new <em></em>INLINE<em>CODE</em>18<em></em> restriction means the </em>smallest<em> element in <em></em>INLINE<em>CODE</em>19<em></em> has no valid <em></em>INLINE<em>CODE</em>20<em></em> to subtract at all (there's nothing smaller than the minimum!) — so it's forced to just copy itself. That one forced move turns out to decide almost everything.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Minimum of an array</h3>
+</em> <strong>Concept:</strong> The single smallest value among all elements.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>21<em></em>.
+</em> <strong>Why we need it:</strong> As just discussed, the minimum element is the one with no subtraction option available — it's the anchor of our whole argument.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Sorted order (as a thinking tool, not necessarily code we write)</h3>
+<em> <strong>Concept:</strong> Imagining the array's values lined up from smallest to largest helps reason about "does a smaller helper number exist?" questions.
+</em> <strong>Why we need it:</strong> We'll repeatedly ask "is there a smaller <em>odd</em> number available?" — thinking in sorted order makes this easy to reason about, even though our final code won't need to actually sort anything.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 2 (the interesting one — it's <em></em>INLINE<em>CODE</em>22<em></em> this time!):
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>23<em></em> is even, <em></em>INLINE<em>CODE</em>24<em></em> is odd.
+</em> The minimum value in the array is <em></em>INLINE<em>CODE</em>25<em></em>.
+<em> Since <em></em>INLINE<em>CODE</em>26<em></em> is the minimum, there's no index <em></em>INLINE<em>CODE</em>27<em></em> with <em></em>INLINE<em>CODE</em>28<em></em> — so index 0 (value <em></em>INLINE<em>CODE</em>29<em></em>) has <strong>no valid subtraction option at all</strong>. It's forced to copy: <em></em>INLINE<em>CODE</em>30<em></em>.
+</em> This immediately locks in the target parity: since <em></em>INLINE<em>CODE</em>31<em></em> must be <em></em>INLINE<em>CODE</em>32<em></em> (even), the <em>entire</em> <em></em>INLINE<em>CODE</em>33<em></em> array must be even.
+<em> Now can <em></em>INLINE<em>CODE</em>34<em></em> (at index 1) become even? It would need <em></em>INLINE<em>CODE</em>35<em></em> for some <em></em>INLINE<em>CODE</em>36<em></em> with <em></em>INLINE<em>CODE</em>37<em></em> — the only candidate is <em></em>INLINE<em>CODE</em>38<em></em>, value <em></em>INLINE<em>CODE</em>39<em></em>. Is <em></em>INLINE<em>CODE</em>40<em></em> even? No, it's odd! Subtracting <em></em>INLINE<em>CODE</em>41<em></em> (even) from <em></em>INLINE<em>CODE</em>42<em></em> (odd) gives odd (per our parity rule: subtracting an even number never flips parity) — so this doesn't help.
+</em> There's no other smaller number to try. <em></em>INLINE<em>CODE</em>43<em></em> is stuck at odd, but the target is forced to be even. <strong>Impossible.</strong></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>44<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> As shown above: the minimum element (<em></em>INLINE<em>CODE</em>45<em></em>) is forced to stay even (no subtraction possible), which locks the whole array's target to "all even." But <em></em>INLINE<em>CODE</em>46<em></em> can never be turned into an even number using only smaller numbers to subtract (its only smaller option, <em></em>INLINE<em>CODE</em>47<em></em>, is even, and subtracting an even number can't flip <em></em>INLINE<em>CODE</em>48<em></em>'s parity). So no valid <em></em>INLINE<em>CODE</em>49<em></em> exists.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Compare this to Example 1: <em></em>INLINE<em>CODE</em>50<em></em>. Minimum is <em></em>INLINE<em>CODE</em>51<em></em> (odd) — this forces target = odd. Then <em></em>INLINE<em>CODE</em>52<em></em> (even) needs to flip to odd using a smaller number; <em></em>INLINE<em>CODE</em>53<em></em> is available and it's odd, so <em></em>INLINE<em>CODE</em>54<em></em> works. <em></em>INLINE<em>CODE</em>55<em></em> is already odd, just copy. Everything works out → <em></em>INLINE<em>CODE</em>56<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually work through a slightly bigger example to really nail the pattern: <em></em>INLINE<em>CODE</em>57<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Find the minimum.</strong> <em></em>INLINE<em>CODE</em>58<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Since 3 is the minimum, it has no valid <em></em>INLINE<em>CODE</em>59<em></em> to subtract from — it's forced to copy itself.</strong> <em></em>INLINE<em>CODE</em>60<em></em> for that position = <em></em>INLINE<em>CODE</em>61<em></em>, which is <strong>odd</strong>. This locks the target: <strong>the whole array must end up odd.</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Check every other element against target = odd.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Already odd?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">If not, need to flip using SOME smaller ODD number</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Available smaller odd number?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Result</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3 (the min)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes (odd)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">— (forced copy anyway)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">OK (copy)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No (even)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Need smaller odd number <em></em>INLINE<em>CODE</em>62<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes! <em></em>INLINE<em>CODE</em>63<em></em> is odd and <em></em>INLINE<em>CODE</em>64<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>65<em></em> (odd) ✔️</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes (odd)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">OK (copy, or could subtract too)</td></tr></table></div>
+Every element works out → answer is <em></em>INLINE<em>CODE</em>66<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Now let's contrast with <em></em>INLINE<em>CODE</em>67<em></em>:</strong></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Minimum is <em></em>INLINE<em>CODE</em>68<em></em>.</strong> It's even → forced target = <strong>even</strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Check every other element against target = even.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Already even?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">If not, need smaller ODD number to flip</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Smaller odd number available?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Result</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2 (min)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">OK (forced copy)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">OK (copy)</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">9</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No (odd)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Need smaller ODD number <em></em>INLINE<em>CODE</em>69<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Candidates smaller than 9: <em></em>INLINE<em>CODE</em>70<em></em> (even), <em></em>INLINE<em>CODE</em>71<em></em> (even) — <strong>no odd ones available!</strong></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">❌ Stuck</td></tr></table></div>
+<em></em>INLINE<em>CODE</em>72<em></em> can never become even here, because every number smaller than it in this array happens to be even. Answer: <em></em>INLINE<em>CODE</em>73<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This reveals the real danger zone: <strong>when the minimum is even, the </em>smallest odd number<em> in the whole array (if one exists) can never find a smaller odd helper — because by definition, nothing smaller than it is odd.</strong></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What do I know?</strong> The minimum element is always forced to "copy," which locks in the target parity as <em></em>INLINE<em>CODE</em>74<em></em>.
+<em> <strong>What do I need to find?</strong> Whether every other element can actually reach that forced target.
+</em> <strong>What can I try?</strong> Split into two cases based on whether the minimum is odd or even, and figure out exactly when each case can (or can't) succeed.
+<em> <strong>Case: minimum is odd.</strong> The target is odd. Any element that's already odd just copies. Any element that's even needs to flip — and it needs </em>some<em> smaller odd number to subtract. Here's the beautiful part: <strong>the minimum itself is odd, and by definition it's smaller than every other element in the array!</strong> So </em>every<em> even element can always use the minimum as its "flip helper." This case can never fail.
+</em> <strong>Case: minimum is even.</strong> The target is even. Any already-even element copies fine. Any odd element needs to flip using a smaller <em>odd</em> number. But now the minimum (even) can't help with that — we need some <em>other</em>, odd, smaller number. The most fragile case is: <strong>the smallest odd number in the whole array.</strong> By definition, nothing smaller than it is odd (if something smaller and odd existed, it would BE the smallest odd number instead). So if any odd number exists at all, the smallest one among them is permanently stuck. This case only succeeds if there are <strong>zero</strong> odd numbers in the entire array.
+<em> <strong>What information should I remember?</strong> Just two things, found in a single pass: the array's minimum value (specifically, its parity), and whether any odd number exists at all.
+</em> <strong>What pattern do I notice?</strong> This collapses to a two-line check — no need to actually simulate constructing <em></em>INLINE<em>CODE</em>75<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> For each of the 2 possible targets (all-even, all-odd), check every element: if it matches, fine. If not, search through <em>all other elements smaller than it</em> to see if any has the opposite (odd) parity needed to flip it.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> Directly checks feasibility for both targets, respecting the "must subtract something smaller" rule.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> For each of 2 targets, and for each element needing a flip, scanning all smaller elements could take O(n) — giving O(n²) overall in the worst case. With <em></em>INLINE<em>CODE</em>76<em></em> up to <em></em>INLINE<em>CODE</em>77<em></em>, that's up to <em></em>INLINE<em>CODE</em>78<em></em> operations — way too slow.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>79<em></em> — try both possible targets (even=0, odd=1); if either is achievable, return true.
+</em> Inside <em></em>INLINE<em>CODE</em>80<em></em>: for each element, <em></em>INLINE<em>CODE</em>81<em></em> — if it already matches the target, no work needed, "copy" handles it.
+<em> Otherwise, we need to flip it. We scan every other index <em></em>INLINE<em>CODE</em>82<em></em>, looking for one that is (a) smaller in value (<em></em>INLINE<em>CODE</em>83<em></em>, satisfying the new <em></em>INLINE<em>CODE</em>84<em></em> rule) and (b) odd (since only subtracting odd numbers flips parity).
+</em> If we find such a <em></em>INLINE<em>CODE</em>85<em></em>, this element can be fixed; if we scan everything and find nothing, this target is impossible, so we return <em></em>INLINE<em>CODE</em>86<em></em> immediately.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Is the Brute Force Solution Not Ideal?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">With <em></em>INLINE<em>CODE</em>87<em></em> up to <em></em>INLINE<em>CODE</em>88<em></em>, checking "does a smaller odd number exist" by re-scanning the whole array for every single element that needs a flip could mean up to <em></em>INLINE<em>CODE</em>89<em></em> billion comparisons in the worst case. That's far too slow to run in time. We need to answer "is there a smaller odd number available?" <em>instantly</em>, not by rescanning.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It looks like we need to check every element against every possible smaller helper, for both possible targets — an expensive search.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+That's way too much repeated work, and it obscures a much simpler truth hiding in the problem's structure.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>The new <em></em>INLINE<em>CODE</em>90<em></em> restriction removes all freedom from exactly one element: the minimum.</strong> It can never subtract anything (nothing is smaller), so it must copy itself — which single-handedly <em>decides</em> the target parity for the entire array; there's no longer a choice between "try both targets," there's only ever one target to check: <em></em>INLINE<em>CODE</em>91<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Once the target is pinned down, everything else follows from one more fact: <strong>the minimum element, if odd, is a universal helper</strong> (it's smaller than everything else, so every even element can always borrow it to flip to odd). But <strong>if the minimum is even, it can't help anyone flip</strong> — and the <em>next</em> smallest odd number (if one exists) has the exact same problem the minimum had: nothing smaller than <em>it</em> is odd, so it's permanently stuck if the target is even.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The whole problem reduces to two quick checks computed in a single pass: what's the parity of the minimum, and does any odd number exist in the array at all?
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 2</strong>: <em></em>INLINE<em>CODE</em>92<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 1: Scan once, tracking minimum value and whether any odd number exists.</strong></p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Index</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Value</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Running min</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Is this value odd?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">hasOdd so far</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">No</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">false</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2 (unchanged, 3 > 2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">true</td></tr></table></div>
+Final: <em></em>INLINE<em>CODE</em>93<em></em>, <em></em>INLINE<em>CODE</em>94<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 2: Check <em></em>INLINE<em>CODE</em>95<em></em>'s parity.</strong> <em></em>INLINE<em>CODE</em>96<em></em> → minimum is <strong>even</strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Step 3: Since minimum is even, the answer is <em></em>INLINE<em>CODE</em>97<em></em>.</strong> <em></em>INLINE<em>CODE</em>98<em></em>, so <em></em>INLINE<em>CODE</em>99<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Final answer: <em></em>INLINE<em>CODE</em>100<em></em></strong> ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>101<em></em> — start with an impossibly large placeholder, so the very first real value we see will correctly become the new minimum.
+</em> <em></em>INLINE<em>CODE</em>102<em></em> — tracks whether we've seen <em>any</em> odd number anywhere in the array.
+<em> The <em></em>INLINE<em>CODE</em>103<em></em> loop — a single pass through the array.
+  </em> <em></em>INLINE<em>CODE</em>104<em></em> — standard running-minimum tracking.
+  <em> <em></em>INLINE<em>CODE</em>105<em></em> — flags that at least one odd number exists, the moment we see one.
+</em> <em></em>INLINE<em>CODE</em>106<em></em> — checks whether the minimum element is odd.
+  <em> If yes: this case </em>always<em> succeeds, because the minimum is both the smallest value in the array and odd, making it a universal "flip helper" for every even element. We <em></em>INLINE<em>CODE</em>107<em></em> immediately.
+</em> <em></em>INLINE<em>CODE</em>108<em></em> — if the minimum is even, the target is forced to even, and this only works if there's no odd number anywhere. So we return <em></em>INLINE<em>CODE</em>109<em></em> only when <em></em>INLINE<em>CODE</em>110<em></em> is <em></em>INLINE<em>CODE</em>111<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>112<em></em> → min = 1 (odd) → Output: <em></em>INLINE<em>CODE</em>113<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>114<em></em> → min = 2 (even), hasOdd = true → Output: <em></em>INLINE<em>CODE</em>115<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case</h3>
+<em></em>INLINE<em>CODE</em>116<em></em> → min = 4 (even), hasOdd = false (both even) → Output: <em></em>INLINE<em>CODE</em>117<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Single-element array (<em></em>INLINE<em>CODE</em>118<em></em>)</strong> → the lone element is forced to copy itself (no <em></em>INLINE<em>CODE</em>119<em></em> exists at all), which trivially matches its own parity → <em></em>INLINE<em>CODE</em>120<em></em> = that element; if odd, <em></em>INLINE<em>CODE</em>121<em></em> directly; if even, <em></em>INLINE<em>CODE</em>122<em></em> will be <em></em>INLINE<em>CODE</em>123<em></em> (since the only number is even) → <em></em>INLINE<em>CODE</em>124<em></em> either way. Always <em></em>INLINE<em>CODE</em>125<em></em> for <em></em>INLINE<em>CODE</em>126<em></em>.
+</em> <strong>All elements even</strong> → <em></em>INLINE<em>CODE</em>127<em></em> is even, <em></em>INLINE<em>CODE</em>128<em></em> → <em></em>INLINE<em>CODE</em>129<em></em> (nothing ever needs to flip).
+<em> <strong>All elements odd</strong> → <em></em>INLINE<em>CODE</em>130<em></em> is odd → <em></em>INLINE<em>CODE</em>131<em></em> immediately (every element already matches, or can trivially copy).
+</em> <strong>Minimum is odd, but there are many even numbers to flip</strong> → still always <em></em>INLINE<em>CODE</em>132<em></em>, since the minimum alone is sufficient to flip every even number, no matter how many there are.
+<em> <strong>Minimum is even, exactly one odd number exists</strong> → <em></em>INLINE<em>CODE</em>133<em></em> → <em></em>INLINE<em>CODE</em>134<em></em> (that lone odd number, being both the only and therefore the smallest odd number, can never find a smaller odd helper).
+</em> <strong>Large arrays (<em></em>INLINE<em>CODE</em>135<em></em> up to <em></em>INLINE<em>CODE</em>136<em></em>) with mixed parities</strong> → handled efficiently in one O(n) pass, no risk of timeout.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> We only need to look at each element exactly once to know both its value (for tracking the minimum) and its parity (for tracking <em></em>INLINE<em>CODE</em>137<em></em>). No nested loops, no rescanning — everything the final answer depends on can be computed while walking through the array a single time.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We only use a couple of simple variables (<em></em>INLINE<em>CODE</em>138<em></em>, <em></em>INLINE<em>CODE</em>139<em></em>) — no arrays, lists, or structures that grow with input size.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Extra space: <em></em>INLINE<em>CODE</em>140<em></em> — constant.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "This is just like Part I, so the answer should always be <em></em>INLINE<em>CODE</em>141<em></em>."
+✅ Part I allowed subtracting <em>any</em> other element (even a bigger one, going negative). Part II's <em></em>INLINE<em>CODE</em>142<em></em> restriction removes that freedom specifically from the minimum element, which breaks the "always true" guarantee from Part I entirely.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I should check both possible targets (all-even, all-odd), like in Part I."
+✅ There's no longer a free choice of target — the minimum element is <em>forced</em> to copy itself (no valid <em></em>INLINE<em>CODE</em>143<em></em> exists for it), which locks the target to <em></em>INLINE<em>CODE</em>144<em></em> automatically. Only one target is ever worth checking.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "If the minimum is even, I just need to check if there's a smaller odd number for each odd element individually."
+✅ You don't need to check element-by-element — the key realization is that it's <em>specifically the smallest odd number</em> (if any exists) that's the bottleneck; if it fails, nothing built around checking "is target even achievable" needs anything more granular than "does any odd number exist at all?"</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "Subtracting works the same regardless of which number is bigger."
+✅ In this version, <em></em>INLINE<em>CODE</em>145<em></em> <strong>requires <em></em>INLINE<em>CODE</em>146<em></em></strong> — you can only subtract something <em>smaller</em>. This one-directional restriction is the entire crux of the problem.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signal phrases:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why is the minimum element in <em></em>INLINE<em>CODE</em>147<em></em> the <em>only</em> one guaranteed to have zero valid subtraction options?
+2. If the minimum element is odd, why can it always help <em>every</em> even element flip to odd, no matter how large the array is?
+3. If the minimum is even and there are 3 odd numbers in the array — say <em></em>INLINE<em>CODE</em>148<em></em> — which one specifically causes the problem, and why don't the other two matter?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. The rule requires <em></em>INLINE<em>CODE</em>149<em></em> for a valid subtraction at index <em></em>INLINE<em>CODE</em>150<em></em>. The minimum element, by definition, has no other element smaller than it anywhere in the array — so no valid <em></em>INLINE<em>CODE</em>151<em></em> can ever exist for it, forcing it to copy itself.
+2. Because the minimum is, by definition, smaller than every other element in the array — so for any even element <em></em>INLINE<em>CODE</em>152<em></em>, <em></em>INLINE<em>CODE</em>153<em></em> is always a legal move (satisfies the <em></em>INLINE<em>CODE</em>154<em></em> rule since <em></em>INLINE<em>CODE</em>155<em></em>), and since the minimum is odd, subtracting it always flips <em></em>INLINE<em>CODE</em>156<em></em>'s parity to odd.
+3. The smallest of the three, <em></em>INLINE<em>CODE</em>157<em></em>, is the one that causes the problem — it has no smaller odd number to use as its own flip-helper (since it's the smallest odd number overall), so it can never become even. <em></em>INLINE<em>CODE</em>158<em></em> and <em></em>INLINE<em>CODE</em>159<em></em> are both larger and could technically use <em></em>INLINE<em>CODE</em>160<em></em> as their odd helper if needed, so they're not the bottleneck — but since <em></em>INLINE<em>CODE</em>161<em></em> itself already fails, the whole target is impossible regardless.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Determine whether <em></em>INLINE<em>CODE</em>162<em></em> can be made uniformly odd or even, where the "subtract" option now only allows subtracting a <em>smaller</em> element.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+The minimum element can never subtract anything (nothing is smaller), forcing it to copy itself and locking the target parity to <em></em>INLINE<em>CODE</em>163<em></em>. If the minimum is odd, it can always flip every other element (always succeeds). If the minimum is even, it only works when there are zero odd numbers anywhere (otherwise the smallest odd number gets permanently stuck).
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Scan the array once, tracking the minimum value and whether any odd number exists.
+2. If the minimum is odd, return <em></em>INLINE<em>CODE</em>164<em></em>.
+3. Otherwise, return <em></em>INLINE<em>CODE</em>165<em></em> only if no odd numbers exist at all; otherwise <em></em>INLINE<em>CODE</em>166<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>167<em></em>
+Space: <em></em>INLINE<em>CODE</em>168<em></em>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+A restriction like "can only combine with something smaller/bigger" often locks a specific extreme element (min or max) into a forced move — chase that forced move to see if it determines the whole answer.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why does adding the <em></em>INLINE<em>CODE</em>169<em></em> restriction change the answer from "always true" (Part I) to "sometimes false" (Part II)?
+2. <strong>(Basic concept)</strong> For <em></em>INLINE<em>CODE</em>170<em></em>, what is the forced target parity, and why?
+3. <strong>(Logic)</strong> Why does it matter <em>specifically</em> whether the smallest odd number (not just any odd number) has a smaller odd helper available?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>171<em></em>, find the minimum, determine the forced target, and decide whether the answer is <em></em>INLINE<em>CODE</em>172<em></em> or <em></em>INLINE<em>CODE</em>173<em></em>.
+5. <strong>(Complexity/pattern)</strong> Why does the brute-force approach risk <em></em>INLINE<em>CODE</em>174<em></em> here, and what specific single fact (about the minimum element) collapses the whole problem down to an <em></em>INLINE<em>CODE</em>175<em></em> check?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

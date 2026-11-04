@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1621. Number of Sets of K Non-Overlapping Line Segments Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Count the number of ways to draw k non-overlapping line segments over n points using prefix-sum optimized 2D dynamic programming." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/number-of-sets-of-k-non-overlapping-line-segments" />
+  
+  <meta property="og:title" content="1621. Number of Sets of K Non-Overlapping Line Segments Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Count the number of ways to draw k non-overlapping line segments over n points using prefix-sum optimized 2D dynamic programming." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/number-of-sets-of-k-non-overlapping-line-segments" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/number-of-sets-of-k-non-overlapping-line-segments';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">1621. Number of Sets of K Non-Overlapping Line Segments</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Medium</strong> | Published on <strong>2026-09-16</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This is a beautiful combinatorial DP problem where understanding the rules of endpoint sharing leads directly to an additive recurrence, which is then accelerated from $O(N^2 K)$ to $O(NK)$ using running prefix sums. Let's build it up carefully from zero.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're given $n$ points along a single 1D number line at positions <em></em>INLINE<em>CODE</em>0<em></em>, and an integer <em></em>INLINE<em>CODE</em>1<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You want to draw <strong>exactly <em></em>INLINE<em>CODE</em>2<em></em> line segments</strong> between these points such that:
+<em> Every segment has a length of at least 1 (starts and ends at two different points).
+</em> The segments do <strong>not overlap</strong> — meaning they cannot cross or share any interior line area.
+<em> <strong>Important rule:</strong> Segments <strong>ARE allowed to share endpoints</strong>! For example, one segment can span <em></em>INLINE<em>CODE</em>3<em></em> and the next can span <em></em>INLINE<em>CODE</em>4<em></em> — touching at point <em></em>INLINE<em>CODE</em>5<em></em> is completely valid.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> Calculate the total number of distinct ways to choose and draw these <em></em>INLINE<em>CODE</em>6<em></em> segments. Since the answer can be huge, return it modulo $10^9 + 7$.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>What's given:</strong> <em></em>INLINE<em>CODE</em>7<em></em> (the number of points, $0 \dots n-1$) and <em></em>INLINE<em>CODE</em>8<em></em> (the number of segments to draw).
+<em> <strong>What to find:</strong> The total number of valid sets of <em></em>INLINE<em>CODE</em>9<em></em> segments.
+</em> <strong>What to return:</strong> That count modulo $10^9 + 7$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine a wooden fence with $n$ evenly spaced posts numbered $0$ to $n-1$. You have $k$ rolls of ribbon. You want to stretch each ribbon between two posts so that no ribbons overlap along the railing. Two ribbons can tie to the exact same post (the end of one ribbon can be the start of the next), but they can't double up over the same stretch of rail. You want to count how many distinct ways you can place all $k$ ribbons across the posts.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">1D Coordinates & Segments</h3>
+<em> A segment $(u, v)$ with $u < v$ occupies the interval $[u, v]$ with length $v - u \ge 1$.
+</em> Two segments $(u<em>1, v</em>1)$ and $(u<em>2, v</em>2)$ with $v<em>1 \le u</em>2$ do not overlap. When $v<em>1 = u</em>2$, they touch at a single point without overlapping interior area.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">2D Dynamic Programming State</h3>
+<em> Let <em></em>INLINE<em>CODE</em>10<em></em> represent the number of ways to place exactly <em></em>INLINE<em>CODE</em>11<em></em> valid segments using only the first <em></em>INLINE<em>CODE</em>12<em></em> points (indices $0 \dots i-1$).
+</em> By building up <em></em>INLINE<em>CODE</em>13<em></em> (number of points available) and <em></em>INLINE<em>CODE</em>14<em></em> (segments needed), we solve the full problem at <em></em>INLINE<em>CODE</em>15<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Prefix Sum Optimization</h3>
+<em> If a state depends on the sum of many previous states: $\sum<em>{q=1}^{i-1} \text{previous}[q]$, recomputing this sum from scratch takes $O(N)$ per cell.
+</em> Maintaining a running cumulative sum as $i$ increases reduces this transition to $O(1)$.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Modular Arithmetic</h3>
+<em> Additions are taken modulo $10^9 + 7$ at every step: </em><em>INLINE</em>CODE<em>16</em><em> to prevent integer overflow.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take <strong>Example 1</strong>:
+</em><em>CODE</em>BLOCK<em>0</em><em>
+</em> The points are </em><em>INLINE</em>CODE<em>17</em><em> (4 points total).
+<em> We need to choose $k = 2$ non-overlapping segments.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Possible combinations:
+1. </em><em>INLINE</em>CODE<em>18</em><em> and </em><em>INLINE</em>CODE<em>19</em><em> (touching at 1)
+2. </em><em>INLINE</em>CODE<em>20</em><em> and </em><em>INLINE</em>CODE<em>21</em><em> (separated by a gap)
+3. </em><em>INLINE</em>CODE<em>22</em><em> and </em><em>INLINE</em>CODE<em>23</em><em> (touching at 1)
+4. </em><em>INLINE</em>CODE<em>24</em><em> and </em><em>INLINE</em>CODE<em>25</em><em> (touching at 2)
+5. </em><em>INLINE</em>CODE<em>26</em><em> and </em><em>INLINE</em>CODE<em>27</em><em> (touching at 2)</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Total valid ways = <strong>5</strong>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: </em><em>INLINE</em>CODE<em>28</em><em> (matches the manual enumeration above).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually examine <strong>Example 2</strong>: </em><em>INLINE</em>CODE<em>29</em><em>.
+</em> Points available: </em><em>INLINE</em>CODE<em>30</em><em>.
+<em> We need $k = 1$ segment of length $\ge 1$.
+</em> Any pair of distinct points $(u, v)$ with $u < v$ forms a valid segment:
+  1. </em><em>INLINE</em>CODE<em>31</em><em>
+  2. </em><em>INLINE</em>CODE<em>32</em><em>
+  3. </em><em>INLINE</em>CODE<em>33</em><em>
+<em> Total valid ways = <strong>3</strong>. ✔️</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Now consider <strong>Example 3</strong>: </em><em>INLINE</em>CODE<em>34</em><em>.
+</em> Points available: </em><em>INLINE</em>CODE<em>35</em><em>.
+<em> We need 2 segments. The only way to fit two segments on 3 points without overlap is:
+  1. </em><em>INLINE</em>CODE<em>36</em><em> and </em><em>INLINE</em>CODE<em>37</em><em> (sharing endpoint 1).
+</em> Total valid ways = <strong>1</strong>. ✔️</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> For any subproblem on the first $i$ points (indices $0 \dots i-1$), let's focus on the rightmost point $x = i-1$.
+</em> <strong>Case 1: Point $i-1$ is NOT used as the right endpoint of ANY segment.</strong>
+  <em> In this case, all $j$ segments must be formed entirely within the first $i-1$ points (indices $0 \dots i-2$).
+  </em> Contribution: </em><em>INLINE</em>CODE<em>38</em><em>.
+<em> <strong>Case 2: Point $i-1$ IS the right endpoint of the $j$-th segment.</strong>
+  </em> That segment must start at some point $p$, where $0 \le p \le i-2$.
+  <em> The segment is $(p, i-1)$.
+  </em> Because segments can touch at endpoints, the remaining $j-1$ segments can be drawn using points $0 \dots p$ freely!
+  <em> Points $0 \dots p$ constitute exactly $p+1$ points.
+  </em> Therefore, for a fixed starting point $p$, there are </em><em>INLINE</em>CODE<em>39</em><em> ways to place the remaining $j-1$ segments.
+<em> <strong>Combining all possible start points $p$:</strong>
+  $$\text{Ways} = \sum</em>{p=0}^{i-2} dp[p+1][j-1] = \sum<em>{q=1}^{i-1} dp[q][j-1]$$
+</em> <strong>Total Recurrence:</strong>
+  $$dp[i][j] = dp[i-1][j] + \sum</em>{q=1}^{i-1} dp[q][j-1]$$
+<em> <strong>The running sum trick:</strong> As $i$ increases by 1, the sum $\sum<em>{q=1}^{i-1} dp[q][j-1]$ simply gains one new term: $dp[i-1][j-1]$. By keeping a running </em><em>INLINE</em>CODE<em>40</em><em>, we compute each cell in $O(1)$!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Naive DP Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Without prefix sum optimization, we'd compute the summation with an inner loop:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em><em>CODE</em>BLOCK<em>1</em><em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Time complexity:</strong> $O(N^2 K)$ — three nested loops. For $N=1000, K=1000$, $N^2 K = 10^9$ operations $\rightarrow$ <strong>Time Limit Exceeded</strong>.
+<em> <strong>Space complexity:</strong> $O(NK)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Naive DP Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> </em><em>INLINE</em>CODE<em>41</em><em> — Base case: drawing 0 segments over $i$ points has exactly 1 way (place no segments).
+<em> </em><em>INLINE</em>CODE<em>42</em><em> — Outer loop iterating through segment counts.
+</em> </em><em>INLINE</em>CODE<em>43</em><em> — Middle loop iterating through available points (need at least 2 points to draw $\ge 1$ segment).
+<em> </em><em>INLINE</em>CODE<em>44</em><em> — Option 1: point $i-1$ is not used.
+</em> </em><em>INLINE</em>CODE<em>45</em><em> — Option 2: point $i-1$ is the right endpoint; sum over all possible left endpoints.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Do We Need Optimization?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Notice that in the naive version, when moving from $i$ to $i+1$, the inner loop computes:
+<em> For $i$: $\sum</em>{q=1}^{i-1} dp[q][j-1]$
+</em> For $i+1$: $\sum<em>{q=1}^{i} dp[q][j-1] = \left(\sum</em>{q=1}^{i-1} dp[q][j-1]\right) + dp[i][j-1]$</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The sum for $i+1$ is simply the previous sum plus $dp[i][j-1]$. Recalculating the full sum from $q=1$ every single time is completely redundant!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+Counting non-overlapping segments with shared endpoints seems tricky because segments can chain together arbitrarily (e.g. $(0,1), (1,2), (2,3)$).
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+Naively tracking whether the previous point was used or searching through all possible cut points leads to complex $O(N^2 K)$ state transitions.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Because touching endpoints are permitted, fixing the rightmost segment $(p, i-1)$ leaves points $0 \dots p$ completely unrestricted.</strong> This means the subproblem to the left is simply $dp[p+1][j-1]$. Summing this over all valid $p$ produces a running prefix sum of the previous DP row, allowing an $O(1)$ state update.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+The entire problem collapses into a clean 2D table filled in $O(N K)$ time using a single running accumulator.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 1</strong>: $n = 4, k = 2$.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Base Row ($j = 0$):</h3>
+<em> <em></em>INLINE<em>CODE</em>46<em></em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Row $j = 1$ (1 segment):</h3>
+</em> <em></em>INLINE<em>CODE</em>47<em></em>
+<em> $i = 2$: <em></em>INLINE<em>CODE</em>48<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>49<em></em>
+</em> $i = 3$: <em></em>INLINE<em>CODE</em>50<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>51<em></em>
+<em> $i = 4$: <em></em>INLINE<em>CODE</em>52<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>53<em></em>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Row $j = 2$ (2 segments):</h3>
+</em> <em></em>INLINE<em>CODE</em>54<em></em>
+<em> $i = 2$: <em></em>INLINE<em>CODE</em>55<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>56<em></em>
+</em> $i = 3$: <em></em>INLINE<em>CODE</em>57<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>58<em></em>
+<em> $i = 4$: <em></em>INLINE<em>CODE</em>59<em></em> $\rightarrow$ <em></em>INLINE<em>CODE</em>60<em></em>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Final Answer: <em></em>INLINE<em>CODE</em>61<em></em>. ✔️ Exactly matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>62<em></em> — modulo constant to prevent integer overflow.
+<em> <em></em>INLINE<em>CODE</em>63<em></em> — <em></em>INLINE<em>CODE</em>64<em></em> stores ways to form <em></em>INLINE<em>CODE</em>65<em></em> segments from <em></em>INLINE<em>CODE</em>66<em></em> points.
+</em> <em></em>INLINE<em>CODE</em>67<em></em> — base case: drawing 0 segments has 1 way.
+<em> <em></em>INLINE<em>CODE</em>68<em></em> — outer loop increments segment target from 1 to $k$.
+</em> <em></em>INLINE<em>CODE</em>69<em></em> — initializes the running accumulator for the $(j-1)$-th row.
+<em> <em></em>INLINE<em>CODE</em>70<em></em> — inner loop sweeps through available point counts.
+</em> <em></em>INLINE<em>CODE</em>71<em></em> — adds the new potential left endpoint option $dp[i-1][j-1]$ into the running sum.
+<em> <em></em>INLINE<em>CODE</em>72<em></em> — combines the option where point $i-1$ is unused with all options where point $i-1$ serves as the right endpoint.
+</em> <em></em>INLINE<em>CODE</em>73<em></em> — returns the computed answer for all $n$ points and $k$ segments.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>74<em></em> $\rightarrow$ Dry run in Section 13 $\rightarrow$ Output: <em></em>INLINE<em>CODE</em>75<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Minimum Case</h3>
+<em></em>INLINE<em>CODE</em>76<em></em> $\rightarrow$ Dry run in Section 6 $\rightarrow$ Output: <em></em>INLINE<em>CODE</em>77<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Tightly Packed Segments</h3>
+<em></em>INLINE<em>CODE</em>78<em></em> $\rightarrow$ Dry run in Section 6 $\rightarrow$ Output: <em></em>INLINE<em>CODE</em>79<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 4 — Impossible Configuration</h3>
+<em></em>INLINE<em>CODE</em>80<em></em> $\rightarrow$ Only 2 points, cannot form 2 non-overlapping segments of length $\ge 1$ $\rightarrow$ Output: <em></em>INLINE<em>CODE</em>81<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>$k = n - 1$ (Maximum possible segments):</strong> Segments must all be unit length and touch end-to-end: $(0,1), (1,2), \dots, (n-2, n-1)$. There is exactly $1$ way. The DP correctly returns <em></em>INLINE<em>CODE</em>82<em></em>.
+</em> <strong>$k \ge n$ (More segments than can fit):</strong> Impossible since each segment needs length $\ge 1$. The loops correctly produce <em></em>INLINE<em>CODE</em>83<em></em>.
+<em> <strong>$k = 1$ (Single segment):</strong> Equivalent to choosing any 2 distinct endpoints out of $n$, which is $\binom{n}{2} = \frac{n(n-1)}{2}$. For $n=4, k=1$: $\frac{4 \times 3}{2} = 6$, correctly matching $dp[4][1] = 6$.
+</em> <strong>Large constraints ($N, K = 1000$):</strong> Modulo operations at each addition step guarantee no 64-bit integer overflow occurs.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For $n = 1000, k = 1000$, the table has $10^6$ operations, executing in under $15\text{ ms}$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>84<em></em> table of size $(n+1) \times (k+1)$ takes $O(n \cdot k)$ space.
+</em> For $n=1000, k=1000$, this uses $\approx 8\text{ MB}$ of memory, well within standard limits.
+<em> </em>(Note: Space can further be optimized to $O(n)$ by keeping only the current and previous rows).<em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "Segments cannot touch at endpoints."  
+  ✅ The problem explicitly allows segments to share endpoints (e.g. $(0,2)$ and $(2,3)$ is valid). If touching were forbidden, the left subproblem would be $dp[p][j-1]$ instead of $dp[p+1][j-1]$.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ "Recomputing the summation $\sum<em>{q=1}^{i-1} dp[q][j-1]$ with an inner loop."  
+  ✅ This creates an $O(n^2 k)$ solution that will Time Out on LeetCode. Maintaining a running </em><em>INLINE</em>CODE<em>85</em><em> variable is essential for $O(n k)$ performance.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> ❌ "Forgetting modulo during intermediate additions."  
+  ✅ Without </em><em>INLINE</em>CODE<em>86</em><em> inside the inner loop, </em><em>INLINE</em>CODE<em>87</em><em> and </em><em>INLINE</em>CODE<em>88</em><em> will quickly overflow 64-bit integers.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for these signals:
+</em><em>CODE</em>BLOCK<em>6</em><em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Whenever you partition an array or sequence into $k$ non-overlapping parts, setup </em><em>INLINE</em>CODE<em>89</em><em> for the prefix of length $i$ with $j$ parts. If the transition involves a sum over all previous cut points $p$, immediately check if that sum is an incremental prefix sum that can be updated in $O(1)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em><em>CODE</em>BLOCK<em>7</em><em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. If segments were <strong>forbidden</strong> from sharing endpoints (must have at least 1 empty point between them), how would the transition $\sum dp[p+1][j-1]$ change?
+2. What is the value of $dp[n][1]$ in terms of standard combinatorics?
+3. How can we optimize the space complexity from $O(n \cdot k)$ down to $O(n)$?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. If endpoints could not be shared, a segment ending at $i-1$ starting at $p$ would require all previous segments to finish at or before $p-1$. Thus, the subproblem would only have $p$ points available: $\sum dp[p][j-1]$.
+2. $dp[n][1] = \binom{n}{2} = \frac{n(n-1)}{2}$, because choosing 1 segment is equivalent to picking any 2 distinct endpoints out of the $n$ points.
+3. Since computing row $j$ only depends on values from row $j-1$ and the current row $j$, we only need two 1D arrays (</em><em>INLINE</em>CODE<em>90</em><em> and </em><em>INLINE</em>CODE<em>91</em><em>) of size $n+1$, reducing auxiliary space to $O(n)$.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Find the number of ways to draw $k$ non-overlapping line segments (endpoints may touch) across $n$ points modulo $10^9+7$.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Fix the rightmost point $x = i-1$: either it is unused ($dp[i-1][j]$) or it serves as the right endpoint of the $j$-th segment, allowing the remaining $j-1$ segments to be placed freely on the remaining left points. A running prefix sum makes the transition $O(1)$.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. Allocate </em><em>INLINE</em>CODE<em>92</em><em> with base case </em><em>INLINE</em>CODE<em>93</em><em>.
+2. For each $j$ from $1$ to $k$:<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li>Initialize </em><em>INLINE</em>CODE<em>94</em><em>.</li><li>For each $i$ from $2$ to $n$:</li><li></em><em>INLINE</em>CODE<em>95</em><em></li><li></em><em>INLINE</em>CODE<em>96</em><em></li></ul>
+3. Return </em><em>INLINE</em>CODE<em>97</em><em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+Time: $O(n \cdot k)$  
+Space: $O(n \cdot k)$
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why is </em><em>INLINE</em>CODE<em>98</em><em> and </em><em>INLINE</em>CODE<em>99</em><em> considered a valid non-overlapping pair of segments?
+2. <strong>(Recurrence)</strong> Why does fixing the rightmost segment as $(p, i-1)$ leave $p+1$ points available for the remaining $j-1$ segments?
+3. <strong>(Optimization)</strong> Why does maintaining </em><em>INLINE</em>CODE<em>100</em>_ reduce the time complexity from $O(N^2 K)$ to $O(NK)$?
+4. <strong>(Dry Run)</strong> Calculate $dp[3][1]$ by hand using the recurrence formula.
+5. <strong>(Edge Case)</strong> Why does $dp[n][k] = 0$ whenever $k \ge n$?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

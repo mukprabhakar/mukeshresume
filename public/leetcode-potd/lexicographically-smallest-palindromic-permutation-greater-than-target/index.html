@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3734. Lexicographically Smallest Palindromic Permutation Greater Than Target Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Solve the Hard challenge of building the smallest lexicographical palindrome permutation greater than target." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/lexicographically-smallest-palindromic-permutation-greater-than-target" />
+  
+  <meta property="og:title" content="3734. Lexicographically Smallest Palindromic Permutation Greater Than Target Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Solve the Hard challenge of building the smallest lexicographical palindrome permutation greater than target." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/lexicographically-smallest-palindromic-permutation-greater-than-target" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/lexicographically-smallest-palindromic-permutation-greater-than-target';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3734. Lexicographically Smallest Palindromic Permutation Greater Than Target</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Hard</strong> | Published on <strong>August 28, 2026</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's build this up from zero. This is a <strong>Hard</strong> problem, so we'll go slow and steady.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You are given two words, <em></em>INLINE<em>CODE</em>0<em></em> and <em></em>INLINE<em>CODE</em>1<em></em>, both made of only lowercase letters, and both the same length.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You are allowed to <strong>rearrange the letters of <em></em>INLINE<em>CODE</em>2<em></em></strong> in any order you like (this is called a "permutation" — just a fancy word for "a rearrangement using the exact same letters, same amount of each").</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Among all the rearrangements of <em></em>INLINE<em>CODE</em>3<em></em> that are <strong>palindromes</strong> (words that read the same forwards and backwards, like "level" or "baab"), you must find the one that:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> is <strong>strictly greater</strong> than <em></em>INLINE<em>CODE</em>4<em></em> when compared like dictionary words, and
+</em> is the <strong>smallest</strong> one that satisfies that condition.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">If no rearrangement of <em></em>INLINE<em>CODE</em>5<em></em> is even a palindrome, or none of the palindromic rearrangements beats <em></em>INLINE<em>CODE</em>6<em></em>, you return an empty string <em></em>INLINE<em>CODE</em>7<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What's given:</strong> <em></em>INLINE<em>CODE</em>8<em></em> (letters you're allowed to use), <em></em>INLINE<em>CODE</em>9<em></em> (the word you must beat).
+<strong>What to find:</strong> the smallest palindrome word, built only from <em></em>INLINE<em>CODE</em>10<em></em>'s letters, that is bigger than <em></em>INLINE<em>CODE</em>11<em></em>.
+<strong>What to return:</strong> that word, or <em></em>INLINE<em>CODE</em>12<em></em> if impossible.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine you have a bag of Scrabble tiles — say two <em></em>INLINE<em>CODE</em>13<em></em>s and two <em></em>INLINE<em>CODE</em>14<em></em>s. You're told: "Arrange all these tiles in a row so the row reads the same from left to right and right to left (a palindrome), and make sure your row, read as a word, comes <strong>after</strong> the word <em></em>INLINE<em>CODE</em>15<em></em> in the dictionary — but choose the arrangement that is the closest possible word after it, not some huge jump."</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You can't just grab any arrangement — it must (a) use every tile exactly once, (b) be a palindrome, and (c) be the <em>smallest</em> dictionary word that still beats the target word.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">String</h3>
+<strong>Concept:</strong> A string is just a sequence of characters, like a row of tiles, each with a position number starting at 0.
+<strong>Example:</strong> <em></em>INLINE<em>CODE</em>16<em></em> has <em></em>INLINE<em>CODE</em>17<em></em> at position 0, <em></em>INLINE<em>CODE</em>18<em></em> at position 1, <em></em>INLINE<em>CODE</em>19<em></em> at position 2, <em></em>INLINE<em>CODE</em>20<em></em> at position 3.
+<strong>Why we need it:</strong> Both <em></em>INLINE<em>CODE</em>21<em></em> and <em></em>INLINE<em>CODE</em>22<em></em> are strings, and our answer is a string too.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array (specifically, a frequency array)</h3>
+<strong>Concept:</strong> An array is a numbered list of boxes. A "frequency array" of size 26 has one box per letter of the alphabet, and each box holds a count.
+<strong>Example:</strong> For <em></em>INLINE<em>CODE</em>23<em></em>, box for <em></em>INLINE<em>CODE</em>24<em></em> = 2, box for <em></em>INLINE<em>CODE</em>25<em></em> = 2, everything else = 0.
+<strong>Why we need it:</strong> We need to know exactly how many of each letter we have available, since we must use every letter of <em></em>INLINE<em>CODE</em>26<em></em> exactly once.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Loop</h3>
+<strong>Concept:</strong> A loop repeats an action for each item in a list, without you writing the same line 300 times by hand.
+<strong>Example:</strong> "For every letter in <em></em>INLINE<em>CODE</em>27<em></em>, add 1 to that letter's counting box."
+<strong>Why we need it:</strong> We scan through strings and arrays constantly (counting letters, comparing positions, etc.).
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">If/else</h3>
+<strong>Concept:</strong> A way of telling the program "do this if a condition is true, otherwise do that."
+<strong>Example:</strong> "If the current letter is bigger than the target's letter, we found our answer."
+<strong>Why we need it:</strong> The entire trick of "find the smallest letter bigger than target's letter" is one big if/else decision repeated many times.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Palindrome</h3>
+<strong>Concept:</strong> A word that reads identically forwards and backwards. Position <em></em>INLINE<em>CODE</em>28<em></em> from the start must equal position <em></em>INLINE<em>CODE</em>29<em></em> from the end.
+<strong>Example:</strong> <em></em>INLINE<em>CODE</em>30<em></em> — first letter <em></em>INLINE<em>CODE</em>31<em></em> = last letter <em></em>INLINE<em>CODE</em>32<em></em>; second letter <em></em>INLINE<em>CODE</em>33<em></em> = second-to-last letter <em></em>INLINE<em>CODE</em>34<em></em>.
+<strong>Why we need it:</strong> Our answer must be a palindrome, which cuts our freedom in half — we only get to <em>choose</em> the first half of the letters; the second half is forced to mirror it.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">HashMap / frequency counting (same idea as the frequency array above, just conceptually)</h3>
+<strong>Concept:</strong> A way to quickly look up "how many of X do I have left?"
+<strong>Why we need it:</strong> As we build our answer letter by letter, we constantly need to ask "do I still have a <em></em>INLINE<em>CODE</em>35<em></em> left to use?"
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Greedy Algorithm</h3>
+<strong>Concept:</strong> A greedy algorithm makes the best-looking choice at each step, one step at a time, hoping (and in this case, proving) it leads to the overall best answer.
+<strong>Example:</strong> To find the smallest number bigger than 47 using digits {1,7,9}, you try to keep the first digit as "4-like" as possible, only bumping a digit up when forced to.
+<strong>Why we need it:</strong> We build our palindrome by matching <em></em>INLINE<em>CODE</em>36<em></em> as long as possible, then bumping the very next letter up just enough — that's a greedy strategy.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Comparing strings ("lexicographic" order)</h3>
+<strong>Concept:</strong> Comparing two strings works like comparing words in a dictionary: look at the first position where they differ; whichever has the smaller letter there is the smaller string.
+<strong>Example:</strong> <em></em>INLINE<em>CODE</em>37<em></em> vs <em></em>INLINE<em>CODE</em>38<em></em> — first letters <em></em>INLINE<em>CODE</em>39<em></em> vs <em></em>INLINE<em>CODE</em>40<em></em> — since <em></em>INLINE<em>CODE</em>41<em></em>, <em></em>INLINE<em>CODE</em>42<em></em>.
+<strong>Why we need it:</strong> The entire goal ("smallest palindrome greater than target") is defined using this comparison rule.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Time Complexity (Big-O)</h3>
+<strong>Concept:</strong> A way of describing "roughly how much work does my program do as the input grows," ignoring small constant details.
+<strong>Why we need it:</strong> With <em></em>INLINE<em>CODE</em>43<em></em> up to 300, we need to make sure our solution isn't doing something silly like checking every possible arrangement (which would be astronomically slow).
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 1:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>44<em></em> tells us: we have exactly these 4 letters to use, in some order: <em></em>INLINE<em>CODE</em>45<em></em> → that's <strong>two <em></em>INLINE<em>CODE</em>46<em></em>s and two <em></em>INLINE<em>CODE</em>47<em></em>s</strong>. We are </em>not<em> stuck with the order <em></em>INLINE<em>CODE</em>48<em></em> — we can rearrange freely.
+</em> <em></em>INLINE<em>CODE</em>49<em></em> is the word we must beat. It happens to already be a palindrome itself, but that's not required of <em></em>INLINE<em>CODE</em>50<em></em> — it's just the "line in the sand" we must cross.
+<em> We are looking for: a rearrangement of <em></em>INLINE<em>CODE</em>51<em></em> that (1) is a palindrome, and (2) is the smallest one that is strictly bigger than <em></em>INLINE<em>CODE</em>52<em></em>.
+</em> <em></em>INLINE<em>CODE</em>53<em></em> and <em></em>INLINE<em>CODE</em>54<em></em>-style "important numbers" don't apply here (that was the Two Sum example from your template) — instead, the important thing is the <strong>counts</strong>: 2 <em></em>INLINE<em>CODE</em>55<em></em>s and 2 <em></em>INLINE<em>CODE</em>56<em></em>s. Since both counts are even, a palindrome is possible (every letter needs a "partner" on the other side, except possibly one letter in the very middle if the word length is odd).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>57<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> All palindromic rearrangements of <em></em>INLINE<em>CODE</em>58<em></em>, sorted like a dictionary, are: <em></em>INLINE<em>CODE</em>59<em></em>, <em></em>INLINE<em>CODE</em>60<em></em>. (Only two exist, because once you decide the first half of a palindrome, the second half is forced.)
+</em> <em></em>INLINE<em>CODE</em>61<em></em> is <em>not</em> strictly greater than <em></em>INLINE<em>CODE</em>62<em></em> — it's equal, and we need strictly greater.
+<em> <em></em>INLINE<em>CODE</em>63<em></em> <strong>is</strong> strictly greater than <em></em>INLINE<em>CODE</em>64<em></em> (compare first letters: <em></em>INLINE<em>CODE</em>65<em></em>).
+</em> Since <em></em>INLINE<em>CODE</em>66<em></em> is the only remaining candidate and it works, it's the answer.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's solve Example 1 by hand, the way a human would, without writing any code.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We have letters <em></em>INLINE<em>CODE</em>67<em></em> and <em></em>INLINE<em>CODE</em>68<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since the answer must be a 4-letter palindrome, only the <strong>first 2 letters</strong> are really "ours to choose" — the last 2 letters are forced to mirror the first 2.</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Step</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">What I try for first half</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Full palindrome</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Compare to target "abba"</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Result</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"aa" (smallest possible)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"aaaa" — wait, we don't have 4 <em></em>INLINE<em>CODE</em>69<em></em>s, only 2. Not a valid rearrangement using our letters (need to use exactly 2 a's and 2 b's)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">—</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">invalid, skip</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"ab"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"ab" + reverse("ab") = "abba"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">equal to target, not strictly greater</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">fails</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"ba"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"ba" + reverse("ba") = "baab"</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">"baab" > "abba"? First letters: b > a → yes</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><strong>This works!</strong></td></tr></table></div>
+Since we tried the two possible first halves in increasing order (<em></em>INLINE<em>CODE</em>70<em></em> then <em></em>INLINE<em>CODE</em>71<em></em>) and picked the first one that produces something strictly bigger than target, <em></em>INLINE<em>CODE</em>72<em></em> is our answer.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's turn that manual process into logic.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> I know exactly which letters I'm allowed to use (their counts), and I know the target string I must beat.
+</em> <strong>What do I need to find?</strong> The smallest palindrome, built from those letters, greater than target.
+<em> <strong>What can I try?</strong> Since the answer is a palindrome, I only need to decide the <strong>first half</strong> of it — the rest is automatic (mirrored). If the length is odd, there's one middle letter too, but that middle letter is </em>not free<em> — only one letter in the whole alphabet is allowed to appear an odd number of times, and it MUST be that one, sitting exactly in the middle. No choice there.
+</em> <strong>What happens if I try every possibility?</strong> I could generate every arrangement of the first half, build the palindrome, and compare to target — but with up to 150 letters in that first half, the number of arrangements is unimaginably huge. Too slow.
+<em> <strong>Can I make it faster?</strong> Yes — just like finding "the smallest number bigger than 472 using certain digits," I don't need to </em>generate<em> every option. I can be smart: try to match <em></em>INLINE<em>CODE</em>73<em></em> letter-by-letter for as long as possible, then at the very last moment I'm forced to change something, put the smallest legal letter that's </em>bigger<em> than target's letter there, and fill everything after that with the smallest possible letters.
+</em> <strong>What information should I remember?</strong> How many of each letter I still have left to place, as I place letters one at a time.
+<em> <strong>What pattern do I notice?</strong> The longer I can match <em></em>INLINE<em>CODE</em>74<em></em> exactly before being forced to increase a letter, the smaller (closer to target) my final answer will be. So I want to match as long as possible, then bump the </em>last possible<em> position, not an early one.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Generate every distinct permutation of <em></em>INLINE<em>CODE</em>75<em></em>, keep only the ones that are palindromes, sort them, and pick the smallest one that's bigger than <em></em>INLINE<em>CODE</em>76<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it works:</strong> It's literally trying everything, so it can't miss the answer.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why it's correct:</strong> By definition, checking every single arrangement guarantees we find the true smallest valid one.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Time complexity:</strong> Generating all permutations of a string of length <em></em>INLINE<em>CODE</em>77<em></em> takes about <em></em>INLINE<em>CODE</em>78<em></em> (n factorial) time — for <em></em>INLINE<em>CODE</em>79<em></em>, this number has hundreds of digits. Completely impossible to run.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Space complexity:</strong> Also astronomical, since we'd try to store or generate all these permutations.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">We won't even write this code for real — it's only useful as a mental starting point, since actually running it would never finish. But conceptually:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>80<em></em> — imagine a function that produces every possible reordering of the letters in <em></em>INLINE<em>CODE</em>81<em></em>. For <em></em>INLINE<em>CODE</em>82<em></em> that would include <em></em>INLINE<em>CODE</em>83<em></em>, <em></em>INLINE<em>CODE</em>84<em></em>, <em></em>INLINE<em>CODE</em>85<em></em>, <em></em>INLINE<em>CODE</em>86<em></em>, <em></em>INLINE<em>CODE</em>87<em></em>, <em></em>INLINE<em>CODE</em>88<em></em>, etc.
+<em> <em></em>INLINE<em>CODE</em>89<em></em> — checks whether a string reads the same forwards and backwards, by comparing position <em></em>INLINE<em>CODE</em>90<em></em> with position <em></em>INLINE<em>CODE</em>91<em></em> for every <em></em>INLINE<em>CODE</em>92<em></em>.
+</em> <em></em>INLINE<em>CODE</em>93<em></em> — puts the palindromic permutations in dictionary order, smallest first.
+<em> The final <em></em>INLINE<em>CODE</em>94<em></em> loop — walks through the sorted list and returns the very first one that beats <em></em>INLINE<em>CODE</em>95<em></em>, since that's guaranteed to be the smallest one that does.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Is the Brute Force Solution Not Ideal?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine <em></em>INLINE<em>CODE</em>96<em></em> has 300 letters. The number of ways to arrange 300 items is a number so large it has around 600+ digits — more than the number of atoms in the observable universe, many times over. No computer, now or in the future, could generate even a tiny fraction of that list. We need a method that <strong>builds the answer directly</strong>, without ever listing "all the other options."</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. Find the Better Approach</h2>
+<blockquote style="border-left: 4px solid #10b981; padding-left: 1rem; color: #a1a1aa; font-style: italic; margin: 1.5rem 0;">"Can we avoid doing unnecessary work?"</blockquote>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Yes. Two key realizations shrink the problem enormously:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>We never need to consider the second half of the palindrome as a free choice.</strong> It's 100% determined by the first half (mirrored). So instead of deciding <em></em>INLINE<em>CODE</em>97<em></em> letters, we only decide about <em></em>INLINE<em>CODE</em>98<em></em> letters.
+2. <strong>We don't need to generate every arrangement of that first half either.</strong> We can build it directly, matching <em></em>INLINE<em>CODE</em>99<em></em> as long as possible, the same way you'd figure out "what's the next number after 4729 using only these digits" without listing every number.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">12. Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+We were thinking about the whole <em></em>INLINE<em>CODE</em>100<em></em>-letter string as something we need to search through many possible full arrangements of.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+A palindrome's second half isn't independent — it's a mirror of the first half — but naive brute force ignored that free lunch and searched the whole space anyway.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>Once you fix the first half of a palindrome, the whole string is fixed.</strong> So the entire problem shrinks to: </em>find the smallest valid first-half string such that, once mirrored into a full palindrome, it beats <em></em>INLINE<em>CODE</em>101<em></em>.<em> And finding "the smallest string beating a target, letter-budget-limited" is a classic pattern: <strong>match the target as long as possible, then at the first position where you're forced to deviate, place the smallest available letter that's bigger than target's letter there, and fill everything after with the smallest leftover letters.</strong>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">There's one more twist: if the string length is odd, exactly one letter is allowed to appear an odd number of times in <em></em>INLINE<em>CODE</em>102<em></em> — and that letter is </em>forced<em> to sit in the very middle. You never get to choose it.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+Instead of touching all <em></em>INLINE<em>CODE</em>103<em></em> letters freely, we only ever make decisions about the first <em></em>INLINE<em>CODE</em>104<em></em> (rounded down) letters. We scan left to right, trying to match <em></em>INLINE<em>CODE</em>105<em></em>, and the moment we can't match anymore (or matching all the way turns out to not be enough), we bump the letter at that position up to the smallest legal option greater than target's letter, then fill the rest smallest-first. This takes roughly one pass through the string — extremely fast.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Optimized Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 1</strong> again, but now the "smart" way, tracking our leftover letter budget.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>106<em></em> → counts: <em></em>INLINE<em>CODE</em>107<em></em>. Length <em></em>INLINE<em>CODE</em>108<em></em> is even, so <strong>half = 2</strong>, no middle letter. Since we only place each letter once in the first half but it represents 2 copies in the full word, our "half budget" is <em></em>INLINE<em>CODE</em>109<em></em> (half of each count).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>INLINE<em>CODE</em>110<em></em>.</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Step</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Position</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Target letter</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Budget before</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Try to match target exactly?</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">What happens</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>111<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>112<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes, we have an <em></em>INLINE<em>CODE</em>113<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Use it. Budget → <em></em>INLINE<em>CODE</em>114<em></em></td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">2</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>115<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>116<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Yes, we have a <em></em>INLINE<em>CODE</em>117<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Use it. Budget → <em></em>INLINE<em>CODE</em>118<em></em></td></tr></table></div>
+We matched the entire first half (<em></em>INLINE<em>CODE</em>119<em></em>) exactly to target's first half. Now, since we matched everything, we must check the <strong>mirrored tail</strong>: reverse of <em></em>INLINE<em>CODE</em>120<em></em> is <em></em>INLINE<em>CODE</em>121<em></em>, compare to target's actual tail (<em></em>INLINE<em>CODE</em>122<em></em>). They're <strong>equal</strong>, not strictly greater — so simply copying target's first half fails to beat it.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since exact matching failed, we back up one position and try to bump it:</p>
+<div style="overflow-x: auto; margin: 1.5rem 0;"><table style="width: 100%; border-collapse: collapse; text-align: left;"><tr><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Step</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Position</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Give back letter</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Budget now</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Look for a letter > target letter</th><th style="padding: 0.75rem 1rem; background: #18181b; color: #ffffff; border: 1px solid #27272a; font-weight: 700;">Result</th></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">3</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">1 (give back <em></em>INLINE<em>CODE</em>123<em></em> used at step 2)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>124<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>125<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Need something > <em></em>INLINE<em>CODE</em>126<em></em> — nothing (no <em></em>INLINE<em>CODE</em>127<em></em>, etc. available)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Fails at position 1</td></tr>
+<tr><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">4</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">0 (give back <em></em>INLINE<em>CODE</em>128<em></em> used at step 1)</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>129<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;"><em></em>INLINE<em>CODE</em>130<em></em></td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Need something > <em></em>INLINE<em>CODE</em>131<em></em> — we have <em></em>INLINE<em>CODE</em>132<em></em>!</td><td style="padding: 0.75rem 1rem; border: 1px solid #27272a; color: #d4d4d8;">Use <em></em>INLINE<em>CODE</em>133<em></em> here</td></tr></table></div>
+We place <em></em>INLINE<em>CODE</em>134<em></em> at position 0. Budget left: <em></em>INLINE<em>CODE</em>135<em></em>. We fill the rest of the first half (just 1 more slot) with the smallest leftover letter: <em></em>INLINE<em>CODE</em>136<em></em>. First half = <em></em>INLINE<em>CODE</em>137<em></em>. Mirror it: full palindrome = <em></em>INLINE<em>CODE</em>138<em></em>.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This matches our manual answer from Section 6! 🎉</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" /></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain Optimized Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <em></em>INLINE<em>CODE</em>139<em></em> — one box per letter, all start at 0. We'll count how many <em></em>INLINE<em>CODE</em>140<em></em>s, <em></em>INLINE<em>CODE</em>141<em></em>s, ... <em></em>INLINE<em>CODE</em>142<em></em> has.
+<em> The <em></em>INLINE<em>CODE</em>143<em></em> loop right after — walks through every letter of <em></em>INLINE<em>CODE</em>144<em></em> once, incrementing its box. After this, <em></em>INLINE<em>CODE</em>145<em></em> tells you exactly how many <em></em>INLINE<em>CODE</em>146<em></em>s exist in <em></em>INLINE<em>CODE</em>147<em></em>.
+</em> <em></em>INLINE<em>CODE</em>148<em></em> / <em></em>INLINE<em>CODE</em>149<em></em> — we scan all 26 boxes; if a letter's count is odd, a palindrome needs it to sit alone in the middle. There can be <strong>at most one</strong> such letter, or a palindrome is impossible.
+<em> <em></em>INLINE<em>CODE</em>150<em></em> — 1 if the target length is odd (there's a middle seat), 0 if even (no middle seat).
+</em> The two <em></em>INLINE<em>CODE</em>151<em></em> checks right after — this is the "is a palindrome even possible" gate. If length is even but some letter has an odd count, impossible. If length is odd but there isn't <em>exactly</em> one odd-count letter, impossible.
+<em> <em></em>INLINE<em>CODE</em>152<em></em> — how many letters we get to freely decide (the first half).
+</em> <em></em>INLINE<em>CODE</em>153<em></em> — since each letter in the first half is mirrored once in the second half, we only get <em>half</em> as many "free placements" as the full count.
+<em> <em></em>INLINE<em>CODE</em>154<em></em> — the forced middle letter, if any. Notice: this is <strong>not a choice</strong> — there can only be one candidate.
+</em> The <em></em>INLINE<em>CODE</em>155<em></em> loop — this is us trying to copy <em></em>INLINE<em>CODE</em>156<em></em>'s first half exactly, one letter at a time, spending from our budget as we go, stopping the instant we run out of the needed letter.
+<em> The <em></em>INLINE<em>CODE</em>157<em></em> block — if we successfully copied the </em>entire<em> first half, our string so far exactly equals <em></em>INLINE<em>CODE</em>158<em></em>'s first half. Now we must check: does the </em>forced<em> rest of the string (center letter + mirrored tail) already make our full string bigger than <em></em>INLINE<em>CODE</em>159<em></em>? We check the center first (if it exists), then the tail. If yes, we return immediately — this is the smallest possible answer, since we matched <em></em>INLINE<em>CODE</em>160<em></em> as long as humanly possible.
+</em> If that check fails (equal or smaller), we don't give up — we go back and try increasing some earlier letter instead.
+<em> <em></em>INLINE<em>CODE</em>161<em></em> — this "gives back" the last letter we tentatively used, since we're now allowed to try something </em>different<em> there instead of matching target exactly.
+</em> The main <em></em>INLINE<em>CODE</em>162<em></em> loop — this is the heart of the "bump the letter" logic. At each position, we look through our remaining budget for the <strong>smallest letter bigger than target's letter at that position</strong> (<em></em>INLINE<em>CODE</em>163<em></em>).
+<em> If we find one (<em></em>INLINE<em>CODE</em>164<em></em>), we use it, then fill everything after with the <strong>smallest leftover letters</strong> (since nothing more needs comparing — we've already guaranteed we're bigger than target). Then we mirror to build the full palindrome and return.
+</em> If we don't find one, we "give back" the letter target had at the previous position (so we can try bumping <em>there</em> instead) and move one position to the left — this is exactly like carrying in addition, but for letters.
+<em> If we run out of positions entirely, no valid palindrome beats <em></em>INLINE<em>CODE</em>165<em></em>, so we return <em></em>INLINE<em>CODE</em>166<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+Input: <em></em>INLINE<em>CODE</em>167<em></em> → dry-ran above → Output: <em></em>INLINE<em>CODE</em>168<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case (exact prefix match, but tail is equal, and no bump possible)</h3>
+Input: <em></em>INLINE<em>CODE</em>169<em></em>.
+Budget: <em></em>INLINE<em>CODE</em>170<em></em>. Matching target's first letter <em></em>INLINE<em>CODE</em>171<em></em>: budget has <em></em>INLINE<em>CODE</em>172<em></em>, use it, budget → <em></em>INLINE<em>CODE</em>173<em></em>. Second letter <em></em>INLINE<em>CODE</em>174<em></em>: budget has no <em></em>INLINE<em>CODE</em>175<em></em> left — matching stops at <em></em>INLINE<em>CODE</em>176<em></em>.
+We try to bump position 1 (target letter <em></em>INLINE<em>CODE</em>177<em></em>): need something <em></em>INLINE<em>CODE</em>178<em></em> in <em></em>INLINE<em>CODE</em>179<em></em> — nothing. Give back target[0]=<em></em>INLINE<em>CODE</em>180<em></em> → budget <em></em>INLINE<em>CODE</em>181<em></em>. Try to bump position 0 (target letter <em></em>INLINE<em>CODE</em>182<em></em>): need <em></em>INLINE<em>CODE</em>183<em></em> — nothing (<em></em>INLINE<em>CODE</em>184<em></em> is not bigger). No position works → Output: <em></em>INLINE<em>CODE</em>185<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — Edge Case (palindrome impossible at all)</h3>
+Input: <em></em>INLINE<em>CODE</em>186<em></em>. Counts: <em></em>INLINE<em>CODE</em>187<em></em> — <strong>three</strong> odd counts. Since length 3 is odd, we need </em>exactly<em> one odd count, not three → impossible → Output: <em></em>INLINE<em>CODE</em>188<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Palindrome is impossible from the start</strong> (wrong number of odd-count letters) → return <em></em>INLINE<em>CODE</em>189<em></em> immediately, no need to even look at <em></em>INLINE<em>CODE</em>190<em></em>.
+<em> <strong>Every rearrangement is smaller than or equal to <em></em>INLINE<em>CODE</em>191<em></em></strong> → our search runs out of positions to bump → return <em></em>INLINE<em>CODE</em>192<em></em>.
+</em> <strong>The only valid palindrome exactly equals <em></em>INLINE<em>CODE</em>193<em></em></strong> → since we need <em>strictly</em> greater, this doesn't count, and we must look for something else (or fail).
+<em> <strong><em></em>INLINE<em>CODE</em>194<em></em>'s letters can't even be matched at position 0</strong> (e.g., target starts with <em></em>INLINE<em>CODE</em>195<em></em> but our budget has no letter ≥ that) → the "bump" search starts right at position 0 and likely fails fast.
+</em> <strong>All letters identical</strong> (e.g., <em></em>INLINE<em>CODE</em>196<em></em>) → only one palindrome exists (<em></em>INLINE<em>CODE</em>197<em></em>); either it beats target or it doesn't.
+<em> <strong>Odd length, only one letter total</strong> (<em></em>INLINE<em>CODE</em>198<em></em>) → <em></em>INLINE<em>CODE</em>199<em></em>, the entire string is just the center letter — no real search needed, just compare directly.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is time complexity?</strong> It's a way of estimating how the </em>amount of work<em> grows as the input grows, without worrying about exact seconds — like saying "doubling my grocery list roughly doubles my shopping time," rather than measuring it with a stopwatch.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>5<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Why:</strong> We compute letter counts in one pass (<em></em>INLINE<em>CODE</em>200<em></em>). We try to match target's first half in one pass (<em></em>INLINE<em>CODE</em>201<em></em>). In the worst case, our "bump" search walks backward through the first half once (<em></em>INLINE<em>CODE</em>202<em></em>), and at each position checks up to 26 letters (<em></em>INLINE<em>CODE</em>203<em></em>), which is a constant, not something that grows with <em></em>INLINE<em>CODE</em>204<em></em>. Building the final answer string is another single pass. All together, this is proportional to <em></em>INLINE<em>CODE</em>205<em></em>, not to some huge exploding number — like sorting your grocery list once instead of trying every possible order of it.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> We use a few fixed-size arrays of length 26 (letter counts, half-budget, etc.) — this doesn't grow with <em></em>INLINE<em>CODE</em>206<em></em> at all, it's always 26 boxes.
+<em> We build the answer string, which is length <em></em>INLINE<em>CODE</em>207<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">So extra memory used is <em></em>INLINE<em>CODE</em>208<em></em> (mostly just for building and returning the answer itself), plus a small constant <em></em>INLINE<em>CODE</em>209<em></em> for our counting arrays.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I should just sort the letters and check if that's a palindrome."
+✅ Sorting only gives you </em>one<em> arrangement — usually not even a palindrome, and definitely not necessarily the smallest one greater than target. You need to specifically construct a palindrome by mirroring a chosen first half.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "The middle letter (for odd length) is something I get to pick to help beat target."
+✅ The middle letter is completely forced — there's only ever at most one letter with an odd count, and it </em>must<em> be the center. You never get to choose it.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "I should compare my constructed string to target only up to the half-way point, since after that it's just a mirror anyway."
+✅ You must compare the </em>entire<em> string, because even though the second half is a mirror, it can still be the exact part that decides whether your string is bigger or smaller than target (see how the tail check mattered in Example 2's dry run).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">❌ "Once I find any position where I can place a bigger letter, that's the answer."
+✅ You must search from the <strong>rightmost possible position backward</strong>, because bumping a letter as late as possible keeps your answer as close (and thus as small) as possible while still being greater than target.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">If you see phrasing like this, think "match-as-long-as-possible, then bump the smallest legal amount":</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>7<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Applied here: this is exactly the path we walked — brute force → realize the mirror trick → realize it's a "match then bump" construction problem → handle the tricky "exact match, check the tail" case → land on an <em></em>INLINE<em>CODE</em>210<em></em> solution.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Before we wrap up, try answering these in your head (or on paper):</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. If <em></em>INLINE<em>CODE</em>211<em></em> and <em></em>INLINE<em>CODE</em>212<em></em>, what's the half-budget (<em></em>INLINE<em>CODE</em>213<em></em> and <em></em>INLINE<em>CODE</em>214<em></em> counts for the first half)?
+2. At position 0, target's letter is <em></em>INLINE<em>CODE</em>215<em></em>. Do we try to match it first, or immediately look for something bigger?
+3. Suppose we match the </em>entire* first half exactly to target, and the mirrored tail comes out <strong>smaller</strong> than target's real tail. What should we do next?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Answer to Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Full counts: <em></em>INLINE<em>CODE</em>216<em></em>. Half-budget: <em></em>INLINE<em>CODE</em>217<em></em>.
+2. We always <strong>try to match first</strong> — matching keeps our answer as close to (and thus as small as) possible while beating target; we only "bump" when matching is no longer possible or doesn't work out.
+3. If the mirrored tail turns out smaller (or equal), the exact-match candidate fails to beat target, so we go back and search backward from the last matched position, looking for the rightmost spot where we can legally place a letter bigger than target's letter there.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🧠 Problem in One Sentence</h2>
+Build the smallest palindrome, using exactly the letters of <em></em>INLINE<em>CODE</em>218<em></em>, that is strictly bigger than <em></em>INLINE<em>CODE</em>219<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🔑 Main Idea</h2>
+A palindrome's second half is just a mirror of its first half, so we only ever need to construct the first half — and we build that first half by matching <em></em>INLINE<em>CODE</em>220<em></em> as long as possible, then bumping the letter at the latest possible position up to the smallest legal larger option.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⚙️ Algorithm</h2>
+1. Count letters of <em></em>INLINE<em>CODE</em>221<em></em>; check a palindrome is even possible (at most one odd-count letter).
+2. Compute the "half budget" (each count divided by 2) and the forced center letter, if any.
+3. Try to match <em></em>INLINE<em>CODE</em>222<em></em>'s first half exactly using the budget.
+4. If fully matched, check the forced center + mirrored tail — if that already beats target, return it (smallest possible answer).
+5. Otherwise, search backward for the rightmost position where a bigger letter can be placed; place it, fill the rest with the smallest leftover letters, mirror, and return.
+6. If nothing works anywhere, return <em></em>INLINE<em>CODE</em>223<em></em>.
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⏱️ Complexity</h2>
+Time: <em></em>INLINE<em>CODE</em>224<em></em>
+Space: <em></em>INLINE<em>CODE</em>225<em></em> (for the answer string; counting arrays are a constant O(26))
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">🎯 Pattern to Remember</h2>
+"Match-then-bump" construction, combined with "a palindrome is only half-free."
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> In your own words, why can't we just pick any palindrome permutation of <em></em>INLINE<em>CODE</em>226<em></em> — what two conditions must our answer satisfy?
+2. <strong>(Basic concept)</strong> If <em></em>INLINE<em>CODE</em>227<em></em>, what would the "half-budget" array contain (just for letters <em></em>INLINE<em>CODE</em>228<em></em> and <em></em>INLINE<em>CODE</em>229<em></em>)?
+3. <strong>(Logic)</strong> Why do we search for the position to "bump" starting from the <strong>end</strong> of the matched prefix and moving backward, rather than starting from position 0 and moving forward?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>230<em></em> and <em></em>INLINE<em>CODE</em>231<em></em>, walk through: what's the half-budget, does the first half match target exactly, and if not, what's the final answer?
+5. <strong>(Complexity/pattern)</strong> Why is this solution <em></em>INLINE<em>CODE</em>232<em></em> instead of something like <em></em>INLINE<em>CODE</em>233<em></em> or <em></em>INLINE<em>CODE</em>234<em></em>, and what "signal words" in a problem statement should make you think of this match-then-bump technique in the future?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take your time — send me your answers whenever you're ready, and I'll walk through them with you!</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

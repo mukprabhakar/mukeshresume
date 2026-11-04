@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3483. Unique 3-Digit Even Numbers Solution | Mukesh Pal LeetCode POTD</title>
+  <meta name="description" content="Count the number of distinct 3-digit even numbers without leading zeros that can be formed from an array of digits using position enumeration and hash set deduplication." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://mukprabhakar.in/leetcode-potd/unique-3-digit-even-numbers" />
+  
+  <meta property="og:title" content="3483. Unique 3-Digit Even Numbers Solution | Mukesh Pal LeetCode POTD" />
+  <meta property="og:description" content="Count the number of distinct 3-digit even numbers without leading zeros that can be formed from an array of digits using position enumeration and hash set deduplication." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/leetcode-potd/unique-3-digit-even-numbers" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/leetcode-potd/unique-3-digit-even-numbers';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/leetcode-potd">← Back to LeetCode POTD</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">3483. Unique 3-Digit Even Numbers</h1>
+      <p style="color: #a1a1aa; font-size: 0.95rem; margin-top: 0;">
+        Difficulty: <strong style="color: #10b981;">Easy</strong> | Published on <strong>2026-09-11</strong>
+      </p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #d4d4d8;">
+      
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's teach this one from absolute zero, same structure as before. Good news: this problem's input is tiny (<em></em>INLINE<em>CODE</em>0<em></em> is at most 10), so we can lean on a very direct brute-force approach and it'll be plenty fast — but we'll still build up the reasoning carefully.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">1. Problem in Very Simple Language</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You're given a small list of single digits, <em></em>INLINE<em>CODE</em>1<em></em> (each between 0 and 9). Some digits might repeat in the list (like <em></em>INLINE<em>CODE</em>2<em></em>, which has two <em></em>INLINE<em>CODE</em>3<em></em>s).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You want to build <strong>3-digit numbers</strong> by picking three of these digits and arranging them in some order, following two rules:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>No leading zero</strong> — the very first digit of your 3-digit number can't be <em></em>INLINE<em>CODE</em>4<em></em> (otherwise it wouldn't really be a 3-digit number, e.g., <em></em>INLINE<em>CODE</em>5<em></em> is really just <em></em>INLINE<em>CODE</em>6<em></em>, a 2-digit number).
+</em> <strong>Must be even</strong> — the <em>last</em> digit of your number must be even (<em></em>INLINE<em>CODE</em>7<em></em> or <em></em>INLINE<em>CODE</em>8<em></em>), since a number is even exactly when its last digit is even.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">You can only use each <strong>copy</strong> of a digit once per number. So if <em></em>INLINE<em>CODE</em>9<em></em>, you have two separate <em></em>INLINE<em>CODE</em>10<em></em>s available (you could use both of them in the same number, like <em></em>INLINE<em>CODE</em>11<em></em>), but you couldn't use a <em></em>INLINE<em>CODE</em>12<em></em> a <em>third</em> time, since only two copies exist.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Goal:</strong> count how many <strong>distinct</strong> (different-looking) 3-digit even numbers can be formed this way.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What's given:</strong> an array of digits (with possible repeats).
+</em> <strong>What to find:</strong> how many different 3-digit even numbers can be built, respecting the no-leading-zero and "use each copy at most once" rules.
+<em> <strong>What to return:</strong> that count.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">2. Real-Life Analogy</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Imagine you have a small pile of numbered tiles — say, tiles showing <em></em>INLINE<em>CODE</em>13<em></em>. You want to lay out exactly <strong>three</strong> of these tiles in a row to form a 3-digit number. Two rules apply: you can't start the row with a <em></em>INLINE<em>CODE</em>14<em></em> tile (that would look silly, like a phone number starting with a blank), and the </em>last<em> tile in the row must show an even digit (so the whole number reads as even). If your pile has two tiles that look identical (like two <em></em>INLINE<em>CODE</em>15<em></em>s), you're allowed to use </em>both<em> of them in the same row — but you can never use more copies of a tile than you physically have in your pile. You want to know: how many genuinely different-looking 3-tile rows can you form this way?</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">3. Important Programming Concepts I Need First</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Array</h3>
+</em> <strong>Concept:</strong> A numbered list of values.
+<em> <strong>Example:</strong> <em></em>INLINE<em>CODE</em>16<em></em> — a list of 4 single-digit numbers.
+</em> <strong>Why we need it:</strong> Our input is exactly this kind of list.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Set (for tracking distinct results)</h3>
+<em> <strong>Concept:</strong> A collection that automatically ignores duplicate entries — adding the same value twice has no extra effect; the size of the set tells you how many </em>distinct<em> values it holds.
+</em> <strong>Example:</strong> Adding <em></em>INLINE<em>CODE</em>17<em></em>, then <em></em>INLINE<em>CODE</em>18<em></em> again, then <em></em>INLINE<em>CODE</em>19<em></em> to a set leaves it with just <em></em>INLINE<em>CODE</em>20<em></em> — size 2, not 3.
+<em> <strong>Why we need it:</strong> Different choices of </em>which<em> digit copies we use might still produce the exact same-looking 3-digit number — a <em></em>INLINE<em>CODE</em>21<em></em> naturally handles this deduplication for us.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Nested loops (trying every combination of positions)</h3>
+</em> <strong>Concept:</strong> To try "every possible choice for the first digit, and for each of those, every possible choice for the second digit, and for each of those, every possible choice for the third digit," we nest three loops inside each other.
+<em> <strong>Why we need it:</strong> With <em></em>INLINE<em>CODE</em>22<em></em> at most 10, trying every ordered triple of </em>distinct positions<em> (not distinct values — positions!) is only up to <em></em>INLINE<em>CODE</em>23<em></em> combinations at most — completely fast enough to brute-force directly.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Using positions (indices), not just values, to respect "copies"</h3>
+</em> <strong>Concept:</strong> Since a digit might repeat in the array (like two <em></em>INLINE<em>CODE</em>24<em></em>s at, say, index 1 and index 2), we must be careful to select <strong>three different positions</strong> in the array (never reusing the <em>same</em> position twice), even if two different positions happen to hold the <em>same</em> value.
+<em> <strong>Why we need it:</strong> This is exactly how the problem's "each copy used once" rule gets enforced correctly — by picking distinct array </em>indices<em>, not by trying to track "how many 2's have I used" separately.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Building a number from its digits</h3>
+</em> <strong>Concept:</strong> If you have three digits <em></em>INLINE<em>CODE</em>25<em></em> (hundreds place), <em></em>INLINE<em>CODE</em>26<em></em> (tens place), <em></em>INLINE<em>CODE</em>27<em></em> (ones place), the actual number they form is <em></em>INLINE<em>CODE</em>28<em></em>.
+<em> <strong>Example:</strong> digits <em></em>INLINE<em>CODE</em>29<em></em> in that order → <em></em>INLINE<em>CODE</em>30<em></em>.
+</em> <strong>Why we need it:</strong> Once we've picked three positions (in some order), we need to convert that ordered triple of digit-values into the actual 3-digit number.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">4. Understand the Input</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Take Example 2:
+<em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Index 0 holds <em></em>INLINE<em>CODE</em>31<em></em>, index 1 holds <em></em>INLINE<em>CODE</em>32<em></em>, index 2 holds <em></em>INLINE<em>CODE</em>33<em></em>.
+</em> Even though the <em>values</em> <em></em>INLINE<em>CODE</em>34<em></em> and <em></em>INLINE<em>CODE</em>35<em></em> look identical, they live at two genuinely different positions (index 1 and index 2) — so we're allowed to use "the <em></em>INLINE<em>CODE</em>36<em></em> at index 1" and "the <em></em>INLINE<em>CODE</em>37<em></em> at index 2" together in the same number, since that only uses each <em>position</em> once.
+<em> We want: distinct 3-digit even numbers, using exactly 3 of these positions (all of them, actually, since there are only 3 total), with no leading zero and an even last digit.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">5. Understand the Output</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Output: <em></em>INLINE<em>CODE</em>38<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Let's think about which arrangements of <em></em>INLINE<em>CODE</em>39<em></em> (using each position exactly once, since there are exactly 3 positions and we need exactly 3 digits) give valid, distinct 3-digit even numbers.
+<em> Arrangement <em></em>INLINE<em>CODE</em>40<em></em> → number <em></em>INLINE<em>CODE</em>41<em></em> → <strong>invalid</strong>, leading zero.
+</em> Arrangement <em></em>INLINE<em>CODE</em>42<em></em> → number <em></em>INLINE<em>CODE</em>43<em></em> → valid! Leading digit <em></em>INLINE<em>CODE</em>44<em></em> (fine), last digit <em></em>INLINE<em>CODE</em>45<em></em> (even, fine).
+<em> Arrangement <em></em>INLINE<em>CODE</em>46<em></em> → number <em></em>INLINE<em>CODE</em>47<em></em> → valid! Leading digit <em></em>INLINE<em>CODE</em>48<em></em> (fine), last digit <em></em>INLINE<em>CODE</em>49<em></em> (even, fine).
+</em> Distinct valid numbers found: <em></em>INLINE<em>CODE</em>50<em></em> → count = <strong>2</strong>. ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">6. Solve the Example Manually</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's manually work through <strong>Example 1</strong>: <em></em>INLINE<em>CODE</em>51<em></em> (all distinct values, 4 positions total).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Since we need exactly 3 digits out of these 4 available positions, and order matters, let's reason smartly using our two rules:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Rule for the last digit (must be even):</strong> Out of <em></em>INLINE<em>CODE</em>52<em></em>, only <em></em>INLINE<em>CODE</em>53<em></em> and <em></em>INLINE<em>CODE</em>54<em></em> are even. So the <em>last</em> digit of our number must be either <em></em>INLINE<em>CODE</em>55<em></em> or <em></em>INLINE<em>CODE</em>56<em></em>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Rule for the first digit (can't be 0):</strong> None of <em></em>INLINE<em>CODE</em>57<em></em> are <em></em>INLINE<em>CODE</em>58<em></em> anyway, so this rule doesn't eliminate anything here — <em>any</em> of the 4 digits is fine as a leading digit.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Case A: last digit = 2.</strong> Remaining available digits: <em></em>INLINE<em>CODE</em>59<em></em>. Ordered pairs for first two positions: <em></em>INLINE<em>CODE</em>60<em></em> → <em></em>INLINE<em>CODE</em>61<em></em> (6 numbers).
+</em> <strong>Case B: last digit = 4.</strong> Remaining available digits: <em></em>INLINE<em>CODE</em>62<em></em>. Ordered pairs for first two positions: <em></em>INLINE<em>CODE</em>63<em></em> → <em></em>INLINE<em>CODE</em>64<em></em> (6 numbers).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Total:</strong> 6 + 6 = <strong>12</strong> distinct numbers. ✔️ matches!</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">7. Think Like a Programmer</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>What do I know?</strong> I have up to 10 digit positions; I need to pick 3 distinct positions, arrange them in an order, and check two simple rules.
+</em> <strong>What do I need to find?</strong> How many <em>distinct-looking</em> valid 3-digit numbers can result.
+<em> <strong>What can I try?</strong> Try every possible ordered choice of 3 distinct positions (three nested loops, each picking a different index), build the resulting number, check the two validity rules, and if valid, add it to a <em></em>INLINE<em>CODE</em>65<em></em> (which automatically handles deduplication).
+</em> <strong>What happens if I try every possibility?</strong> With at most 10 positions, trying every ordered triple of distinct positions is at most <em></em>INLINE<em>CODE</em>66<em></em> combinations — trivially fast for any computer.
+<em> <strong>What information should I remember?</strong> A <em></em>INLINE<em>CODE</em>67<em></em> to collect every valid number we form, so duplicates are automatically only counted once.
+</em> <strong>What pattern do I notice?</strong> Enumerate all valid arrangements of a small set of positions, filter by simple rules, deduplicate results using a hash set.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">8. Start With the Brute Force Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Brute force idea:</strong> Use three nested loops, each iterating over all indices of <em></em>INLINE<em>CODE</em>68<em></em>, to try every possible ordered triple of <strong>distinct</strong> indices <em></em>INLINE<em>CODE</em>69<em></em>. For each such triple, form the number <em></em>INLINE<em>CODE</em>70<em></em>, and if it satisfies "first digit isn't 0" and "last digit is even," add it to a <em></em>INLINE<em>CODE</em>71<em></em>. At the end, return the set's size.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>2<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">9. Explain the Brute Force Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <em></em>INLINE<em>CODE</em>72<em></em> — total number of available digit positions.
+</em> <em></em>INLINE<em>CODE</em>73<em></em> — will collect every distinct valid number we successfully form.
+<em> The three nested <em></em>INLINE<em>CODE</em>74<em></em> loops (<em></em>INLINE<em>CODE</em>75<em></em>, <em></em>INLINE<em>CODE</em>76<em></em>, <em></em>INLINE<em>CODE</em>77<em></em>) — each ranges over all valid array indices (<em></em>INLINE<em>CODE</em>78<em></em> to <em></em>INLINE<em>CODE</em>79<em></em>), attempting to try every possible ordered assignment of positions.
+</em> <em></em>INLINE<em>CODE</em>80<em></em> — skip this combination if <em></em>INLINE<em>CODE</em>81<em></em> is the same position as <em></em>INLINE<em>CODE</em>82<em></em>.
+<em> <em></em>INLINE<em>CODE</em>83<em></em> — skip if <em></em>INLINE<em>CODE</em>84<em></em> collides with either <em></em>INLINE<em>CODE</em>85<em></em> or <em></em>INLINE<em>CODE</em>86<em></em>.
+</em> <em></em>INLINE<em>CODE</em>87<em></em> — read out the actual digit values at these three chosen positions.
+<em> <em></em>INLINE<em>CODE</em>88<em></em> — enforce the "no leading zero" rule.
+</em> <em></em>INLINE<em>CODE</em>89<em></em> — enforce the "must be even" rule.
+<em> <em></em>INLINE<em>CODE</em>90<em></em> — compute the actual 3-digit integer.
+</em> <em></em>INLINE<em>CODE</em>91<em></em> — record the number; duplicate values are automatically ignored.
+<em> <em></em>INLINE<em>CODE</em>92<em></em> — return the count of distinct numbers formed.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">10. Why Might We Want to Understand This More Deeply?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">With <em></em>INLINE<em>CODE</em>93<em></em>, the enumeration takes at most 720 iterations. The <em></em>INLINE<em>CODE</em>94<em></em> does critical work when duplicate values exist at different indices.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">11. When Do Duplicate-Looking Numbers Arise?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Duplicate-looking numbers arise when the array contains <strong>repeated values</strong> at different positions (e.g., <em></em>INLINE<em>CODE</em>95<em></em>).
+</em> There are $3 \times 2 \times 1 = 6$ index permutations: <em></em>INLINE<em>CODE</em>96<em></em>.
+<em> All 6 permutations evaluate to <em></em>INLINE<em>CODE</em>97<em></em>.
+</em> Without a <em></em>INLINE<em>CODE</em>98<em></em>, a plain counter would return <em></em>INLINE<em>CODE</em>99<em></em> (wrong). With a <em></em>INLINE<em>CODE</em>100<em></em>, only <em></em>INLINE<em>CODE</em>101<em></em> unique number <em></em>INLINE<em>CODE</em>102<em></em> is kept (correct).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">⭐ Key Insight</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Before the insight</h3>
+It might seem like we should count the number of valid index permutations directly.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The problem</h3>
+That counts <strong>arrangements of indices</strong>, not <strong>distinct-looking numbers</strong>. Repeated digits cause severe overcounting.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">The insight</h3>
+<strong>The problem asks for distinct <em>numbers</em>, not distinct <em>position choices</em>.</strong> Enumerate index triples to respect physical tile counts, construct the number, and insert into a <em></em>INLINE<em>CODE</em>103<em></em> for automatic deduplication.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">After the insight</h3>
+No complex combinatorial formulas or exclusion-inclusion logic needed — brute force with a Set is simple, foolproof, and takes under 1 ms.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">13. Dry Run the Solution</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Let's dry-run <strong>Example 4</strong>: <em></em>INLINE<em>CODE</em>104<em></em>.
+<em> All values are odd.
+</em> The check <em></em>INLINE<em>CODE</em>105<em></em> skips every single combination.
+<em> <em></em>INLINE<em>CODE</em>106<em></em>. ✔️ Output = <em></em>INLINE<em>CODE</em>107<em></em>.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">14. Optimized Code</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>3<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>4<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">15. Explain the Code Line by Line</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">See Section 9 for complete line-by-line documentation.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">16. Test With Multiple Examples</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 1 — Normal Case</h3>
+<em></em>INLINE<em>CODE</em>108<em></em> → Output: <em></em>INLINE<em>CODE</em>109<em></em> ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 2 — Different Case</h3>
+<em></em>INLINE<em>CODE</em>110<em></em> → Output: <em></em>INLINE<em>CODE</em>111<em></em> (<em></em>INLINE<em>CODE</em>112<em></em>, <em></em>INLINE<em>CODE</em>113<em></em>) ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 3 — All identical values</h3>
+<em></em>INLINE<em>CODE</em>114<em></em> → Output: <em></em>INLINE<em>CODE</em>115<em></em> (<em></em>INLINE<em>CODE</em>116<em></em>) ✔️
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Example 4 — No even digits</h3>
+<em></em>INLINE<em>CODE</em>117<em></em> → Output: <em></em>INLINE<em>CODE</em>118<em></em> ✔️
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">17. Edge Cases</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>All digits odd:</strong> Output <em></em>INLINE<em>CODE</em>119<em></em>.
+<em> <strong>All digits identical:</strong> Output <em></em>INLINE<em>CODE</em>120<em></em> if valid even 3-digit number, otherwise <em></em>INLINE<em>CODE</em>121<em></em>.
+</em> <strong>Array contains 0:</strong> <em></em>INLINE<em>CODE</em>122<em></em> cannot be leading, but is valid in tens/ones place.
+<em> <strong>$N = 3$ (minimum size):</strong> Exactly 6 permutations evaluated.
+</em> <strong>$N = 10$ (maximum size):</strong> Up to 720 combinations evaluated instantly.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">18. Time Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Time Complexity:</strong> $O(N^3)$ where $N \le 10$, yielding at most 720 iterations — executes in microseconds ($O(1)$ effectively).</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">19. Space Complexity</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Space Complexity:</strong> $O(1)$ auxiliary space — at most 900 unique 3-digit integers (100 to 999) can be stored in the hash set.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">20. Common Mistakes Beginners Make</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> ❌ <strong>"Tracking values used instead of array indices."</strong>
+  </em> ✅ You must track distinct index positions to allow using multiple copies of identical digits.
+<em> ❌ <strong>"Using a counter instead of a Set."</strong>
+  </em> ✅ Repeated digit values cause different index triplets to yield identical numbers.
+<em> ❌ <strong>"Disallowing 0 in middle or last positions."</strong>
+  </em> ✅ <em></em>INLINE<em>CODE</em>123<em></em> is only forbidden as the leading hundreds digit; <em></em>INLINE<em>CODE</em>124<em></em> and <em></em>INLINE<em>CODE</em>125<em></em> are valid.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">21. How to Recognize This Pattern in Other Problems</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Watch for:
+<em></em>CODE<em>BLOCK</em>5<em></em>
+When $N \le 15$, exhaustive permutation search with a Hash Set is optimal, clear, and bug-resistant.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">22. Interview Thinking</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>6<em></em></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">23. Mini Challenge</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Try these before checking the answers:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. Why do we check <em></em>INLINE<em>CODE</em>126<em></em> and <em></em>INLINE<em>CODE</em>127<em></em> separately instead of <em></em>INLINE<em>CODE</em>128<em></em>?
+2. If <em></em>INLINE<em>CODE</em>129<em></em>, how many index triples pass checks, and what is the final set size?
+3. Why does the order of checking <em></em>INLINE<em>CODE</em>130<em></em> vs <em></em>INLINE<em>CODE</em>131<em></em> not matter?</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><br></p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Answer to Mini Challenge</h3>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <em></em>INLINE<em>CODE</em>132<em></em> would miss partial collisions like <em></em>INLINE<em>CODE</em>133<em></em> (reusing index $i$ twice).
+2. All 24 index permutations produce <em></em>INLINE<em>CODE</em>134<em></em>; the final set size is <em></em>INLINE<em>CODE</em>135<em></em>.
+3. Both checks are independent filter conditions; their evaluation order does not affect the outcome.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">24. Final Revision</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🧠 Problem in One Sentence</h3>
+Count the distinct 3-digit even numbers (no leading zero) formable by arranging 3 distinct positions from the given digit array.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">🔑 Main Idea</h3>
+Enumerate all pairwise-distinct index triplets <em></em>INLINE<em>CODE</em>136<em></em>, validate <em></em>INLINE<em>CODE</em>137<em></em> and <em></em>INLINE<em>CODE</em>138<em></em>, and collect valid values in a <em></em>INLINE<em>CODE</em>139<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
+1. Loop $i$ from $0$ to $n-1$, $j$ from $0$ to $n-1$ ($j \ne i$), $k$ from $0$ to $n-1$ ($k \ne i, k \ne j$).
+2. Check <em></em>INLINE<em>CODE</em>140<em></em> and <em></em>INLINE<em>CODE</em>141<em></em>.
+3. Compute <em></em>INLINE<em>CODE</em>142<em></em> and insert into <em></em>INLINE<em>CODE</em>143<em></em>.
+4. Return <em></em>INLINE<em>CODE</em>144<em></em>.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
+<em> <strong>Time:</strong> $O(N^3)$
+</em> <strong>Space:</strong> $O(1)$
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">25. Beginner Quiz</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>(Understanding)</strong> Why must we select distinct array positions rather than checking values?
+2. <strong>(Basic concept)</strong> Why is a <em></em>INLINE<em>CODE</em>145<em></em> required instead of an incrementing integer counter?
+3. <strong>(Logic)</strong> Why does <em></em>INLINE<em>CODE</em>146<em></em> always yield <em></em>INLINE<em>CODE</em>147<em></em>?
+4. <strong>(Dry run)</strong> For <em></em>INLINE<em>CODE</em>148<em></em>, list the valid permutations and find the final count.
+5. <strong>(Complexity/pattern)</strong> Why is $O(N^3)$ optimal for $N \le 10$?</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

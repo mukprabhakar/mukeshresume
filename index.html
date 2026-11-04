@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SPA redirect decoder for GitHub Pages (works with 404.html).
+         Restores the original clean URL that 404.html encoded into ?/path
+         before the React app mounts. Technique: rafgraph/spa-github-pages -->
+    <script>
+      (function () {
+        var l = window.location;
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function (s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      })();
+    </script>
+    
+    <!-- Performance: Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+    <!-- Performance: Preload the LCP hero/profile image -->
+    <link rel="preload" as="image" fetchpriority="high"
+      href="https://res.cloudinary.com/dddmyjevn/image/upload/q_auto/f_auto/v1775281267/mukeshp_ybprrz.png" />
+    
+    <!-- Primary SEO Meta Tags - Optimized per Audit Report -->
+    <title>Mukesh Pal – Full-Stack Developer (React & Spring Boot) | Portfolio</title>
+    <meta name="description" content="Mukesh Pal – Freelance Full-Stack Developer in Meerut, India. Expert in React.js, Java Spring Boot, and cloud technologies. Building scalable web applications that drive results. View projects & hire." />
+    <meta name="keywords" content="Mukesh Pal, Full-Stack Developer India, React Developer Meerut, Spring Boot Freelancer, Java Developer, Web Developer Portfolio, Software Engineer, CodeByte CTO, React.js Projects, Spring Boot Projects, mukprabhakar, Mukesh Bhaiya, IIMT wale Bhaiya, IIMT wale Mukesh, Mukesh IIMT, Mukesh, Developer, Incubation, Incubation wale, Incubation wale Bhaiya, IIMT Incubation, IIMT Incubation Center, Bhaiya, Mukesh Pal IIMT, IIMT Developer, Mukesh Pal Developer" />
+    <meta name="author" content="Mukesh Pal" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://mukprabhakar.in/" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    
+
+    
+    <!-- Open Graph / Facebook - Enhanced -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mukprabhakar.in/" />
+    <meta property="og:title" content="Mukesh Pal – Full-Stack Developer (React & Spring Boot) | Portfolio" />
+    <meta property="og:description" content="Freelance Full-Stack Developer in Meerut specializing in React.js, Java Spring Boot, and scalable web apps. Co-Founder at CodeByte. View projects and hire for your next venture." />
+    <meta property="og:image" content="https://res.cloudinary.com/dddmyjevn/image/upload/q_auto/f_auto/v1775281267/mukeshp_ybprrz.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Mukesh Pal Portfolio" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter Card - Enhanced -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://mukprabhakar.in/" />
+    <meta name="twitter:title" content="Mukesh Pal – Full-Stack Developer (React & Spring Boot)" />
+    <meta name="twitter:description" content="Freelance Full-Stack Developer in Meerut. Expert in React.js, Java Spring Boot. Co-Founder at CodeByte. Building scalable web applications." />
+    <meta name="twitter:image" content="https://res.cloudinary.com/dddmyjevn/image/upload/q_auto/f_auto/v1775281267/mukeshp_ybprrz.png" />
+    <meta name="twitter:creator" content="@mukprabhakar" />
+    
+    <!-- Additional SEO & Performance Tags -->
+    <meta name="theme-color" content="#e31e24" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Mukesh Pal Portfolio" />
+    <meta name="application-name" content="Mukesh Pal Portfolio" />
+    <meta name="msapplication-TileColor" content="#e31e24" />
+    
+    <!-- Google Site Verification - Add your code from Google Search Console -->
+    <!-- <meta name="google-site-verification" content="ADD_YOUR_CODE_HERE" /> -->
+    
+    <!-- Enhanced Structured Data / Schema Markup (Audit Report Recommendations) -->
+    <!-- Person Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Mukesh Pal",
+      "alternateName": [
+        "Mukesh",
+        "Mukesh Bhaiya",
+        "Bhaiya",
+        "IIMT wale Bhaiya",
+        "IIMT wale Mukesh",
+        "Mukesh IIMT",
+        "Mukesh Pal IIMT",
+        "Incubation wale Bhaiya",
+        "Mukprabhakar"
+      ],
+      "url": "https://mukprabhakar.in/",
+      "image": "https://res.cloudinary.com/dddmyjevn/image/upload/q_auto/f_auto/v1775281267/mukeshp_ybprrz.png",
+      "jobTitle": "Full-Stack Developer & Co-Founder",
+      "description": "Freelance Full-Stack Developer specializing in React.js, Java Spring Boot, and cloud technologies. Co-Founder & CTO at CodeByte. Popularly known as Mukesh Bhaiya and the IIMT wale Bhaiya at the IIMT University incubation center. Based in Meerut, India.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Meerut",
+        "addressRegion": "Uttar Pradesh",
+        "addressCountry": "IN"
+      },
+      "worksFor": {
+        "@type": "Organization",
+        "name": "CodeByte",
+        "url": "https://codebyte.in"
+      },
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "IIMT University",
+        "url": "https://iimt.edu.in"
+      },
+      "sameAs": [
+        "https://github.com/mukprabhakar",
+        "https://www.linkedin.com/in/mukprabhakar/",
+        "https://x.com/mukprabhakar",
+        "https://www.instagram.com/mukprabhakar/",
+        "https://leetcode.com/mukprabhakar",
+        "https://medium.com/@mukprabhakar"
+      ],
+      "knowsAbout": [
+        "React.js",
+        "Java",
+        "Spring Boot",
+        "JavaScript",
+        "Node.js",
+        "Full-Stack Development",
+        "Web Development",
+        "Cloud Technologies",
+        "Microservices",
+        "API Development"
+      ],
+      "hasOccupationalCredential": [
+        {
+          "@type": "EducationalOccupationalCredential",
+          "credentialCategory": "Google Student Ambassador"
+        }
+      ]
+    }
+    </script>
+    
+    <!-- WebSite Schema with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Mukesh Pal Portfolio",
+      "alternateName": ["Mukesh Pal", "Mukprabhakar", "Mukesh Pal Developer", "Mukesh Pal Full-Stack Developer", "Mukesh Bhaiya", "IIMT wale Bhaiya", "IIMT wale Mukesh", "Mukesh IIMT", "Incubation wale Bhaiya", "IIMT Incubation Center"],
+      "url": "https://mukprabhakar.in/",
+      "description": "Professional portfolio of Mukesh Pal - Full-Stack Developer & Co-Founder at CodeByte specializing in React.js and Java Spring Boot",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://mukprabhakar.in/blog?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Mukesh Pal"
+      }
+    }
+    </script>
+    
+    <!-- SoftwareSourceCode Schema for Projects -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      "name": "Mukesh Pal Portfolio Projects",
+      "description": "Collection of full-stack projects built with React.js, Java Spring Boot, and modern web technologies",
+      "author": {
+        "@type": "Person",
+        "name": "Mukesh Pal",
+        "url": "https://mukprabhakar.in/"
+      },
+      "codeRepository": "https://github.com/mukprabhakar",
+      "programmingLanguage": ["JavaScript", "Java", "React", "Spring Boot"]
+    }
+    </script>
+    
+    <!-- Google Consent Mode Default State -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      
+      // Determine if consent was previously saved
+      var consentMode = {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_ad_personalization': 'denied'
+      };
+      
+      try {
+        var savedConsent = localStorage.getItem('cookieConsent');
+        if (savedConsent) {
+          var parsed = JSON.parse(savedConsent);
+          if (parsed.analytics) {
+            consentMode['analytics_storage'] = 'granted';
+          }
+          if (parsed.marketing) {
+            consentMode['ad_storage'] = 'granted';
+            consentMode['ad_user_data'] = 'granted';
+            consentMode['ad_ad_personalization'] = 'granted';
+          }
+        }
+      } catch (e) {
+        console.error('Error reading consent from localStorage', e);
+      }
+      
+      gtag('consent', 'default', consentMode);
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QH2ZMCY7XD"></script>
+    <script>
+      gtag('js', new Date());
+      gtag('config', 'G-QH2ZMCY7XD');
+    </script>
+    
+    <!-- Google Fonts (non-render-blocking: load async, apply on load) -->
+    <link rel="preload" as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" />
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" />
+    <noscript>
+      <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" />
+    </noscript>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Fallback Content for SEO & Crawlers (replaced by React on load) -->
+      <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; background: #ffffff;">
+        <h1 style="font-size: 2.5rem; color: #0a0a0a; margin-bottom: 0.5rem;">Mukesh <span style="color:#e31e24">Pal</span></h1>
+        <p style="font-size: 1.25rem; color: #6b6b70; margin-top: 0;">Full-Stack Developer | Software Engineer | AI Agent Developer</p>
+        <nav style="margin: 1.5rem 0; font-weight: 500;">
+          <a href="/all-projects" style="color: #e31e24; text-decoration: none; margin-right: 1rem;">All Projects</a>
+          <a href="/blog" style="color: #e31e24; text-decoration: none; margin-right: 1rem;">Blog & Tutorials</a>
+          <a href="/coding" style="color: #e31e24; text-decoration: none; margin-right: 1rem;">Coding Profiles</a>
+          <a href="/badges" style="color: #e31e24; text-decoration: none; margin-right: 1rem;">Badges</a>
+          <a href="/clients" style="color: #e31e24; text-decoration: none;">Clients</a>
+        </nav>
+      </header>
+
+      <main style="max-width: 800px; margin: 0 auto; padding: 0 1rem 4rem;">
+        <section style="margin-bottom: 3rem;">
+          <h2 style="color: #0a0a0a; border-bottom: 2px solid #e31e24; padding-bottom: 0.5rem;">About Me</h2>
+          <p style="line-height: 1.7; color: #2e2e33;">
+            I am a freelance Full-Stack Developer based in Meerut, Uttar Pradesh, India. I specialize in building highly scalable, performant web applications using <strong>React.js</strong> and <strong>Java Spring Boot</strong>.
+          </p>
+          <p style="line-height: 1.7; color: #2e2e33;">
+            As the Co-Founder & CTO of <strong>CodeByte</strong>, and an active developer affiliated with the <strong>IIMT University Incubation Center</strong>, I help startups and businesses bring their products to life. I have delivered over 20+ successful projects ranging from ed-tech and medical logistics platforms to real-time financial services and AI-driven security systems.
+          </p>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2 style="color: #0a0a0a; border-bottom: 2px solid #e31e24; padding-bottom: 0.5rem;">Technical Skills</h2>
+          <ul style="line-height: 1.8; color: #2e2e33; padding-left: 1.25rem;">
+            <li><strong>Frontend:</strong> React.js, Next.js, JavaScript (ES6+), HTML5, CSS3, Tailwind CSS, Responsive Design</li>
+            <li><strong>Backend & API:</strong> Java, Spring Boot, Microservices, Node.js, Express, RESTful APIs, WebSockets</li>
+            <li><strong>Databases & Cloud:</strong> MySQL, SQL, PostgreSQL, MongoDB, Redis, Docker, Git, Cloud Architecture</li>
+            <li><strong>Security & Systems:</strong> Computer Vision, Image Processing, Role-Based Access Control (RBAC)</li>
+          </ul>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2 style="color: #0a0a0a; border-bottom: 2px solid #e31e24; padding-bottom: 0.5rem;">Featured Projects</h2>
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #e31e24; margin-bottom: 0.25rem;">CodeOra — Ed-Tech Startup Platform</h3>
+            <p style="margin-top: 0; line-height: 1.6; color: #2e2e33;">
+              A SaaS ed-tech launchpad offering AI-guided full-stack project generation, adaptive quizzes, recruiter portals, and college/club dashboards. Built with React.js, Spring Boot, and MySQL. Connected 500+ active users.
+            </p>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #e31e24; margin-bottom: 0.25rem;">Trigo — Medical Delivery Logistics</h3>
+            <p style="margin-top: 0; line-height: 1.6; color: #2e2e33;">
+              A medical startup connecting patients with local pharmacies for instant medicine delivery. Implemented location-based vendor discovery and real-time inventory management backend. Deployed across 50+ local pharmacies.
+            </p>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #e31e24; margin-bottom: 0.25rem;">Student Details with Image — IIMT University Campus Security</h3>
+            <p style="margin-top: 0; line-height: 1.6; color: #2e2e33;">
+              An advanced security system that leverages CCTV image processing, computer vision, and database matching to identify students, improving security response times by 60% across campus.
+            </p>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="color: #e31e24; margin-bottom: 0.25rem;">Real-Time Crypto Trading Platform</h3>
+            <p style="margin-top: 0; line-height: 1.6; color: #2e2e33;">
+              A financial dashboard featuring historical market charts, asset buying/selling, and sub-second price updates powered by WebSockets.
+            </p>
+          </div>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+          <h2 style="color: #0a0a0a; border-bottom: 2px solid #e31e24; padding-bottom: 0.5rem;">Recent Blog & Technical Write-Ups</h2>
+          <ul style="line-height: 1.8; color: #2e2e33;">
+            <li><a href="/blog/llm-comparative-analysis-research-paper" style="color: #e31e24;">Large Language Models: A Comparative Analysis & Research Paper</a></li>
+            <li><a href="/blog/your-next-coworker-might-not-be-human-ai-workplace-2025" style="color: #e31e24;">Your Next Coworker Might Not Be Human: AI in Workplace 2025</a></li>
+            <li><a href="/blog/handle-clients-changing-project-requirements-strategies" style="color: #e31e24;">Strategies for Handling Changing Client Requirements in Web Projects</a></li>
+            <li><a href="/blog/visit-russian-house-delhi" style="color: #e31e24;">A Visit to Russian House Delhi: A Cultural Experience</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer style="text-align: center; color: #6b6b70; padding: 2rem; border-top: 1px solid #e5e5e5;">
+        <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer Portfolio.</p>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

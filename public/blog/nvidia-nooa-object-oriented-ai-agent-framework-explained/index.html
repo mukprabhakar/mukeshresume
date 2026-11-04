@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOOA Explained: NVIDIA&#039;s Open-Source AI Agent Framework Where an Agent Is Just a Python Class | Mukesh Pal Blog</title>
+  <meta name="description" content="NVIDIA&#039;s open-source NOOA framework treats AI agents as single Python classes, hitting 82.2% on SWE-bench Verified at roughly half the token cost of comparable harnesses. Here&#039;s how the architecture works." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://mukprabhakar.in/blog/nvidia-nooa-object-oriented-ai-agent-framework-explained" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="NOOA Explained: NVIDIA&#039;s Open-Source AI Agent Framework Where an Agent Is Just a Python Class" />
+  <meta property="og:description" content="NVIDIA&#039;s open-source NOOA framework treats AI agents as single Python classes, hitting 82.2% on SWE-bench Verified at roughly half the token cost of comparable harnesses. Here&#039;s how the architecture works." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/blog/nvidia-nooa-object-oriented-ai-agent-framework-explained" />
+  <meta property="og:image" content="https://mukprabhakar.in/nooa_nvidia_framework.jpg" />
+  <meta property="article:published_time" content="2026-07-27" />
+  <meta property="article:author" content="Mukesh Pal" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="NOOA Explained: NVIDIA&#039;s Open-Source AI Agent Framework Where an Agent Is Just a Python Class" />
+  <meta name="twitter:description" content="NVIDIA&#039;s open-source NOOA framework treats AI agents as single Python classes, hitting 82.2% on SWE-bench Verified at roughly half the token cost of comparable harnesses. Here&#039;s how the architecture works." />
+  <meta name="twitter:url" content="https://mukprabhakar.in/blog/nvidia-nooa-object-oriented-ai-agent-framework-explained" />
+  <meta name="twitter:image" content="https://mukprabhakar.in/nooa_nvidia_framework.jpg" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/blog/nvidia-nooa-object-oriented-ai-agent-framework-explained';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0a0a0c;
+      color: #e4e4e7;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/blog">← Back to Blog</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">NOOA Explained: NVIDIA&#039;s Open-Source AI Agent Framework Where an Agent Is Just a Python Class</h1>
+      <p style="color: #71717a; font-size: 0.95rem; margin-top: 0;">
+        Published on <strong>2026-07-27</strong> by <strong>Mukesh Pal</strong>
+      </p>
+      <p style="margin-top: 0.5rem;"><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#NVIDIA NOOA AI agent framework</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#object-oriented AI agents</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#agent harness design</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#SWE-bench Verified benchmark</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#open-source agentic AI Python</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#NVIDIA Labs agent framework</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#AI agent memory system</span></p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8;">
+      
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Introduction</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Most AI agent frameworks today ask developers to coordinate several separate abstractions — prompt templates, tool schemas, callback functions, and workflow graphs — that all have to stay in sync as an agent evolves.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NVIDIA Labs' new open-source framework, <strong>NOOA (NVIDIA Object-Oriented Agents)</strong>, starts from a different premise: <em>what if an agent were simply a Python class, using standard object-oriented programming concepts developers already know?</em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Released as a research preview alongside a full technical report, NOOA demonstrates that this architectural simplification isn't just cleaner code — it produces measurably better accuracy and lower cost on real benchmarks, using the exact same underlying language models.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">What Happened?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NVIDIA Labs researchers Ricardo Silveira Cabral and Paul Furgale published NOOA on NVIDIA's Technical Blog on July 27, 2026, alongside an arXiv technical report and full open-source code on GitHub under the Apache 2.0 license.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NOOA was also contributed as a founding technical piece of the newly formed <strong>Open Secure AI Alliance</strong>, a coalition of companies working on open-source AI security and agent tooling. The framework demonstrates state-of-the-art or near-state-of-the-art results across three distinct domains — software engineering, cybersecurity, and general reasoning — using standard, publicly available models, with no benchmark-specific prompt engineering.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">The Technology Behind It</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NOOA's central architectural claim is that the <strong>"harness"</strong> — the software layer surrounding an AI model that renders context, executes actions, manages state, and decides when a task is complete — matters as much as the underlying model itself, and can swing benchmark accuracy by double digits with the same model.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">To make that harness as simple and inspectable as possible, NOOA represents an entire agent as a single Python class:
+<em> <strong>Methods</strong> are its available actions.
+</em> <strong>Fields</strong> hold its state.
+<em> <strong>Docstrings</strong> serve as its prompts.
+</em> <strong>Type annotations</strong> function as enforced contracts on inputs and outputs.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A method with an ordinary implementation runs as standard, deterministic Python code. A method whose body is simply an ellipsis (<em></em>INLINE<em>CODE</em>0<em></em>) is instead completed at runtime by an LLM-driven loop — meaning the model "fills in" that specific piece of logic when the method is called, while everything else in the class remains regular code. This blended approach means a single agent definition mixes deterministic business logic and model-driven reasoning within one familiar, testable structure.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">How It Works</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NOOA's design is built around six specific technical decisions the authors argue are jointly responsible for its performance gains:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>Typed input and output</strong>: Every agentic call has validated argument types and return values, rather than relying on free-text parsing.
+2. <strong>Pass by reference</strong>: The model works directly with live Python objects rather than receiving everything serialized as text; it sees a bounded preview while the full value remains available in the execution environment.
+3. <strong>Code as action</strong>: The model takes action by writing actual Python code with real control flow and inline method calls, rather than emitting structured JSON tool calls.
+4. <strong>Programmable loop engineering</strong>: The orchestration loop that drives an agent's reasoning is itself ordinary Python, editable by both developers and the model.
+5. <strong>Explicit object state</strong>: An agent's durable, typed state lives directly on the object rather than being reconstructed from conversation history each time.
+6. <strong>Model-callable harness APIs</strong>: Context blocks and event history are exposed as APIs the model can inspect and manage directly, rather than being invisible infrastructure.</p>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Long-Term Memory Subsystem</h3>
+NOOA also includes a long-term memory subsystem that the agent actively curates rather than one driven by automatic background summarization. The agent deliberately writes, queries, and corrects typed memory records as part of its work, while relevant "spontaneous memories" surface automatically into context when needed.
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Records carry types, importance ratings, and tags, and are connected through typed relationships (such as "supports," "contradicts," or "derived-from") into a knowledge graph rather than a flat log. Everything persists in a single, human-readable SQLite file that teams can inspect, back up, and review using standard software practices, and multiple agents can share a memory store while retaining separate ownership over their own contributions.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Why It Matters</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The performance results span three genuinely different domains, all using the same general-purpose agent architecture with no domain-specific tuning:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Software engineering</strong>: On SWE-bench Verified, a widely used benchmark for real-world software engineering tasks, NOOA reached <strong>82.2% accuracy</strong> using GPT-5.5 — above the published leaderboard state-of-the-art at the time of submission (79.2%) — using a general-purpose, 253-line agent definition with no benchmark-specific prompting. It reached 79.8% with Claude Opus 4.6.
+</em> <strong>Cybersecurity</strong>: On CyberGym L1, a benchmark for real vulnerability rediscovery, NOOA solved <strong>86.8% of tasks</strong> using GPT-5.5, becoming the top-scoring open-source agent on the benchmark and outperforming most leading closed-source systems. Critically, this result was achieved with network access blocked and a rule-based verification check applied to every trajectory.
+<em> <strong>General reasoning</strong>: On ARC-AGI-3, a benchmark that places an agent in an unfamiliar grid-based game it must learn to play by observing outcomes, a single NOOA agent achieved a mean score of <strong>50.2%</strong> with GPT-5.5, rising to <strong>85.1%</strong> with GPT-5.6-sol — all for under $20 per game.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The efficiency story is arguably as significant as the accuracy story. On SWE-bench Verified, NOOA reached 82.2% accuracy using roughly 1.1 million tokens and 29 LLM calls per task, while comparable harnesses required 66 calls and 2.2 million tokens to reach a lower 78.2% — <strong>roughly double the cost for a worse result</strong>.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This efficiency comes primarily from the pass-by-reference design: because large tool outputs remain live Python objects rather than being serialized into the text context window, sessions typically peak at only 22,000–72,000 prompt tokens, and no context-compaction or summarization step is needed at all.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Practical Applications</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>AI-assisted software engineering tools</strong> can adopt similar harness patterns to improve accuracy and reduce token costs on long, multi-step coding tasks.
+<em> <strong>Security research and vulnerability-discovery tooling</strong> can use NOOA's approach of combining deterministic verification "gates" (methods that must return a clear true/false verdict) with model-driven exploration, ensuring findings are accepted only when code — not a potentially unreliable model statement — confirms them.
+</em> <strong>General-purpose reasoning agents</strong> operating in novel, rule-discovery environments (robotics, game-playing, exploratory data analysis) may benefit from the "world model" skill pattern demonstrated on ARC-AGI-3.
+<em> <strong>Teams evaluating rising agent inference costs</strong> can use NOOA's pass-by-reference and no-compaction design as a reference architecture for reducing token spend without sacrificing accuracy.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Example for Developers</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A simplified illustration of NOOA's core pattern, adapted from NVIDIA's own example:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>1<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Here, <em></em>INLINE<em>CODE</em>1<em></em> is ordinary, deterministic Python — no model call involved. <em></em>INLINE<em>CODE</em>2<em></em> and <em></em>INLINE<em>CODE</em>3<em></em> have bodies marked with <em></em>INLINE<em>CODE</em>4<em></em>, meaning an LLM-driven loop fills in that logic at runtime, guided by the docstring as its prompt and the type annotations as its enforced contract. The whole agent can be diffed, unit-tested, and code-reviewed exactly like any other Python class.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Limitations</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Explicitly a research preview</strong>: NVIDIA describes NOOA as an open experimental surface, not a replacement for existing production harnesses, with rough edges expected.
+<em> <strong>Security guardrails are defense-in-depth, not containment</strong>: NVIDIA is direct that NOOA's built-in AST (code structure) checks and module deny-lists are meant to catch common mistakes early, not to stop code that is actively trying to escape its environment. Genuine isolation requires OS-level sandboxing (containers or VMs).
+</em> <strong>No independent, matched-task benchmarks yet</strong>: As of publication, there isn't a published, independent head-to-head comparison against widely used alternatives like LangGraph or AutoGen using the same tasks and models.
+<em> <strong>Performance on cheaper or smaller models is untested</strong>: The strongest published results use frontier-tier models (GPT-5.5, GPT-5.6-sol, Claude Opus 4.6); how the harness's advantages hold up on smaller models isn't yet demonstrated.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Future Possibilities</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NVIDIA frames NOOA as one contribution to a broader, actively evolving open agent ecosystem rather than a finished, standalone product — explicitly inviting other teams to adopt, challenge, or improve on the techniques described in its technical report.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">As part of the Open Secure AI Alliance, NOOA is positioned alongside other open contributions focused on agent identity, isolation, safe model formats, and secure coding workflows, suggesting a broader industry push toward transparent, auditable agent architectures.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">My Perspective</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">What I find most useful about NOOA as a developer isn't any single benchmark number — it's the demonstration that harness architecture is a real, measurable performance lever independent of model choice. It's easy to default to "we need a better/bigger model" when an agent isn't performing well, but this research is a concrete reminder that how you structure context, tool outputs, and state can matter just as much, and is often a cheaper problem to solve.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The pass-by-reference design in particular strikes me as broadly generalizable well beyond NOOA itself: any team building agents that operate on large tool outputs (database query results, file contents, API responses) should be asking whether those outputs really need to be serialized into the model's text context, or whether the model could instead operate on a bounded preview while working with the full data directly in code. That's a pattern worth internalizing regardless of which specific framework you end up using.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Conclusion</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">NOOA demonstrates that agent architecture — not just model capability — is a significant, measurable lever for both accuracy and cost in agentic AI systems. By representing an entire agent as a single, typed Python class and letting the model operate on live objects rather than serialized text, NVIDIA's open-source framework achieves state-of-the-art or near-state-of-the-art results across software engineering, cybersecurity, and general reasoning benchmarks, at roughly half the token cost of comparable approaches.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">FAQ</h2>
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">Is NOOA ready for production use?</h3>
+No. NVIDIA explicitly describes NOOA as a research preview and an "open experimental surface," not a replacement for existing production agent harnesses. Genuine isolation requires running it in a proper sandbox.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">How is NOOA different from frameworks like LangGraph or AutoGen?</h3>
+NOOA's core distinction is representing an entire agent as a single Python class rather than coordinating separate prompt templates, tool schemas, and workflow graphs.
+<h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">What models does NOOA work with?</h3>
+NOOA is model-agnostic and routes through LiteLLM, supporting hosted APIs, local Ollama instances, and vLLM endpoints.
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em>Suggested internal linking: Link to future articles on AI agent architecture patterns, open-source AI security tooling, and Python-based agentic frameworks, as those get published.<em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em>Featured image alt text: "Diagram illustrating NVIDIA's NOOA framework, showing an AI agent represented as a single object-oriented Python class with methods, state, and typed contracts."<em></p>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">📚 Sources</h2>
+</em> NVIDIA Technical Blog — <a href="https://developer.nvidia.com/blog/six-agent-harness-capabilities-for-higher-model-performance/" style="color: #10b981; text-decoration: underline;">“Six Agent Harness Capabilities for Higher Model Performance”</a>, July 27, 2026, by Ricardo Silveira Cabral and Paul Furgale
+<em> arXiv — <a href="https://arxiv.org/abs/2607.20709" style="color: #10b981; text-decoration: underline;">NVIDIA-labs OO Agents: Native Python Object-Oriented Agents (technical report)</a>
+</em> GitHub — <a href="https://github.com/NVIDIA-NeMo/labs-OO-Agents" style="color: #10b981; text-decoration: underline;">NVIDIA-NeMo/labs-OO-Agents (source code)</a><ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li>NVIDIA Blog — <a href="https://blogs.nvidia.com/blog/open-secure-ai-alliance/" style="color: #10b981; text-decoration: underline;">“Industry Leaders Join Open Secure AI Alliance for AI Safety and Security”</a></li></ul>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>

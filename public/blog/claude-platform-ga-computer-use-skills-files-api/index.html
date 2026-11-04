@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Platform GA Explained: Computer Use, Browser Tool, Skills API &amp; Files API | Mukesh Pal Blog</title>
+  <meta name="description" content="Anthropic made computer use, a new browser tool, the Skills API, and the Files API generally available on the Claude Platform. Here&#039;s what each feature does and how developers can use them to build real AI agents." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://mukprabhakar.in/blog/claude-platform-ga-computer-use-skills-files-api" />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Claude Platform GA Explained: Computer Use, Browser Tool, Skills API &amp; Files API" />
+  <meta property="og:description" content="Anthropic made computer use, a new browser tool, the Skills API, and the Files API generally available on the Claude Platform. Here&#039;s what each feature does and how developers can use them to build real AI agents." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mukprabhakar.in/blog/claude-platform-ga-computer-use-skills-files-api" />
+  <meta property="og:image" content="https://mukprabhakar.in/claude_platform_ga_tools.jpg" />
+  <meta property="article:published_time" content="2026-08-20" />
+  <meta property="article:author" content="Mukesh Pal" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Claude Platform GA Explained: Computer Use, Browser Tool, Skills API &amp; Files API" />
+  <meta name="twitter:description" content="Anthropic made computer use, a new browser tool, the Skills API, and the Files API generally available on the Claude Platform. Here&#039;s what each feature does and how developers can use them to build real AI agents." />
+  <meta name="twitter:url" content="https://mukprabhakar.in/blog/claude-platform-ga-computer-use-skills-files-api" />
+  <meta name="twitter:image" content="https://mukprabhakar.in/claude_platform_ga_tools.jpg" />
+  
+  <!-- SPA redirect decoder for GitHub Pages -->
+  <script>window.location.href = '/?/blog/claude-platform-ga-computer-use-skills-files-api';</script>
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0a0a0c;
+      color: #e4e4e7;
+      margin: 0;
+      padding: 0;
+    }
+    a { color: #10b981; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; border-bottom: 1px solid #27272a;">
+    <p><a href="/blog">← Back to Blog</a> | <a href="/">Portfolio Home</a></p>
+  </header>
+
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="color: #ffffff; font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1.2; font-weight: 800;">Claude Platform GA Explained: Computer Use, Browser Tool, Skills API &amp; Files API</h1>
+      <p style="color: #71717a; font-size: 0.95rem; margin-top: 0;">
+        Published on <strong>2026-08-20</strong> by <strong>Mukesh Pal</strong>
+      </p>
+      <p style="margin-top: 0.5rem;"><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Claude Platform computer use</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Claude Skills API</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Claude Files API</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Claude browser tool</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#Anthropic agentic tools 2026</span><span style="background: #27272a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.5rem; color: #a1a1aa;">#building AI agents with Claude</span></p>
+    </header>
+
+    <div style="font-size: 1.1rem; line-height: 1.8;">
+      <h2 style="color: #10b981; margin-top: 2rem; font-size: 1.8rem; font-weight: 700; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem;">Claude Platform Goes GA on Computer Use, Browser Tool, Skills API, and Files API — A Developer's Guide</h2>
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Introduction</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For a while, "AI agent" meant a chatbot with a few API calls bolted on. That's changing fast. On August 20, 2026, Anthropic announced that four previously-beta capabilities on the Claude Platform — <strong>computer use</strong>, a new <strong>browser tool</strong>, the <strong>Skills API</strong>, and the <strong>Files API</strong> — are now generally available for production use. Individually, each is a useful building block. Together, they sketch out what a genuinely autonomous software agent looks like once it can see a screen, browse the web, carry reusable knowledge between tasks, and manage files at scale.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">For anyone building AI-powered SaaS or backend automation — which is exactly the kind of work I focus on — this is a "go check the docs" release, not a "nice to know" one.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">What Happened?</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Anthropic confirmed general availability of:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Computer use</strong> — Claude can operate a computer's interface (clicking, typing, navigating applications) rather than only calling discrete APIs. It now supports multi-action turns (chaining several UI actions per response instead of one action per round trip) and is eligible for HIPAA-covered workloads under Anthropic's Business Associate Agreement.
+</em> <strong>A new browser tool</strong> — this reads a web page's underlying structure, not just a rendered screenshot, which is a meaningfully different (and more reliable) way for an agent to understand what's actually on a page.
+<em> <strong>Skills API</strong> — lets teams upload and version reusable "skills" (packaged instructions and logic) that Claude can run inside its code-execution sandbox, so a capability built once can be reused across many tasks instead of being re-prompted every time.
+</em> <strong>Files API</strong> — gained automatic file expiration, five times higher rate limits, and 1 TB of organization-level storage.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">Skills and Files API access was also extended to Microsoft Foundry, and updated computer-use/browser tools are coming to Google's Vertex AI — meaning this isn't locked to a single cloud.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">The Technology Behind It</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The core technical shift across all four features is the same: moving Claude from "answers questions when asked" to "operates persistently inside a workflow." That requires three things working together:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. <strong>Perception</strong> — the ability to understand a UI or web page well enough to act on it (computer use, browser tool).
+2. <strong>Memory of capability</strong> — the ability to store and re-invoke logic without re-explaining it every time (Skills API).
+3. <strong>Memory of data</strong> — the ability to hold onto files and large context across a long-running task without re-uploading everything each call (Files API).</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The browser tool's page-structure approach (reading the DOM-like structure of a page rather than only a screenshot) matters technically because pixel-based UI understanding is fragile — a slightly different screen resolution, font rendering, or layout shift can break a screenshot-based agent. Structure-aware reading is closer to how a browser extension or accessibility tool "sees" a page, and tends to generalize better across different sites and screen sizes.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">How It Works</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A typical production agent built on these GA features would combine them like this:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">1. A task comes in (e.g., "reconcile this month's invoices against our accounting system").
+2. The agent pulls relevant files via the <strong>Files API</strong>, which now supports much higher throughput and automatically expires stale files instead of accumulating storage debt.
+3. It invokes a pre-built <strong>Skill</strong> — say, an invoice-parsing routine your team uploaded once — instead of re-deriving that logic from scratch.
+4. If it needs to interact with a web-based tool that has no API (a legacy vendor portal, for instance), it falls back to the <strong>browser tool</strong> to read the page structure and take action, or to full <strong>computer use</strong> if the task requires interacting with a desktop application.
+5. Multi-action turns mean the agent doesn't need a full round trip to the model for every single click — it can chain several UI actions in one response, which cuts latency and API calls for multi-step interface tasks.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Why It Matters</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The practical significance here is narrowing the "last mile" problem in enterprise automation. A huge amount of real business software still doesn't have a clean API — legacy ERP systems, government portals, niche SaaS tools built by small vendors, internal dashboards. Computer use and the browser tool are explicitly aimed at that gap: automating the systems nobody built an integration for.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The Skills API addresses a different but related pain point: reusability. Without it, every agentic workflow effectively re-teaches the model its domain logic on every single call via prompting — wasteful and inconsistent. Packaging and versioning skills is a step toward treating agent capabilities the way we already treat software libraries.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Practical Applications</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> <strong>Back-office automation</strong> — invoice processing, data reconciliation, and legacy system data entry where no clean API exists.
+</em> <strong>Healthcare workflows</strong> — HIPAA-eligible computer use opens the door to agents operating inside clinical or administrative systems that handle protected health information, under a proper compliance framework.
+<em> <strong>QA and browser testing</strong> — the structure-aware browser tool is a natural fit for automated web testing agents that need to reason about page content, not just click coordinates.
+</em> <strong>Internal tooling for SaaS companies</strong> — teams can package internal business logic as versioned Skills once, then let multiple agents or products reuse that same logic consistently.
+<em> <strong>Multi-cloud agent deployments</strong> — with Skills and Files API also landing on Microsoft Foundry, and computer use/browser tools headed to Vertex AI, teams aren't locked into a single API provider for these capabilities.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Example for Developers</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A simplified pattern for combining a Skill with the browser tool might look like this:</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em></em>CODE<em>BLOCK</em>0<em></em></p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The important design shift here versus a typical single-shot API call is that the Skill is defined and versioned once, outside the request, and referenced by ID — not re-explained in every prompt.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Limitations</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> <strong>Computer use and browser automation remain higher-risk categories.</strong> Any agent that can click, type, and submit forms autonomously needs careful scoping, domain allow-lists, and human-in-the-loop approval for consequential actions — this is a capability that genuinely requires guardrails, not just enthusiasm.
+<em> <strong>HIPAA eligibility requires a signed Business Associate Agreement</strong> and proper configuration; it isn't automatic just because the underlying feature is GA.
+</em> <strong>Structure-aware browsing still depends on how well a given page exposes usable structure.</strong> Poorly built or heavily JavaScript-obfuscated pages can still be harder for an agent to reliably parse than a well-structured one.
+<em> <strong>This is a fast-moving platform.</strong> Multi-cloud rollout (Vertex AI, Microsoft Foundry) is described as "coming" for some pieces, so feature parity across clouds isn't guaranteed at any given moment — teams should check current documentation before assuming availability.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Future Possibilities</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The direction is fairly clear: fewer agents that only call clean, well-documented APIs, and more agents that can operate the actual software humans use day to day — browsers, desktop apps, internal dashboards — the same way a human employee would. Expect the Skills ecosystem in particular to grow into something resembling a package registry, where teams (and eventually communities) share and reuse well-tested skill bundles rather than reinventing common workflows from scratch.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">My Perspective</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">The Skills API is the piece I find most immediately useful for the kind of AI-powered SaaS platforms I like building. Right now, a lot of "agentic" product logic lives scattered across prompt templates, which is brittle and hard to version-control properly. Treating a capability as a first-class, versioned artifact — the same way we already treat a backend service or an npm package — is a much healthier foundation for shipping AI features that don't randomly regress when someone tweaks a prompt. Computer use and the browser tool, meanwhile, are the pieces that make "AI agent" claims actually credible for real back-office work, since so much of the software businesses depend on genuinely has no API to call.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Conclusion</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">This release isn't one flashy new model — it's four infrastructure pieces reaching production maturity at the same time, and together they meaningfully close the gap between "AI demo" and "AI agent that can be trusted to operate real software." For developers, the practical takeaway is simple: if your product idea has been stuck because "the tool we need to automate doesn't have an API," that excuse just got a lot weaker.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">FAQ</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What is "computer use" in the Claude Platform?</strong>  
+It's a capability that lets Claude operate a computer's graphical interface directly — clicking, typing, and navigating applications — rather than being limited to calling discrete, pre-built APIs.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>What does the Skills API actually do?</strong>  
+It lets teams upload and version reusable packages of instructions and logic that Claude can invoke inside its code-execution sandbox, so a capability built once can be reused across many different agent tasks.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Is computer use safe for handling healthcare data?</strong>  
+Computer use is now eligible for HIPAA-covered workloads under Anthropic's Business Associate Agreement, but proper configuration and a signed BAA are required — eligibility alone doesn't guarantee compliance out of the box.</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Internal Linking Suggestions</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"></em> Link to a post on designing safe human-in-the-loop approval flows for AI agents
+<em> Link to a post on building versioned "skill" libraries for agentic products
+</em> Link to a post comparing Claude, Gemini, and GPT agentic tool ecosystems</p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">External Authoritative Sources</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><em> Anthropic official announcement — Claude Platform GA (August 20, 2026)
+</em> Anthropic API documentation — computer use, Skills API, Files API references<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li>Anthropic Help Center — HIPAA / Business Associate Agreement eligibility documentation</li></ul></p>
+<hr style="border: 0; border-top: 1px solid #27272a; margin: 2rem 0;" />
+<h2 style="color: #ffffff; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.6rem; font-weight: 700;">Featured Image Concept</h2>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;">A clean, minimal illustration of a cursor and a browser window connected by dotted lines to a small "skill package" icon and a "files" icon — conveying an agent operating across UI, skills, and storage — no literal product logos.</p>
+<p style="line-height: 1.8; color: #d4d4d8; margin-bottom: 1.5rem;"><strong>Image Alt Text:</strong> Diagram showing an AI agent connected to a computer interface, browser, reusable skills, and file storage, representing the Claude Platform's GA agentic tools.</p>
+    </div>
+  </article>
+
+  <footer style="max-width: 800px; margin: 4rem auto 0; padding: 2rem 1rem; border-top: 1px solid #27272a; text-align: center; color: #71717a; font-size: 0.9rem;">
+    <p>&copy; 2026 Mukesh Pal. All rights reserved. Full-Stack Developer & Co-Founder at CodeByte.</p>
+  </footer>
+</body>
+</html>
