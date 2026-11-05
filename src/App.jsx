@@ -1,5 +1,6 @@
-import React, { useState, lazy, Suspense } from 'react'
+import React, { useState, useCallback, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
 import './index.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -8,6 +9,8 @@ import ScrollProgress from './components/ScrollProgress'
 import SEOEnhancement from './components/SEOEnhancement'
 import Loader from './components/Loader'
 import CookieConsent from './components/CookieConsent'
+import CommandPalette from './components/CommandPalette'
+import EasterEgg from './components/EasterEgg'
 import Reveal from './components/motion/Reveal'
 
 // Lazy load route components for performance optimization
@@ -48,6 +51,8 @@ const RouteLoader = () => (
 
 function App() {
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
   // Shared projects data - defined once and passed to both components
   const [projectsData] = useState([
     {
@@ -218,10 +223,13 @@ function App() {
 
   return (
     <Router>
+      {/* reducedMotion="user" makes every framer-motion reveal/layout effect skip
+          transforms for visitors who turn animations off in their OS settings. */}
+      <MotionConfig reducedMotion="user">
       <div className="antialiased bg-white text-ink min-h-screen animate-fade-in">
         <CustomCursor />
         <ScrollProgress />
-        <Header />
+        <Header onOpenPalette={openPalette} />
         <main role="main" id="main-content">
           <Suspense fallback={<RouteLoader />}>
             <Routes>
@@ -264,7 +272,10 @@ function App() {
         </main>
         <Footer />
         <CookieConsent />
+        <CommandPalette open={paletteOpen} setOpen={setPaletteOpen} projectsData={projectsData} />
+        <EasterEgg />
       </div>
+      </MotionConfig>
     </Router>
   )
 }

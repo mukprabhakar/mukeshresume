@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { trackEvent } from '../utils/analytics'
+import { useSpotlight } from '../utils/useSpotlight'
+import Portal from './Portal'
 import SectionHeading from './SectionHeading'
 import { Reveal, EASE } from './motion/Reveal'
 
@@ -8,6 +10,7 @@ import { Reveal, EASE } from './motion/Reveal'
    All project data, filters, NDA note, modal and links preserved from the original. */
 
 const Projects = ({ projectsData }) => {
+  const spotlight = useSpotlight()
   const [activeFilter, setActiveFilter] = useState('all')
   const [selectedProject, setSelectedProject] = useState(null)
 
@@ -46,6 +49,14 @@ const Projects = ({ projectsData }) => {
   const closeModal = () => {
     setSelectedProject(null)
   }
+
+  // esc closes the case-study modal
+  useEffect(() => {
+    if (!selectedProject) return undefined
+    const onKey = (event) => { if (event.key === 'Escape') closeModal() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedProject])
 
   return (
     <section id="work" className="section section-white" aria-labelledby="work-heading">
@@ -123,7 +134,9 @@ const Projects = ({ projectsData }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -14, scale: 0.97 }}
                 transition={{ duration: 0.45, delay: index * 0.06, ease: EASE }}
-                className="premium-card group overflow-hidden p-0 cursor-pointer"
+                className="premium-card card-spotlight group overflow-hidden p-0 cursor-pointer"
+                onMouseMove={spotlight.onMouseMove}
+                onMouseLeave={spotlight.onMouseLeave}
                 onClick={() => openModal(project)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -248,7 +261,8 @@ const Projects = ({ projectsData }) => {
       </div>
 
       {/* Project Modal */}
-      <AnimatePresence>
+      <Portal>
+        <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -357,7 +371,8 @@ const Projects = ({ projectsData }) => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </Portal>
     </section>
   )
 }

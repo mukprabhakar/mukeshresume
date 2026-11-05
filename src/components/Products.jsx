@@ -1,15 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import TiltCard from './TiltCard';
+import CountUp from './CountUp';
+import PageHero from './PageHero';
+import { Reveal, EASE } from './motion/Reveal';
+import { HoverShine } from './motion/StatBar';
+import { useSpotlight } from '../utils/useSpotlight';
 import { trackEvent } from '../utils/analytics';
 import SEOEnhancement from './SEOEnhancement';
 
-const Products = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('All');
+// Metrics are stored as display strings ("500+", "+40%"). Split them so the
+// number itself can count up while the decoration stays where it belongs.
+const splitMetric = (value) => {
+  const match = String(value).match(/^(\D*)(\d+)(.*)$/);
+  if (!match) return { prefix: '', number: null, suffix: String(value) };
+  return { prefix: match[1], number: Number(match[2]), suffix: match[3] };
+};
 
+const MetricValue = ({ value, className = '' }) => {
+  const { prefix, number, suffix } = splitMetric(value);
+  if (number === null) return <span className={className}>{value}</span>;
+  return (
+    <span className={className}>
+      <CountUp value={number} prefix={prefix} suffix={suffix} />
+    </span>
+  );
+};
+
+const Products = () => {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const spotlight = useSpotlight();
+
+  // Standalone route: always land at the top of the products page.
   useEffect(() => {
-    setIsVisible(true);
     window.scrollTo(0, 0);
   }, []);
 
@@ -85,6 +109,19 @@ const Products = () => {
     ? products
     : products.filter(p => p.category === activeFilter || (activeFilter === 'AI/ML' && p.title.includes('AI')));
 
+  // Numbers for the animated hero strip. `products` is a static list declared
+  // in this component, so plain derived constants are enough here.
+  const pricePoints = products
+    .map((product) => Number(String(product.price).replace(/[^\d.]/g, '')))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  const heroStats = [
+    { label: 'Products live', value: products.length },
+    { label: 'Categories', value: new Set(products.map((product) => product.category)).size },
+    pricePoints.length
+      ? { label: 'Starting at', value: Math.min(...pricePoints), prefix: '$', suffix: '/mo' }
+      : { label: 'Licensing', value: 'Custom' },
+  ];
+
   const handleProductClick = (productTitle, type) => {
     trackEvent('click', 'products_page', `${type}_${productTitle.toLowerCase().replace(/\s+/g, '_')}`);
   };
@@ -103,138 +140,165 @@ const Products = () => {
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/10 blur-[130px] animate-float" style={{ animationDelay: '3s' }} />
       </div>
 
-      <div className={`relative z-10 max-w-7xl mx-auto transition-all duration-1000 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+      <div className="relative z-10 max-w-7xl mx-auto">
         
         {/* Header Section */}
-        <div className="text-center mb-16 animate-scale-in">
-          <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-gray-800/50 border border-gray-700/50 backdrop-blur-md">
-            <span className="bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent text-sm font-bold tracking-wider uppercase">
-              Production Ready Solutions
-            </span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
-            Our Premium <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500 bg-clip-text text-transparent">Products</span>
-          </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            High-performance digital products built with robust architectures, modern user interfaces, and custom integrations to grow your business.
-          </p>
-        </div>
+        <PageHero
+          eyebrow="Production Ready Solutions"
+          title="Our Premium"
+          highlight="Products"
+          description="High-performance digital products built with robust architectures, modern user interfaces, and custom integrations to grow your business."
+          stats={heroStats}
+        />
 
-        {/* Category Filter */}
-        <div className="flex justify-center space-x-3 mb-16">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              id={`filter-btn-${cat.toLowerCase().replace('/', '-')}`}
-              onClick={() => {
-                setActiveFilter(cat);
-                trackEvent('click', 'products_filter', cat);
-              }}
-              className={`px-6 py-2.5 rounded-full font-semibold transition-all duration-300 text-sm border ${
-                activeFilter === cat
-                  ? 'bg-gradient-to-r from-emerald-500 to-blue-600 text-white border-transparent shadow-lg shadow-emerald-500/20'
-                  : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-white'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {/* Category Filter – the active pill slides from chip to chip */}
+        <Reveal direction="fade" className="mb-16 flex flex-wrap justify-center gap-3">
+          {categories.map((cat) => {
+            const active = activeFilter === cat;
+            return (
+              <button
+                key={cat}
+                id={`filter-btn-${cat.toLowerCase().replace('/', '-')}`}
+                onClick={() => {
+                  setActiveFilter(cat);
+                  trackEvent('click', 'products_filter', cat);
+                }}
+                className={`relative rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors duration-300 ${
+                  active
+                    ? 'border-transparent text-white'
+                    : 'border-zinc-800 bg-zinc-900/80 text-zinc-400 hover:border-zinc-700 hover:text-white'
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="product-filter-pill"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-blue-600 shadow-lg shadow-emerald-500/20"
+                    transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{cat}</span>
+              </button>
+            );
+          })}
+        </Reveal>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
-          {filteredProducts.map((product) => (
-            <TiltCard
-              key={product.id}
-              className={`group relative glass-effect rounded-[2.5rem] p-8 border border-zinc-800 hover:border-zinc-700 transition-all duration-500 hover:-translate-y-3 cursor-pointer overflow-hidden ${product.shadowColor} hover:shadow-2xl flex flex-col h-full`}
-            >
-              {/* Highlight Gradient Card Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`}></div>
+        <motion.div layout className="relative mb-24 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.map((product, index) => (
+              <motion.article
+                key={product.id}
+                layout
+                initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -18, scale: 0.95 }}
+                transition={{ duration: 0.5, ease: EASE, delay: Math.min(index, 5) * 0.08 }}
+                className="h-full"
+              >
+                <TiltCard className="h-full">
+                  <div
+                    {...spotlight}
+                    className={`group card-spotlight-dark glass-effect relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[2.5rem] border border-zinc-800 p-8 transition-all duration-500 hover:-translate-y-3 hover:border-zinc-700 hover:shadow-2xl ${product.shadowColor}`}
+                  >
+                    {/* Highlight Gradient Card Background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-500`}></div>
 
-              {/* Accent Line top */}
-              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${product.color} opacity-30 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                    {/* Accent Line top */}
+                    <div className={`absolute top-0 left-0 h-1 w-full bg-gradient-to-r ${product.color} opacity-30 group-hover:opacity-100 transition-opacity duration-500`}></div>
 
-              {/* Product Header */}
-              <div className="flex justify-between items-start mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-zinc-900/85 border border-zinc-800 flex items-center justify-center text-3xl shadow-md relative overflow-hidden group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-10`}></div>
-                  <span className="relative z-10">{product.icon}</span>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-black text-white">{product.price}</div>
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider">{product.period}</div>
-                </div>
-              </div>
+                    {/* Product Header */}
+                    <div className="relative z-10 flex justify-between items-start mb-6">
+                      <div className="w-14 h-14 rounded-2xl bg-zinc-900/85 border border-zinc-800 flex items-center justify-center text-3xl shadow-md relative overflow-hidden group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-10`}></div>
+                        <span className="relative z-10">{product.icon}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-black text-white">{product.price}</div>
+                        <div className="text-xs text-zinc-500 uppercase tracking-wider">{product.period}</div>
+                      </div>
+                    </div>
 
-              {/* Product Details */}
-              <div className="mb-4">
-                <span className="inline-block px-3 py-1 text-xs font-bold rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:text-emerald-400 transition-colors duration-300">
-                  {product.category}
-                </span>
-              </div>
+                    {/* Product Details */}
+                    <div className="relative z-10 mb-4">
+                      <span className="inline-block px-3 py-1 text-xs font-bold rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:text-emerald-400 transition-colors duration-300">
+                        {product.category}
+                      </span>
+                    </div>
 
-              <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-300 transition-all duration-300">
-                {product.title}
-              </h3>
-              <p className="text-emerald-400 text-sm font-semibold mb-4">{product.subtitle}</p>
+                    <h3 className="relative z-10 text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-300 transition-all duration-300">
+                      {product.title}
+                    </h3>
+                    <p className="relative z-10 text-emerald-400 text-sm font-semibold mb-4">{product.subtitle}</p>
 
-              <p className="text-zinc-400 text-sm leading-relaxed mb-6 flex-grow">
-                {product.description}
-              </p>
+                    <p className="relative z-10 text-zinc-400 text-sm leading-relaxed mb-6 flex-grow">
+                      {product.description}
+                    </p>
 
-              {/* Features List */}
-              <div className="mb-8">
-                <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Key Highlights</h4>
-                <ul className="space-y-2.5">
-                  {product.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start text-xs text-zinc-300">
-                      <svg className="w-4 h-4 text-emerald-400 mr-2.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                    {/* Features List */}
+                    <div className="relative z-10 mb-8">
+                      <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Key Highlights</h4>
+                      <ul className="space-y-2.5">
+                        {product.features.map((feature, idx) => (
+                          <motion.li
+                            key={feature}
+                            initial={{ opacity: 0, x: -12 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true, margin: '-40px' }}
+                            transition={{ duration: 0.35, ease: EASE, delay: 0.2 + idx * 0.07 }}
+                            className="flex items-start text-xs text-zinc-300"
+                          >
+                            <svg className="w-4 h-4 text-emerald-400 mr-2.5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {feature}
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </div>
 
-              {/* Footer Impact Metric */}
-              <div className="pt-4 border-t border-zinc-800/80 mb-6 flex items-center justify-between">
-                <span className="text-xs text-zinc-500 font-medium">{product.metrics.label}</span>
-                <span className="text-sm font-bold text-emerald-400">{product.metrics.value}</span>
-              </div>
+                    {/* Footer Impact Metric */}
+                    <div className="relative z-10 pt-4 border-t border-zinc-800/80 mb-6 flex items-center justify-between">
+                      <span className="text-xs text-zinc-500 font-medium">{product.metrics.label}</span>
+                      <MetricValue value={product.metrics.value} className="text-sm font-bold text-emerald-400" />
+                    </div>
 
-              {/* Action CTA Buttons */}
-              <div className="grid grid-cols-2 gap-3 mt-auto">
-                <a
-                  href={product.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id={`cta-src-${product.id}`}
-                  onClick={() => handleProductClick(product.title, 'source_code')}
-                  className="py-3 px-4 rounded-xl text-center text-xs font-bold bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700 transition-all"
-                >
-                  Source Code
-                </a>
-                <a
-                  href={product.demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  id={`cta-demo-${product.id}`}
-                  onClick={() => handleProductClick(product.title, 'live_demo')}
-                  className={`py-3 px-4 rounded-xl text-center text-xs font-bold text-white bg-gradient-to-r ${product.color} shadow-lg shadow-black/35 hover:scale-[1.03] transition-all`}
-                >
-                  Live Preview
-                </a>
-              </div>
-            </TiltCard>
-          ))}
-        </div>
+                    {/* Action CTA Buttons */}
+                    <div className="relative z-10 grid grid-cols-2 gap-3 mt-auto">
+                      <a
+                        href={product.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        id={`cta-src-${product.id}`}
+                        onClick={() => handleProductClick(product.title, 'source_code')}
+                        className="py-3 px-4 rounded-xl text-center text-xs font-bold bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white border border-zinc-800 hover:border-zinc-700 transition-all"
+                      >
+                        Source Code
+                      </a>
+                      <a
+                        href={product.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        id={`cta-demo-${product.id}`}
+                        onClick={() => handleProductClick(product.title, 'live_demo')}
+                        className={`relative overflow-hidden py-3 px-4 rounded-xl text-center text-xs font-bold text-white bg-gradient-to-r ${product.color} shadow-lg shadow-black/35 hover:scale-[1.03] transition-all`}
+                      >
+                        <span className="relative z-10">Live Preview</span>
+                        <HoverShine />
+                      </a>
+                    </div>
+                  </div>
+                </TiltCard>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Contact/Inquiry Banner */}
-        <div className="max-w-5xl mx-auto relative animate-fadeIn" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+        <Reveal direction="scale" className="relative mx-auto max-w-5xl">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 rounded-[3rem] blur-xl opacity-40"></div>
           
-          <div className="relative glass-effect rounded-[3rem] p-12 border border-zinc-800 text-center overflow-hidden">
+          <div className="relative glass-effect rounded-[3rem] p-8 sm:p-12 border border-zinc-800 text-center overflow-hidden">
+            <HoverShine />
             <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-white">
               Need a Custom <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Software Product?</span>
             </h2>
@@ -254,10 +318,10 @@ const Products = () => {
               </span>
             </Link>
           </div>
-        </div>
+        </Reveal>
 
         {/* Return to Portfolio Link */}
-        <div className="mt-16 text-center">
+        <Reveal direction="fade" delay={0.1} className="mt-16 text-center">
           <Link
             to="/"
             onClick={() => trackEvent('click', 'products_page', 'back_home')}
@@ -268,7 +332,7 @@ const Products = () => {
             </svg>
             Return to Portfolio
           </Link>
-        </div>
+        </Reveal>
 
       </div>
     </div>

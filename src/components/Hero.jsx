@@ -105,6 +105,9 @@ const Hero = () => {
 
     const particles = []
     const particleCount = window.innerWidth < 768 ? 36 : 90
+    /* Pointer field: particles dodge the cursor, link to it, and scatter on click */
+    const stage = canvas.parentElement || canvas
+    const pointer = { x: -9999, y: -9999, active: false }
 
     class Particle {
       constructor() {
@@ -113,10 +116,25 @@ const Hero = () => {
         this.size = Math.random() * 2.2 + 0.5
         this.speedX = Math.random() * 0.8 - 0.4
         this.speedY = Math.random() * 0.8 - 0.4
+        this.baseSpeedX = this.speedX
+        this.baseSpeedY = this.speedY
         this.opacity = Math.random() * 0.5 + 0.1
         this.color = Math.random() > 0.55 ? '227, 30, 36' : '255, 255, 255'
       }
       update() {
+        if (pointer.active) {
+          const dx = this.x - pointer.x
+          const dy = this.y - pointer.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 130 && dist > 0.5) {
+            const force = (1 - dist / 130) * 1.7
+            this.x += (dx / dist) * force
+            this.y += (dy / dist) * force
+          }
+        }
+        /* ease burst velocity back to the particle's own drift pace */
+        this.speedX += (this.baseSpeedX - this.speedX) * 0.02
+        this.speedY += (this.baseSpeedY - this.speedY) * 0.02
         this.x += this.speedX
         this.y += this.speedY
         if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX
@@ -131,6 +149,36 @@ const Hero = () => {
     }
 
     for (let i = 0; i < particleCount; i++) particles.push(new Particle())
+
+    const localPoint = (event) => {
+      const rect = canvas.getBoundingClientRect()
+      return { x: event.clientX - rect.left, y: event.clientY - rect.top }
+    }
+
+    const onPointerMove = (event) => {
+      const point = localPoint(event)
+      pointer.x = point.x
+      pointer.y = point.y
+      pointer.active = true
+    }
+    const onPointerLeave = () => {
+      pointer.active = false
+      pointer.x = -9999
+      pointer.y = -9999
+    }
+    const onPointerDown = (event) => {
+      const point = localPoint(event)
+      particles.forEach((particle) => {
+        const dx = particle.x - point.x
+        const dy = particle.y - point.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 190 && dist > 0.5) {
+          const push = (1 - dist / 190) * 3.4
+          particle.speedX += (dx / dist) * push
+          particle.speedY += (dy / dist) * push
+        }
+      })
+    }
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -152,12 +200,38 @@ const Hero = () => {
         particles[i].update()
         particles[i].draw()
       }
+      if (pointer.active) {
+        for (let i = 0; i < particles.length; i++) {
+          const dx = particles[i].x - pointer.x
+          const dy = particles[i].y - pointer.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          if (distance < 170) {
+            ctx.strokeStyle = `rgba(227, 30, 36, ${0.32 * (1 - distance / 170)})`
+            ctx.lineWidth = 0.8
+            ctx.beginPath()
+            ctx.moveTo(pointer.x, pointer.y)
+            ctx.lineTo(particles[i].x, particles[i].y)
+            ctx.stroke()
+          }
+        }
+        ctx.fillStyle = 'rgba(227, 30, 36, 0.9)'
+        ctx.beginPath()
+        ctx.arc(pointer.x, pointer.y, 2.6, 0, Math.PI * 2)
+        ctx.fill()
+      }
       rafId = requestAnimationFrame(animate)
     }
     animate()
 
+    stage.addEventListener('pointermove', onPointerMove, { passive: true })
+    stage.addEventListener('pointerleave', onPointerLeave)
+    stage.addEventListener('pointerdown', onPointerDown, { passive: true })
+
     return () => {
       window.removeEventListener('resize', resizeCanvas)
+      stage.removeEventListener('pointermove', onPointerMove)
+      stage.removeEventListener('pointerleave', onPointerLeave)
+      stage.removeEventListener('pointerdown', onPointerDown)
       cancelAnimationFrame(rafId)
     }
   }, [])
@@ -337,7 +411,7 @@ const Hero = () => {
                   alt="Mukesh Pal – Full-Stack Developer, Software Engineer and AI Agent Developer"
                   width="340"
                   height="340"
-                  fetchPriority="high"
+                  loading="eager"
                   decoding="async"
                   className="w-full h-full object-cover"
                 />

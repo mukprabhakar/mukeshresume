@@ -2,10 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { trackEvent } from '../utils/analytics'
+import { useSpotlight } from '../utils/useSpotlight'
 import SectionHeading from './SectionHeading'
 import { Reveal, EASE } from './motion/Reveal'
 
 const ClientsSection = () => {
+  const spotlight = useSpotlight()
   const clients = [
     {
      id: 1,
@@ -91,7 +93,9 @@ const ClientsSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.5, delay: (ci % 3) * 0.1, ease: EASE }}
-              className="group premium-card rounded-2xl p-6 sm:p-8 cursor-pointer overflow-hidden"
+              className="group premium-card card-spotlight rounded-2xl p-6 sm:p-8 cursor-pointer overflow-hidden"
+              onMouseMove={spotlight.onMouseMove}
+              onMouseLeave={spotlight.onMouseLeave}
               onClick={() => handleClientClick(client.name, client.url)}
             >
               {/* Gradient Background on Hover */}

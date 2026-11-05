@@ -1,10 +1,21 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { trackEvent } from '../utils/analytics'
 import TiltCard from './TiltCard'
+import Portal from './Portal'
 import SEOEnhancement from './SEOEnhancement'
 
 const AllProjects = ({ projectsData }) => {
   const [selectedProject, setSelectedProject] = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Deep links from the ⌘K palette: /all-projects?project=<id> opens the case study
+  useEffect(() => {
+    const projectId = Number(searchParams.get('project'))
+    if (!projectId) return
+    const match = projectsData.find((project) => project.id === projectId)
+    if (match) setSelectedProject(match)
+  }, [searchParams, projectsData])
 
   const openModal = (project) => {
     setSelectedProject(project)
@@ -12,9 +23,18 @@ const AllProjects = ({ projectsData }) => {
     trackEvent('click', 'all_projects', `view_project_${project.title}`)
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setSelectedProject(null)
-  }
+    if (searchParams.get('project')) setSearchParams({}, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  // esc closes the case-study modal
+  useEffect(() => {
+    if (!selectedProject) return undefined
+    const onKey = (event) => { if (event.key === 'Escape') closeModal() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedProject, closeModal])
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gradient-to-br from-zinc-900 to-zinc-800">
@@ -164,6 +184,7 @@ const AllProjects = ({ projectsData }) => {
       </div>
 
       {/* Project Modal */}
+      <Portal>
       {selectedProject && (
         <div
           className="fixed inset-0 bg-zinc-900/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in"
@@ -267,6 +288,7 @@ const AllProjects = ({ projectsData }) => {
           </div>
         </div>
       )}
+      </Portal>
     </div>
   )
 }

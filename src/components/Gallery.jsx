@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { trackEvent } from '../utils/analytics'
+import Portal from './Portal'
 import SEOEnhancement from './SEOEnhancement'
 
 const Gallery = () => {
@@ -136,6 +137,14 @@ const Gallery = () => {
   const closeModal = () => {
     setSelectedImage(null)
   }
+
+  // esc closes the lightbox
+  useEffect(() => {
+    if (!selectedImage) return undefined
+    const onKey = (event) => { if (event.key === 'Escape') closeModal() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedImage])
 
   // Download image function
   const downloadImage = async (imageUrl, imageTitle) => {
@@ -374,6 +383,7 @@ const Gallery = () => {
       </div>
 
       {/* Enhanced Modal (Glassmorphism & Cinematic View) */}
+      <Portal>
       {selectedImage && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-12"
@@ -463,6 +473,7 @@ const Gallery = () => {
           </div>
         </div>
       )}
+      </Portal>
     </div>
   )
 }

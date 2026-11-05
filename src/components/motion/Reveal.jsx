@@ -80,9 +80,9 @@ export function StaggerGroup({ children, className = '', stagger = 0.12, delay =
   )
 }
 
-export function StaggerItem({ children, className = '' }) {
+export function StaggerItem({ children, className = '', ...rest }) {
   return (
-    <motion.div className={className} variants={fadeUp} style={{ willChange: 'transform, opacity' }}>
+    <motion.div className={className} variants={fadeUp} style={{ willChange: 'transform, opacity' }} {...rest}>
       {children}
     </motion.div>
   )

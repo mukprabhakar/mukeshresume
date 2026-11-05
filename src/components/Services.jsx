@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { trackEvent } from '../utils/analytics'
+import { useSpotlight } from '../utils/useSpotlight'
 import SectionHeading from './SectionHeading'
 import { Reveal, EASE } from './motion/Reveal'
 
@@ -8,6 +9,7 @@ import { Reveal, EASE } from './motion/Reveal'
    All packages, prices, features, process steps and CTA banner preserved. */
 
 const Services = () => {
+  const spotlight = useSpotlight()
   const services = [
     {
       id: 1,
@@ -103,7 +105,9 @@ const Services = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.55, delay: index * 0.1, ease: EASE }}
-              className={`premium-card relative rounded-3xl p-7 sm:p-8 flex flex-col ${service.popular ? 'border-brand/40 shadow-red-glow md:scale-105 z-10' : ''}`}
+              className={`premium-card card-spotlight relative rounded-3xl p-7 sm:p-8 flex flex-col ${service.popular ? 'border-brand/40 shadow-red-glow md:scale-105 z-10' : ''}`}
+              onMouseMove={spotlight.onMouseMove}
+              onMouseLeave={spotlight.onMouseLeave}
             >
               {service.popular && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-red-glow">
