@@ -240,7 +240,8 @@ Find the number of ways to draw $k$ non-overlapping line segments (endpoints may
 Fix the rightmost point $x = i-1$: either it is unused ($dp[i-1][j]$) or it serves as the right endpoint of the $j$-th segment, allowing the remaining $j-1$ segments to be placed freely on the remaining left points. A running prefix sum makes the transition $O(1)$.
 <h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⚙️ Algorithm</h3>
 1. Allocate </em><em>INLINE</em>CODE<em>92</em><em> with base case </em><em>INLINE</em>CODE<em>93</em><em>.
-2. For each $j$ from $1$ to $k$:<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li>Initialize </em><em>INLINE</em>CODE<em>94</em><em>.</li><li>For each $i$ from $2$ to $n$:</li><li></em><em>INLINE</em>CODE<em>95</em><em></li><li></em><em>INLINE</em>CODE<em>96</em><em></li></ul>
+2. For each $j$ from $1$ to $k$:
+<ul style="line-height: 1.7; color: #d4d4d8; padding-left: 1.5rem; margin-bottom: 1.5rem;"><li>Initialize </em><em>INLINE</em>CODE<em>94</em><em>.</li><li>For each $i$ from $2$ to $n$:</li><li></em><em>INLINE</em>CODE<em>95</em><em></li><li></em><em>INLINE</em>CODE<em>96</em><em></li></ul>
 3. Return </em><em>INLINE</em>CODE<em>97</em><em>.
 <h3 style="color: #ffffff; margin-top: 1.5rem; font-size: 1.3rem; font-weight: 700;">⏱️ Complexity</h3>
 Time: $O(n \cdot k)$  
